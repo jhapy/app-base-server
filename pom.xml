@@ -494,26 +494,6 @@
 
   <repositories>
     <repository>
-      <id>nexus-jhapy-releases</id>
-      <url>https://nexus.jhapy.com/repository/releases/</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-    <repository>
-      <id>nexus-jhapy-snapshots</id>
-      <url>https://nexus.jhapy.com/repository/snapshots/</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </repository>
-    <repository>
       <id>sonatype-snapshot</id>
       <url>https://oss.sonatype.org/content/repositories/snapshots</url>
       <releases>
