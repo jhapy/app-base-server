@@ -3,9 +3,9 @@
 <settings>
   <servers>
     <server>
-      <id>nexus-jhapy-snapshots</id>
-      <username>${NEXUS_USERNAME}</username>
-      <password>${NEXUS_PASSWORD}</password>
+      <id>ossrh</id>
+      <username>${ossrh_username}</username>
+      <password>${ossrh_password}</password>
     </server>
   </servers>
 </settings>
