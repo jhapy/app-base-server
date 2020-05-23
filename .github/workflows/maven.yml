@@ -23,12 +23,19 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
       - name: Build with Maven
-        run: mvn -Dmaven.test.skip -s .settings.xml -Dmaven.javadoc.skip -Dossrh_username=${{secrets.ossrh_username}} -Dossrh_password=${{secrets.ossrh_password}} -DNEXUS_USERNAME=${{secrets.NEXUS_USERNAME}} -DNEXUS_PASSWORD=${{secrets.NEXUS_PASSWORD}} --file pom.xml deploy
+        run: mvn -Dmaven.test.skip -s .settings.xml -Dmaven.javadoc.skip -Dossrh_username=${{secrets.ossrh_username}} -Dossrh_password=${{secrets.ossrh_password}} --file pom.xml deploy
 
       - name: Repository Dispatch
         uses: peter-evans/repository-dispatch@v1
         with:
-          token: ${{ secrets.REPO_ACCESS_TOKEN }}
+          token: ${{ secrets.repos_access_token }}
           repository: jhapy/app-backend-server
           event-type: base-server-build
           client-payload: '{"ref": "${{ github.ref }}", "sha": "${{ github.sha }}"}'
+      - name: Slack Success
+        if: always()
+        uses: kpritam/slack-job-status-action@v1
+        with:
+          job-status: ${{ job.status }}
+          slack-bot-token: ${{ secrets.slack_bot_token }}
+          channel: framework-builds
