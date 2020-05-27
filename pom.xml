@@ -72,6 +72,8 @@
     <mongobee.version>0.13</mongobee.version>
 
     <javers-spring-boot-starter-mongo.version>5.8.13</javers-spring-boot-starter-mongo.version>
+
+    <hibernate.version>5.4.12.Final</hibernate.version>
   </properties>
 
   <dependencies>
@@ -248,21 +250,14 @@
 
     <!-- Swagger2 dependency -->
     <dependency>
-      <groupId>io.springfox</groupId>
-      <artifactId>springfox-swagger2</artifactId>
-      <version>${springfox-swagger2.version}</version>
+      <groupId>org.springdoc</groupId>
+      <artifactId>springdoc-openapi-ui</artifactId>
+      <version>1.3.4</version>
     </dependency>
-
     <dependency>
-      <groupId>io.springfox</groupId>
-      <artifactId>springfox-swagger-ui</artifactId>
-      <version>${springfox-swagger2.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>io.springfox</groupId>
-      <artifactId>springfox-bean-validators</artifactId>
-      <version>${springfox-swagger2.version}</version>
+      <groupId>org.springdoc</groupId>
+      <artifactId>springdoc-openapi-security</artifactId>
+      <version>1.3.4</version>
     </dependency>
     <!-- End Swagger2 -->
 
@@ -348,6 +343,12 @@
       <version>${simplelatlng.version}</version>
     </dependency>
     <!-- End of Utils -->
+
+    <dependency>
+    <groupId>org.hibernate</groupId>
+    <artifactId>hibernate-jpamodelgen</artifactId>
+    <version>${hibernate.version}</version>
+    </dependency>
 
     <!-- Testing -->
     <dependency>
