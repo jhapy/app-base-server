@@ -1,3 +1,21 @@
+/*
+ * Copyright 2020-2020 the original author or authors from the JHapy project.
+ *
+ * This file is part of the JHapy project, see https://www.jhapy.org/ for more information.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.jhapy.baseserver.aop.logging;
 
 import java.util.Arrays;
@@ -6,10 +24,10 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Pointcut;
-import org.springframework.core.env.Environment;
-import org.springframework.core.env.Profiles;
 import org.jhapy.commons.utils.HasLogger;
 import org.jhapy.commons.utils.SpringProfileConstants;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 
 /**
  * Aspect for logging execution of service and repository Spring components.
@@ -49,7 +67,8 @@ public class LoggingAspect implements HasLogger {
   }
 
   @Pointcut("!execution(@org.jhapy.baseserver.aop.logging.NoLog * *(..))")
-  public void methodAnnotatedWithNoLog() {}
+  public void methodAnnotatedWithNoLog() {
+  }
 
   /**
    * Advice that logs methods throwing exceptions.
@@ -64,7 +83,7 @@ public class LoggingAspect implements HasLogger {
 
     if (env.acceptsProfiles(Profiles.of(SpringProfileConstants.SPRING_PROFILE_DEVELOPMENT))) {
       logger(sourceClass)
-          .error(loggerPrefix + ">>> Exception in {} with cause = \'{}\' and exception = \'{}\'",
+          .error(loggerPrefix + ">>> Exception in {} with cause = '{}' and exception = '{}'",
               joinPoint.getSignature().toShortString(),
               e.getCause() != null ? e.getCause() : "NULL",
               e.getMessage(), e);
@@ -101,7 +120,8 @@ public class LoggingAspect implements HasLogger {
       long duration = end - start;
       if (duration > 1000) {
         logger(sourceClass).warn(
-            loggerPrefix + ">>> Service or EndPoint Method: " + joinPoint.getSignature().getName() + " took long ... "
+            loggerPrefix + ">>> Service or EndPoint Method: " + joinPoint.getSignature().getName()
+                + " took long ... "
                 + duration + " ms");
       }
       if (logger().isTraceEnabled()) {
@@ -132,7 +152,8 @@ public class LoggingAspect implements HasLogger {
       long duration = end - start;
       if (duration > 1000) {
         logger(sourceClass).warn(
-            loggerPrefix + ">>> Repository Method: " + joinPoint.getSignature().getName() + " took long ... "
+            loggerPrefix + ">>> Repository Method: " + joinPoint.getSignature().getName()
+                + " took long ... "
                 + duration + " ms");
       }
       return result;

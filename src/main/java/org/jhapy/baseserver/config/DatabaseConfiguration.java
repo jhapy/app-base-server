@@ -16,25 +16,28 @@
  * limitations under the License.
  */
 
-package org.jhapy.baseserver.client;
+package org.jhapy.baseserver.config;
 
-import org.jhapy.dto.domain.notification.CloudDataMessage;
+import com.zaxxer.hikari.HikariDataSource;
+import io.micrometer.core.instrument.MeterRegistry;
+import javax.annotation.PostConstruct;
+import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jms.core.JmsTemplate;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Configuration;
 
-/**
- * @author jHapy Lead Dev.
- * @version 1.0
- * @since 2019-07-03
- */
-@Component
-public class CloudDataMessageQueue {
+@Configuration
+public class DatabaseConfiguration {
 
   @Autowired
-  JmsTemplate jmsTemplate;
+  private DataSource dataSource;
 
-  public void sendMessage(final CloudDataMessage cloudDataMessage) {
-    jmsTemplate.send("cloudData", session -> session.createObjectMessage(cloudDataMessage));
+  @Autowired
+  private MeterRegistry meterRegistry;
+
+  @PostConstruct
+  public void setUpHikariWithMetrics() {
+    if (dataSource instanceof HikariDataSource) {
+      ((HikariDataSource) dataSource).setMetricRegistry(meterRegistry);
+    }
   }
 }
