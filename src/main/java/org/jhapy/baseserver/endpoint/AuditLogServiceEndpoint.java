@@ -25,6 +25,7 @@ import org.jhapy.dto.domain.audit.AuditLog;
 import org.jhapy.dto.serviceQuery.ServiceResult;
 import org.jhapy.dto.serviceQuery.auditLog.CountAuditLogQuery;
 import org.jhapy.dto.serviceQuery.auditLog.FindAuditLogQuery;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -38,6 +39,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @version 1.0
  * @since 2019-06-05
  */
+@ConditionalOnBean(name = "javersMongoAutoConfiguration")
 @RestController
 @RequestMapping("/auditLogService")
 public class AuditLogServiceEndpoint extends BaseEndpoint {

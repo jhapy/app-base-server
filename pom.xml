@@ -72,7 +72,7 @@
     <logstash-gelf.version>1.13.0</logstash-gelf.version>
     <springfox-swagger2.version>2.9.2</springfox-swagger2.version>
 
-    <javers-spring-boot-starter-mongo.version>5.9.2</javers-spring-boot-starter-mongo.version>
+    <javers-spring-boot-starter-mongo.version>5.10.0</javers-spring-boot-starter-mongo.version>
 
     <hibernate.version>5.4.12.Final</hibernate.version>
 
@@ -166,6 +166,10 @@
       <artifactId>problem-spring-web</artifactId>
       <version>${problem-spring-web.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-validation</artifactId>
+    </dependency>
 
     <!-- Hazelcast dependencies -->
     <dependency>
@@ -191,6 +195,7 @@
       <groupId>org.javers</groupId>
       <artifactId>javers-spring-boot-starter-mongo</artifactId>
       <version>${javers-spring-boot-starter-mongo.version}</version>
+      <scope>provided</scope>
     </dependency>
     <!--dependency>
       <groupId>org.bitsofinfo</groupId>
