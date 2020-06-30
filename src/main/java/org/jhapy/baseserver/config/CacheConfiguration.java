@@ -63,6 +63,8 @@ public class CacheConfiguration implements DisposableBean, HasLogger {
   public CacheConfiguration(Environment env, ServerProperties serverProperties,
       DiscoveryClient discoveryClient,
       AppProperties appProperties) {
+    String loggerPrefix = getLoggerPrefix("CacheConfiguration");
+    logger().info(loggerPrefix + "Startup");
     this.env = env;
     this.serverProperties = serverProperties;
     this.discoveryClient = discoveryClient;
