@@ -25,6 +25,7 @@ import org.javers.core.Changes;
 import org.javers.core.Javers;
 import org.javers.repository.jql.QueryBuilder;
 import org.jhapy.dto.domain.audit.AuditLog;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -35,6 +36,7 @@ import org.springframework.stereotype.Service;
  * @version 1.0
  * @since 20/04/2020
  */
+@ConditionalOnBean(name = "javersMongoAutoConfiguration")
 @Service
 public class AuditLogServiceImpl implements AuditLogService {
 

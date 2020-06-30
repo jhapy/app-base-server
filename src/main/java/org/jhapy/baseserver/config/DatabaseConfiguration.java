@@ -23,8 +23,10 @@ import io.micrometer.core.instrument.MeterRegistry;
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 
+@ConditionalOnProperty("spring.datasource")
 @Configuration
 public class DatabaseConfiguration {
 
