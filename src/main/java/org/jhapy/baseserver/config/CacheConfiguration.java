@@ -45,7 +45,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
 
-@ConditionalOnProperty("spring.datasource")
+@ConditionalOnProperty("spring.datasource.url")
 @Configuration
 @EnableCaching
 public class CacheConfiguration implements DisposableBean, HasLogger {
