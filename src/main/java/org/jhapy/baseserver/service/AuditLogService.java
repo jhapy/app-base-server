@@ -29,7 +29,7 @@ import org.springframework.data.domain.Pageable;
  */
 public interface AuditLogService {
 
-  Page<AuditLog> getAudit(String className, Long id, Pageable pageable);
+  Page<AuditLog> getAudit(String className, String id, Pageable pageable);
 
-  long countAudit(String className, Long id);
+  long countAudit(String className, String id);
 }

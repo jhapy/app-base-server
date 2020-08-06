@@ -24,8 +24,10 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.javers.core.Changes;
 import org.javers.core.Javers;
 import org.javers.repository.jql.QueryBuilder;
+import org.jhapy.commons.utils.HasLogger;
 import org.jhapy.dto.domain.audit.AuditLog;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -36,9 +38,9 @@ import org.springframework.stereotype.Service;
  * @version 1.0
  * @since 20/04/2020
  */
-@ConditionalOnBean(name = "javersMongoAutoConfiguration")
+@ConditionalOnProperty(prefix = "javers", name = "enabled")
 @Service
-public class AuditLogServiceImpl implements AuditLogService {
+public class AuditLogServiceImpl implements AuditLogService, HasLogger {
 
   private final Javers javers;
 
@@ -47,10 +49,14 @@ public class AuditLogServiceImpl implements AuditLogService {
   }
 
   @Override
-  public Page<AuditLog> getAudit(String className, Long id, Pageable pageable) {
+  public Page<AuditLog> getAudit(String className, String id, Pageable pageable) {
+    String loggerPrefix = getLoggerPrefix("getAudit", className, id, pageable);
+
     Changes changes = javers.findChanges(QueryBuilder.byInstanceId(id, className)
-        .withNewObjectChanges().skip((int) pageable.getOffset()).limit(pageable.getPageSize())
+        .withNewObjectChanges().skip((int) pageable.getOffset())
         .build());
+
+    logger().debug(loggerPrefix+"Found changes = " + changes.size() );
 
     AtomicLong index = new AtomicLong(0);
     List<AuditLog> auditLogs = new ArrayList<>();
@@ -59,7 +65,7 @@ public class AuditLogServiceImpl implements AuditLogService {
         byObject.get().forEach(change -> {
           AuditLog auditLog = new AuditLog();
           auditLog.setId(index.incrementAndGet());
-          auditLog.setCommit(byCommit.getCommit().getId().toString());
+          auditLog.setCommit(byCommit.getCommit().getId().value());
           auditLog.setAuthor(byCommit.getCommit().getAuthor());
           auditLog.setDate(byCommit.getCommit().getCommitDate());
           auditLog.setChange(change.toString());
@@ -67,12 +73,20 @@ public class AuditLogServiceImpl implements AuditLogService {
         });
       });
     });
+
+    logger().debug(loggerPrefix+"Audit Log size = " + auditLogs.size() );
+
     return new PageImpl(auditLogs, pageable, changes.size());
   }
 
   @Override
-  public long countAudit(String className, Long id) {
-    return javers.findChanges(QueryBuilder.byInstanceId(id, className)
+  public long countAudit(String className, String id) {
+    String loggerPrefix = getLoggerPrefix("countAudit", className, id);
+
+    long count = javers.findChanges(QueryBuilder.byInstanceId(id, className)
         .withNewObjectChanges().build()).size();
+    logger().debug(loggerPrefix+"Count = " + count);
+
+    return count;
   }
 }

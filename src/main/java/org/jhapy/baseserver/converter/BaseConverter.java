@@ -24,6 +24,7 @@ import org.jhapy.baseserver.domain.graphdb.Comment;
 import org.jhapy.commons.utils.OrikaBeanMapper;
 import org.jhapy.dto.domain.BaseEntity;
 import org.jhapy.dto.domain.EntityTranslation;
+import org.jhapy.dto.domain.audit.AuditLog;
 import org.jhapy.dto.utils.Page;
 import org.jhapy.dto.utils.StoredFile;
 import org.springframework.context.annotation.Bean;
@@ -47,10 +48,7 @@ public class BaseConverter {
   @Bean
   public void baseConverters() {
     orikaBeanMapper.addMapper(Comment.class, org.jhapy.dto.domain.Comment.class);
-    orikaBeanMapper.addMapper(org.jhapy.dto.domain.Comment.class, Comment.class);
 
-    orikaBeanMapper
-        .addMapper(EntityTranslation.class, EntityTranslation.class);
     orikaBeanMapper
         .addMapper(EntityTranslation.class, EntityTranslation.class);
 
@@ -105,9 +103,10 @@ public class BaseConverter {
           }
         }).register();
 
-    orikaBeanMapper.addMapper(PageImpl.class, Page.class);
     orikaBeanMapper.addMapper(Page.class, PageImpl.class);
 
     orikaBeanMapper.addMapper(StoredFile.class, StoredFile.class);
+
+    orikaBeanMapper.addMapper(AuditLog.class, AuditLog.class);
   }
 }
