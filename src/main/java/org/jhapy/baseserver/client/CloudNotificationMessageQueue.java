@@ -19,8 +19,8 @@
 package org.jhapy.baseserver.client;
 
 import org.jhapy.dto.domain.notification.CloudNotificationMessage;
+import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
 
 /**
@@ -32,10 +32,10 @@ import org.springframework.stereotype.Component;
 public class CloudNotificationMessageQueue {
 
   @Autowired
-  JmsTemplate jmsTemplate;
+  AmqpTemplate jmsTemplate;
 
   public void sendMessage(final CloudNotificationMessage cloudNotificationMessage) {
-    jmsTemplate.send("cloudNotification",
-        session -> session.createObjectMessage(cloudNotificationMessage));
+    jmsTemplate.convertAndSend("cloudNotification",
+        cloudNotificationMessage);
   }
 }

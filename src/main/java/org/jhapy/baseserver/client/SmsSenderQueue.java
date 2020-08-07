@@ -19,8 +19,8 @@
 package org.jhapy.baseserver.client;
 
 import org.jhapy.dto.domain.notification.Sms;
+import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
 
 /**
@@ -32,9 +32,9 @@ import org.springframework.stereotype.Component;
 public class SmsSenderQueue {
 
   @Autowired
-  private JmsTemplate jmsTemplate;
+  private AmqpTemplate jmsTemplate;
 
   public void sendMessage(final Sms smsMessage) {
-    jmsTemplate.send("sms", session -> session.createObjectMessage(smsMessage));
+    jmsTemplate.convertAndSend("sms", smsMessage);
   }
 }
