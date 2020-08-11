@@ -20,6 +20,7 @@ package org.jhapy.baseserver.service;
 
 
 import org.jhapy.baseserver.domain.nosqldb.BaseEntity;
+import org.jhapy.baseserver.exception.ServiceException;
 import org.jhapy.dto.domain.exception.EntityNotFoundException;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,7 +35,7 @@ public interface CrudNosqldbService<T extends BaseEntity> {
   MongoRepository<T, String> getRepository();
 
   @Transactional
-  default T save(T entity) {
+  default T save(T entity) throws ServiceException {
     return getRepository().save(entity);
   }
 
