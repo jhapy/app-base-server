@@ -21,7 +21,6 @@ package org.jhapy.baseserver.config;
 import org.javers.spring.auditable.AuthorProvider;
 import org.jhapy.commons.config.Constants;
 import org.jhapy.commons.security.SecurityUtils;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

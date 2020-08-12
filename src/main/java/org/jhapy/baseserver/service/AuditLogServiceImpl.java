@@ -26,7 +26,6 @@ import org.javers.core.Javers;
 import org.javers.repository.jql.QueryBuilder;
 import org.jhapy.commons.utils.HasLogger;
 import org.jhapy.dto.domain.audit.AuditLog;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -56,7 +55,7 @@ public class AuditLogServiceImpl implements AuditLogService, HasLogger {
         .withNewObjectChanges().skip((int) pageable.getOffset())
         .build());
 
-    logger().debug(loggerPrefix+"Found changes = " + changes.size() );
+    logger().debug(loggerPrefix + "Found changes = " + changes.size());
 
     AtomicLong index = new AtomicLong(0);
     List<AuditLog> auditLogs = new ArrayList<>();
@@ -74,7 +73,7 @@ public class AuditLogServiceImpl implements AuditLogService, HasLogger {
       });
     });
 
-    logger().debug(loggerPrefix+"Audit Log size = " + auditLogs.size() );
+    logger().debug(loggerPrefix + "Audit Log size = " + auditLogs.size());
 
     return new PageImpl(auditLogs, pageable, changes.size());
   }
@@ -85,7 +84,7 @@ public class AuditLogServiceImpl implements AuditLogService, HasLogger {
 
     long count = javers.findChanges(QueryBuilder.byInstanceId(id, className)
         .withNewObjectChanges().build()).size();
-    logger().debug(loggerPrefix+"Count = " + count);
+    logger().debug(loggerPrefix + "Count = " + count);
 
     return count;
   }

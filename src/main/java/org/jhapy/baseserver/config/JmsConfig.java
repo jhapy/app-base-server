@@ -18,8 +18,6 @@
 
 package org.jhapy.baseserver.config;
 
-import org.springframework.context.annotation.Configuration;
-
 /**
  * @author jHapy Lead Dev.
  * @version 1.0
