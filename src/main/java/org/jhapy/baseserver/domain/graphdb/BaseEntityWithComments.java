@@ -22,8 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.neo4j.ogm.annotation.NodeEntity;
-import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.springframework.data.core.schema.Relationship;
 
 /**
  * @author jHapy Lead Dev.
@@ -32,7 +31,6 @@ import org.neo4j.ogm.annotation.Relationship;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@NodeEntity
 public abstract class BaseEntityWithComments extends BaseEntity {
 
   @Relationship("HAS_COMMENT")

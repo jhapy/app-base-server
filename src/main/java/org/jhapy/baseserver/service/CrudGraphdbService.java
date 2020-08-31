@@ -21,7 +21,7 @@ package org.jhapy.baseserver.service;
 
 import org.jhapy.baseserver.domain.graphdb.BaseEntity;
 import org.jhapy.dto.domain.exception.EntityNotFoundException;
-import org.springframework.data.neo4j.repository.Neo4jRepository;
+import org.neo4j.springframework.data.repository.Neo4jRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 /**

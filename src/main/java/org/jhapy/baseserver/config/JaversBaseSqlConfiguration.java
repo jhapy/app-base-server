@@ -19,22 +19,18 @@
 package org.jhapy.baseserver.config;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import java.util.Collections;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import org.javers.core.Javers;
 import org.javers.spring.auditable.AuthorProvider;
 import org.javers.spring.auditable.CommitPropertiesProvider;
-import org.javers.spring.auditable.aspect.JaversAuditableAspect;
 import org.javers.spring.auditable.aspect.JaversAuditableAspectAsync;
 import org.jhapy.commons.config.Constants;
 import org.jhapy.commons.security.SecurityUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
 /**
  * @author jHapy Lead Dev.
@@ -54,7 +50,8 @@ public class JaversBaseSqlConfiguration {
   public JaversAuditableAspectAsync javersAuditableAspectAsync(Javers javers,
       AuthorProvider authorProvider,
       CommitPropertiesProvider commitPropertiesProvider) {
-    return new JaversAuditableAspectAsync(javers, authorProvider, commitPropertiesProvider, javersAsyncAuditExecutor());
+    return new JaversAuditableAspectAsync(javers, authorProvider, commitPropertiesProvider,
+        javersAsyncAuditExecutor());
   }
 
   @Bean
