@@ -11,7 +11,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - run: echo Build for SHA = ${{ github.event.client_payload.sha }}, REF = ${{ github.event.client_payload.ref }}
+      - name: Slack Starting Build
+        if: always()
+        uses: kpritam/slack-job-status-action@v1
+        with:
+          job-status: Starting build for SHA = ${{ github.event.client_payload.sha }}, REF = ${{ github.event.client_payload.ref }}
+          slack-bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
+          channel: framework-builds
       - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.client_payload.ref }}
       - name: Set up JDK 1.14
         uses: actions/setup-java@v1
         with:
