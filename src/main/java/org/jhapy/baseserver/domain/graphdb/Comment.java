@@ -23,9 +23,8 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.jhapy.dto.utils.StoredFile;
-import org.neo4j.springframework.data.core.schema.Node;
-import org.neo4j.springframework.data.core.schema.Relationship;
-import org.springframework.data.annotation.Transient;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
 
 /**
  * A comment can be attached to anything
@@ -36,7 +35,7 @@ import org.springframework.data.annotation.Transient;
  */
 @Data
 @EqualsAndHashCode(callSuper = true, exclude = {"relatedEntity", "parent"})
-@Node("Comment")
+@NodeEntity
 public class Comment extends BaseEntity {
 
   /**
@@ -47,7 +46,8 @@ public class Comment extends BaseEntity {
   /**
    * List of attachments attached to the comment
    */
-  @Transient
+  @org.springframework.data.annotation.Transient
+  @org.neo4j.ogm.annotation.Transient
   private List<StoredFile> attachments = null;
 
   private List<String> attachmentIds = new ArrayList<>();

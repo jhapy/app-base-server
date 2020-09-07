@@ -24,9 +24,7 @@ import java.util.Map;
 import java.util.Set;
 import org.jhapy.baseserver.domain.graphdb.EntityTranslation;
 import org.jhapy.baseserver.domain.graphdb.EntityTranslations;
-import org.neo4j.driver.Value;
-import org.springframework.core.convert.TypeDescriptor;
-import org.springframework.core.convert.converter.GenericConverter;
+import org.neo4j.ogm.typeconversion.CompositeAttributeConverter;
 
 /**
  * @author jHapy Lead Dev.
@@ -34,7 +32,7 @@ import org.springframework.core.convert.converter.GenericConverter;
  * @since 10/28/19
  */
 public abstract class DefaultTranslationConverter implements
-    GenericConverter {
+    CompositeAttributeConverter<EntityTranslations> {
 
   private final String prefix;
 
@@ -43,24 +41,8 @@ public abstract class DefaultTranslationConverter implements
   }
 
   @Override
-  public Set<ConvertiblePair> getConvertibleTypes() {
-    Set<ConvertiblePair> convertiblePairs = new HashSet<>();
-    convertiblePairs.add(new ConvertiblePair(EntityTranslations.class, Value.class));
-    convertiblePairs.add(new ConvertiblePair(Value.class, EntityTranslations.class));
-    return convertiblePairs;
-  }
-
-  @Override
-  public Object convert(Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
-    if (EntityTranslations.class.isAssignableFrom(sourceType.getType())) {
-      return toGraphProperties((EntityTranslations) source);
-    } else {
-      return toEntityAttribute((Map<String, ?>) source);
-    }
-  }
-
-  public Object toGraphProperties(EntityTranslations translations) {
-    Map<String,String> result = new HashMap<>();
+  public Map<String, ?> toGraphProperties(EntityTranslations translations) {
+    Map<String, String> result = new HashMap<>();
     Map<String, EntityTranslation> entityValue = translations.getTranslations();
     if (entityValue != null) {
       entityValue.keySet().forEach(key -> {
@@ -73,6 +55,7 @@ public abstract class DefaultTranslationConverter implements
     return result;
   }
 
+  @Override
   public EntityTranslations toEntityAttribute(Map<String, ?> value) {
     Map<String, EntityTranslation> result = new HashMap<>();
     value.keySet().forEach(key -> {

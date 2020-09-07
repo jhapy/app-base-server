@@ -19,9 +19,9 @@
 package org.jhapy.baseserver.repository.graphdb;
 
 import org.jhapy.baseserver.domain.graphdb.Comment;
-import org.neo4j.springframework.data.repository.query.Query;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.neo4j.annotation.Query;
 
 /**
  * @author jHapy Lead Dev.
@@ -32,21 +32,26 @@ public interface CommentRepository extends BaseRepository<Comment> {
 
   @Query(value =
       "MATCH (m:Comment)-[:HAS_RELATED_ENTITY]->(p) "
-          + "WHERE NOT ((m)-[:HAS_PARENT]->()) AND id(p) = {relatedEntityId} RETURN m ORDER BY m.created DESC")
+          + "WHERE NOT ((m)-[:HAS_PARENT]->()) AND id(p) = {relatedEntityId} RETURN m ORDER BY m.created DESC",
+      countQuery = "MATCH (m:Comment)-[:HAS_RELATED_ENTITY]->(p) "
+          + " WHERE NOT ((m)-[:HAS_PARENT]->()) AND id(p) = {relatedEntityId} RETURN count(m)")
   Page<Comment> getRootComments(Long relatedEntityId, Pageable pageable);
 
   @Query(
-      value = "MATCH (m:Comment)-[:HAS_RELATED_ENTITY]->(p) "
-          + " WHERE NOT ((m)-[:HAS_PARENT]->()) AND id(p) = {relatedEntityId} RETURN count(m)", count = true)
+      "MATCH (m:Comment)-[:HAS_RELATED_ENTITY]->(p) "
+          + " WHERE NOT ((m)-[:HAS_PARENT]->()) AND id(p) = {relatedEntityId} RETURN count(m)")
   long countRootComments(Long relatedEntityId);
 
   @Query(value =
       "MATCH (m:Comment)-[:HAS_PARENT]->(n1:Comment) "
-          + "WHERE id(n1) = {parentId} RETURN m ORDER BY m.created DESC")
+          + "WHERE id(n1) = {parentId} RETURN m ORDER BY m.created DESC",
+      countQuery =
+          "MATCH (m:Comment)-[:HAS_PARENT]->(n1:Comment) "
+              + "WHERE id(n1) = {parentId} RETURN count(DISTINCT m)")
   Page<Comment> getCommentsFilterByParent(Long parentId, Pageable pageable);
 
   @Query(value =
       "MATCH (m:Comment)-[:HAS_PARENT]->(n1:Comment) "
-          + "WHERE id(n1) = {parentId} RETURN count(DISTINCT m)", count = true)
+          + "WHERE id(n1) = {parentId} RETURN count(DISTINCT m)")
   long countCommentsFilterByParent(Long parentId);
 }

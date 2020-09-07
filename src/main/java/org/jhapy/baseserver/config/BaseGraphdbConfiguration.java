@@ -24,10 +24,12 @@ import org.jhapy.baseserver.utils.DescriptionTranslationConverter;
 import org.jhapy.baseserver.utils.NameTranslationConverter;
 import org.jhapy.commons.utils.HasLogger;
 import org.neo4j.driver.Driver;
-import org.neo4j.springframework.data.core.convert.Neo4jConversions;
-import org.neo4j.springframework.data.core.transaction.Neo4jTransactionManager;
+import org.neo4j.ogm.session.Session;
+import org.neo4j.ogm.session.SessionFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.convert.converter.GenericConverter;
+import org.springframework.data.neo4j.transaction.Neo4jTransactionManager;
+import org.springframework.data.neo4j.conversion.*;
 
 /**
  * @author jHapy Lead Dev.
@@ -42,16 +44,12 @@ import org.springframework.core.convert.converter.GenericConverter;
 public class BaseGraphdbConfiguration implements HasLogger {
 
   @Bean(name = "graphdbTransactionManager")
-  public Neo4jTransactionManager transactionManager(Driver driver) {
-    return new Neo4jTransactionManager(driver);
+  public Neo4jTransactionManager transactionManager(SessionFactory sessionFactory) {
+    return new Neo4jTransactionManager(sessionFactory);
   }
 
   @Bean
-  public Neo4jConversions neo4jConversions() {
-    Set<GenericConverter> additionalConverters = Collections.emptySet();
-    additionalConverters.add(new NameTranslationConverter());
-    additionalConverters.add(new DescriptionTranslationConverter());
-
-    return new Neo4jConversions(additionalConverters);
+  public Session getSession(SessionFactory sessionFactory) {
+    return sessionFactory.openSession();
   }
 }
