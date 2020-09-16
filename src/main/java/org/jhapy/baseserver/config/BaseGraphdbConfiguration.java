@@ -18,18 +18,11 @@
 
 package org.jhapy.baseserver.config;
 
-import java.util.Collections;
-import java.util.Set;
-import org.jhapy.baseserver.utils.DescriptionTranslationConverter;
-import org.jhapy.baseserver.utils.NameTranslationConverter;
 import org.jhapy.commons.utils.HasLogger;
-import org.neo4j.driver.Driver;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.springframework.context.annotation.Bean;
-import org.springframework.core.convert.converter.GenericConverter;
 import org.springframework.data.neo4j.transaction.Neo4jTransactionManager;
-import org.springframework.data.neo4j.conversion.*;
 
 /**
  * @author jHapy Lead Dev.

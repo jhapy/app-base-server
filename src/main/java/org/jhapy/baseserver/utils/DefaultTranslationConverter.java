@@ -19,9 +19,7 @@
 package org.jhapy.baseserver.utils;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import org.jhapy.baseserver.domain.graphdb.EntityTranslation;
 import org.jhapy.baseserver.domain.graphdb.EntityTranslations;
 import org.neo4j.ogm.typeconversion.CompositeAttributeConverter;
