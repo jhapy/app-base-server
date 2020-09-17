@@ -19,6 +19,7 @@
 package org.jhapy.baseserver.service;
 
 
+import java.time.LocalDate;
 import org.jhapy.baseserver.domain.relationaldb.BaseEntity;
 import org.jhapy.dto.domain.exception.EntityNotFoundException;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -65,5 +66,28 @@ public interface CrudRelationalService<T extends BaseEntity> {
 
   default Iterable<T> findAll() {
     return getRepository().findAll();
+  }
+
+  default boolean hasChanged(Object previousValue, Object currentValue) {
+    if (previousValue == null && currentValue == null) {
+      return false;
+    }
+    if (previousValue == null && currentValue != null) {
+      return true;
+    }
+    if (previousValue != null && currentValue == null) {
+      return true;
+    }
+    if (previousValue instanceof Number) {
+      return ((Number) previousValue).longValue() != ((Number) currentValue).longValue();
+    }
+    if (previousValue instanceof LocalDate) {
+      return ((LocalDate) previousValue).compareTo(((LocalDate) currentValue)) != 0;
+    }
+    if (previousValue instanceof String) {
+      return !((String) previousValue).equalsIgnoreCase((String) currentValue);
+    }
+
+    return !previousValue.equals(currentValue);
   }
 }
