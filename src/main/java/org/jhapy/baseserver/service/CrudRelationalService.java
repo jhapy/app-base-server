@@ -20,9 +20,21 @@ package org.jhapy.baseserver.service;
 
 
 import java.time.LocalDate;
+import java.util.List;
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import org.jhapy.baseserver.domain.relationaldb.BaseEntity;
+import org.jhapy.commons.security.SecurityUtils;
+import org.jhapy.commons.utils.HasLogger;
 import org.jhapy.dto.domain.exception.EntityNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.query.QueryUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -30,9 +42,13 @@ import org.springframework.transaction.annotation.Transactional;
  * @version 1.0
  * @since 2019-03-26
  */
-public interface CrudRelationalService<T extends BaseEntity> {
+public interface CrudRelationalService<T extends BaseEntity> extends HasLogger {
 
   JpaRepository<T, Long> getRepository();
+
+  EntityManager getEntityManager();
+
+  Class<T> getEntityClass();
 
   @Transactional
   default T save(T entity) {
@@ -64,7 +80,7 @@ public interface CrudRelationalService<T extends BaseEntity> {
     return entity;
   }
 
-  default Iterable<T> findAll() {
+  default List<T> getAll() {
     return getRepository().findAll();
   }
 
@@ -90,4 +106,110 @@ public interface CrudRelationalService<T extends BaseEntity> {
 
     return !previousValue.equals(currentValue);
   }
+
+  default Page<T> findAnyMatching(String currentUserId, String filter, Boolean showInactive,
+      Pageable pageable, Object... otherCriteria) {
+    String loggerString = getLoggerPrefix("findAnyMatching");
+
+    logger().debug(
+        loggerString + "----------------------------------");
+
+    String currentUser = SecurityUtils.getCurrentUserLogin().get();
+
+    logger().debug(
+        loggerString + "In, Filter = " + filter + ", Show Inactive = "
+            + showInactive + ", Pageable = " + pageable);
+
+    CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+    CriteriaQuery query = cb.createQuery(getEntityClass());
+    Root<T> entity = query.from(getEntityClass());
+
+    CriteriaQuery criteriaQuery = buildSearchQuery(query, entity, cb, currentUser, filter,
+        showInactive, otherCriteria);
+    criteriaQuery.select(cb.count(entity));
+    TypedQuery<Long> countTypedQuery = getEntityManager().createQuery(criteriaQuery);
+    Long nbRecords = countTypedQuery.getSingleResult();
+
+    query.orderBy(QueryUtils.toOrders(pageable.getSort(), entity, cb));
+    criteriaQuery.select(entity);
+
+    TypedQuery<T> typedQuery = getEntityManager().createQuery(criteriaQuery);
+    if (pageable.isPaged()) {
+      typedQuery.setFirstResult(pageable.getPageNumber() * pageable.getPageSize());
+      typedQuery.setMaxResults(pageable.getPageSize());
+    } else {
+    }
+
+    Page<T> result = new PageImpl<>(typedQuery.getResultList(), pageable, nbRecords);
+
+    logger()
+        .debug(loggerString + "Out : Elements = " + result.getContent().size() + " of " + result
+            .getTotalElements() + ", Page = " + result.getNumber() + " of " + result
+            .getTotalPages());
+
+    return result;
+  }
+
+  default List<T> findAnyMatchingNoPaging(String currentUserId, String filter, Boolean showInactive,
+      Object... otherCriteria) {
+    String loggerString = getLoggerPrefix("findAnyMatchingNoPaging");
+
+    logger().debug(
+        loggerString + "----------------------------------");
+
+    String currentUser = SecurityUtils.getCurrentUserLogin().get();
+
+    logger().debug(
+        loggerString + "In, Filter = " + filter + ", Show Inactive = "
+            + showInactive);
+
+    CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+    CriteriaQuery query = cb.createQuery(getEntityClass());
+    Root<T> entity = query.from(getEntityClass());
+
+    CriteriaQuery criteriaQuery = buildSearchQuery(query, entity, cb, currentUser, filter,
+        showInactive, otherCriteria);
+    criteriaQuery.select(entity);
+
+    TypedQuery<T> typedQuery = getEntityManager().createQuery(criteriaQuery);
+
+    List<T> result = typedQuery.getResultList();
+
+    logger()
+        .debug(loggerString + "Out : Elements = " + result.size());
+
+    return result;
+  }
+
+  default long countAnyMatching(String currentUserId, String filter, Boolean showInactive,
+      Object... otherCriteria) {
+    String loggerString = getLoggerPrefix("countAnyMatching");
+
+    logger().debug(
+        loggerString + "----------------------------------");
+
+    String currentUser = SecurityUtils.getCurrentUserLogin().get();
+
+    logger().debug(
+        loggerString + "In, Filter = " + filter + ", Show Inactive = "
+            + showInactive);
+
+    CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+    CriteriaQuery<T> query = cb.createQuery(getEntityClass());
+    Root<T> entity = query.from(getEntityClass());
+
+    CriteriaQuery criteriaQuery = buildSearchQuery(query, entity, cb, currentUser, filter,
+        showInactive, otherCriteria);
+    criteriaQuery.select(cb.count(entity));
+    TypedQuery<Long> q = getEntityManager().createQuery(criteriaQuery);
+
+    Long result = q.getSingleResult();
+
+    logger().debug(loggerString + "Out = " + result + " items");
+
+    return result;
+  }
+
+  CriteriaQuery buildSearchQuery(CriteriaQuery query, Root<T> entity, CriteriaBuilder cb,
+      String currentUserId, String filter, Boolean showInactive, Object... otherCriteria);
 }
