@@ -41,7 +41,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @ConditionalOnProperty(prefix = "javers", name = "enabled")
 @RestController
-@RequestMapping("/auditLogService")
+@RequestMapping("/api/auditLogService")
 public class AuditLogServiceEndpoint extends BaseEndpoint {
 
   private final AuditLogService auditLogService;
