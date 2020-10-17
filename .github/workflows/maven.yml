@@ -1,9 +1,8 @@
-name: Java CI
+name: JHapy App Base Server CI
 
 on:
   push:
-  repository_dispatch:
-    types: [shared-commons-build]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -30,14 +29,12 @@ jobs:
             ${{ runner.os }}-maven-
       - name: Build with Maven
         run: mvn -Dmaven.test.skip -s .settings.xml -Dmaven.javadoc.skip -Dossrh_username=${{secrets.ossrh_username}} -Dossrh_password=${{secrets.ossrh_password}} --file pom.xml deploy
-
-      - name: Repository Dispatch
-        uses: peter-evans/repository-dispatch@v1
+      - name: Workflow Dispatch to app-backend-server repository
+        uses: benc-uk/workflow-dispatch@v1
         with:
+          repo: jhapy/app-backend-server
           token: ${{ secrets.repos_access_token }}
-          repository: jhapy/app-backend-server
-          event-type: base-server-build
-          client-payload: '{"ref": "${{ github.ref }}", "sha": "${{ github.sha }}"}'
+          workflow: JHapy App Backend Server CI
       - name: Slack Success
         uses: 8398a7/action-slack@v3
         with:
