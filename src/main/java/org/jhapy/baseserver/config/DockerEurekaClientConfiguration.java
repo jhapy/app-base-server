@@ -43,7 +43,7 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.util.StringUtils;
 
 @Configuration
-@ConditionalOnProperty(value = "spring.cloud.kubernetes.enabled",matchIfMissing = false)
+@ConditionalOnProperty(value = "spring.cloud.kubernetes.enabled", havingValue = "false", matchIfMissing = true)
 public class DockerEurekaClientConfiguration implements HasLogger {
 
   private final ConfigurableEnvironment env;
