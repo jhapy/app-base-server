@@ -105,7 +105,7 @@
         </exclusion>
       </exclusions>
     </dependency>
-<dependency>
+    <dependency>
       <groupId>de.codecentric</groupId>
       <artifactId>spring-boot-admin-starter-client</artifactId>
       <version>${spring-boot-admin.version}</version>
@@ -212,12 +212,6 @@
       <groupId>com.hazelcast</groupId>
       <artifactId>hazelcast-eureka-one</artifactId>
       <version>${hazelcast-eureka.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.javers</groupId>
-      <artifactId>javers-spring-boot-starter-mongo</artifactId>
-      <version>${javers-spring-boot-starter-mongo.version}</version>
-      <scope>provided</scope>
     </dependency>
     <!--dependency>
       <groupId>org.bitsofinfo</groupId>
@@ -462,10 +456,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>com.google.cloud.tools</groupId>
-        <artifactId>jib-maven-plugin</artifactId>
       </plugin>
       <plugin>
         <groupId>org.sonatype.plugins</groupId>
