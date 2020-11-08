@@ -105,11 +105,7 @@
         </exclusion>
       </exclusions>
     </dependency>
-    <dependency>
-      <groupId>de.codecentric</groupId>
-      <artifactId>spring-boot-admin-starter-client</artifactId>
-      <version>${spring-boot-admin.version}</version>
-    </dependency>
+
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-undertow</artifactId>
@@ -409,6 +405,12 @@
       <artifactId>javers-spring-boot-starter-mongo</artifactId>
       <version>${javers-spring-boot-starter-mongo.version}</version>
       <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security.oauth</groupId>
+      <artifactId>spring-security-oauth2</artifactId>
+      <version>2.3.4.RELEASE</version>
+      <scope>compile</scope>
     </dependency>
   </dependencies>
 
