@@ -234,7 +234,10 @@ public interface CrudRelationalService<T extends BaseEntity> extends HasLogger {
       throw new ServiceException("ID attribute value is invalid");
     }
     T existingRecord = getRepository().findById(id).get();
-    convert(entity, existingRecord);
+    T inputRecord = mapperFacade.map(entity, getEntityClass());
+    Map<String, Object> converted = mapperFacade.map(inputRecord, Map.class);
+
+    convert(converted, existingRecord);
 
     return save(existingRecord);
   }

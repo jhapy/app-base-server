@@ -32,6 +32,7 @@
     <profile.tls/>
 
     <spring-boot.version>2.3.7.RELEASE</spring-boot.version>
+    <spring-boot-admin.version>2.3.1</spring-boot-admin.version>
     <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
     <maven-enforcer-plugin.version>3.0.0-M3</maven-enforcer-plugin.version>
     <maven.required.version>3.6</maven.required.version>
