@@ -73,11 +73,17 @@ public abstract class DefaultTranslationConverter implements
           result.put(iso3Language, translation);
         }
         switch (vals[2]) {
-          case "value" -> translation.setValue((String) value.get(key));
-          case "isTranslated" -> translation
-              .setIsTranslated(Boolean.parseBoolean((String) value.get(key)));
-          case "isDefault" -> translation
-              .setIsDefault(Boolean.parseBoolean((String) value.get(key)));
+          case "value":
+            translation.setValue((String) value.get(key));
+            break;
+          case "isTranslated":
+            translation
+                .setIsTranslated(Boolean.parseBoolean((String) value.get(key)));
+            break;
+          case "isDefault":
+            translation
+                .setIsDefault(Boolean.parseBoolean((String) value.get(key)));
+            break;
         }
       }
     });

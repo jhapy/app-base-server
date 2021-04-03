@@ -26,9 +26,11 @@ import org.jhapy.dto.domain.BaseEntity;
 import org.jhapy.dto.domain.EntityTranslation;
 import org.jhapy.dto.domain.audit.AuditLog;
 import org.jhapy.dto.utils.Page;
+import org.jhapy.dto.utils.Slice;
 import org.jhapy.dto.utils.StoredFile;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Component;
 
 /**
@@ -104,6 +106,8 @@ public class BaseConverter {
         }).register();
 
     orikaBeanMapper.addMapper(Page.class, PageImpl.class);
+
+    orikaBeanMapper.addMapper(Slice.class, SliceImpl.class);
 
     orikaBeanMapper.addMapper(StoredFile.class, StoredFile.class);
 

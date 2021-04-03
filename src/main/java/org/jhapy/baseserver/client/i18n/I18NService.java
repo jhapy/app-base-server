@@ -16,14 +16,13 @@
  * limitations under the License.
  */
 
-package org.jhapy.baseserver.client;
+package org.jhapy.baseserver.client.i18n;
 
+import java.util.List;
+import org.jhapy.baseserver.client.AuthorizedFeignClient;
+import org.jhapy.dto.serviceQuery.BaseRemoteQuery;
 import org.jhapy.dto.serviceQuery.ServiceResult;
-import org.jhapy.dto.serviceQuery.generic.DeleteByStrIdQuery;
-import org.jhapy.dto.serviceQuery.generic.GetByStrIdQuery;
-import org.jhapy.dto.serviceQuery.generic.SaveQuery;
-import org.jhapy.dto.utils.StoredFile;
-import org.springframework.cloud.openfeign.FeignClient;
+import org.jhapy.dto.serviceQuery.i18n.ImportI18NFileQuery;
 import org.springframework.context.annotation.Primary;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,18 +30,18 @@ import org.springframework.web.bind.annotation.RequestBody;
 /**
  * @author jHapy Lead Dev.
  * @version 1.0
- * @since 2019-05-15
+ * @since 2019-04-21
  */
-@FeignClient(name = "${jhapy.remote-services.resource-server.name:null}", url = "${jhapy.remote-services.resource-server.url:}", path = "/api/resourceService", fallbackFactory = ResourceServiceFallback.class)
+@AuthorizedFeignClient(name = "${jhapy.remote-services.i18n-server.name:null}", url = "${jhapy.remote-services.i18n-server.url:}", path = "/api/i18NService", fallbackFactory = I18NServiceFallback.class)
 @Primary
-public interface ResourceService {
+public interface I18NService {
 
-  @PostMapping(value = "/save")
-  ServiceResult<StoredFile> save(@RequestBody SaveQuery<StoredFile> query);
+  @PostMapping(value = "/getI18NFile")
+  ServiceResult<Byte[]> getI18NFile(@RequestBody BaseRemoteQuery query);
 
-  @PostMapping(value = "/getById")
-  ServiceResult<StoredFile> getById(@RequestBody GetByStrIdQuery query);
+  @PostMapping(value = "/importI18NFile")
+  ServiceResult<Void> importI18NFile(@RequestBody ImportI18NFileQuery query);
 
-  @PostMapping(value = "/delete")
-  ServiceResult<Void> delete(@RequestBody DeleteByStrIdQuery query);
+  @PostMapping(value = "/getExistingLanguages")
+  ServiceResult<List<String>> getExistingLanguages(@RequestBody BaseRemoteQuery query);
 }

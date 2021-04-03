@@ -21,6 +21,9 @@ package org.jhapy.baseserver.client;
 import feign.RequestInterceptor;
 import org.jhapy.commons.security.oauth2.AuthorizationHeaderUtil;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.resource.OAuth2ProtectedResourceDetails;
+import org.springframework.security.oauth2.client.token.grant.client.ClientCredentialsResourceDetails;
 
 public class OAuth2InterceptedFeignConfiguration {
 

@@ -22,6 +22,8 @@ import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import java.util.Optional;
 import org.jhapy.commons.security.oauth2.AuthorizationHeaderUtil;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.token.grant.client.ClientCredentialsResourceDetails;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -39,6 +41,7 @@ public class TokenRelayRequestInterceptor implements RequestInterceptor {
   @Override
   public void apply(RequestTemplate template) {
     Optional<String> authorizationHeader = authorizationHeaderUtil.getAuthorizationHeader();
-    authorizationHeader.ifPresent(s -> template.header(AUTHORIZATION, s));
+    if ( authorizationHeader.isPresent() )
+      template.header(AUTHORIZATION, authorizationHeader.get());
   }
 }
