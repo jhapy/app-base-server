@@ -20,7 +20,8 @@ package org.jhapy.baseserver.client;
 
 import org.jhapy.dto.domain.notification.CloudDataMessage;
 import org.springframework.amqp.core.AmqpTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.amqp.core.Queue;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 /**
@@ -31,10 +32,16 @@ import org.springframework.stereotype.Component;
 @Component
 public class CloudDataMessageQueue {
 
-  @Autowired
-  AmqpTemplate jmsTemplate;
+  private final AmqpTemplate amqpTemplate;
+  private final Queue cloudDataQueue;
+
+  public CloudDataMessageQueue(AmqpTemplate amqpTemplate,
+      @Qualifier("cloudDataQueue") Queue cloudDataQueue) {
+    this.amqpTemplate = amqpTemplate;
+    this.cloudDataQueue = cloudDataQueue;
+  }
 
   public void sendMessage(final CloudDataMessage cloudDataMessage) {
-    jmsTemplate.convertAndSend("cloudData", cloudDataMessage);
+    amqpTemplate.convertAndSend(cloudDataQueue.getName(), cloudDataMessage);
   }
 }

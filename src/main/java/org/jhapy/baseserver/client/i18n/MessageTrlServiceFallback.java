@@ -58,7 +58,7 @@ public class MessageTrlServiceFallback implements MessageTrlService, HasLogger,
   public MessageTrlServiceFallback create(Throwable cause) {
     if (cause != null) {
       String errMessage = StringUtils.isNotBlank(cause.getMessage()) ? cause.getMessage()
-          : "Unknown error occurred : " + cause.toString();
+          : "Unknown error occurred : " + cause;
       // I don't see this log statement
       logger().debug("Client fallback called for the cause : {}", errMessage);
     }
@@ -90,7 +90,7 @@ public class MessageTrlServiceFallback implements MessageTrlService, HasLogger,
   public ServiceResult<I18NIsoLangValues> getByIso3(FindByIso3Query query) {
     logger().error(getLoggerPrefix("getByIso3") + "Cannot connect to the server");
 
-    return new ServiceResult<>(false, "Cannot connect to server",null);
+    return new ServiceResult<>(false, "Cannot connect to server", null);
   }
 
   @Override

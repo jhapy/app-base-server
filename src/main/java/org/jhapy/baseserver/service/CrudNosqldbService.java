@@ -159,7 +159,8 @@ public interface CrudNosqldbService<T extends BaseEntity> extends HasLogger {
     return nbRecords;
   }
 
-  default void buildSearchQuery(Criteria rootCriteria, String currentUserId, String filter, Boolean showInactive) {
+  default void buildSearchQuery(Criteria rootCriteria, String currentUserId, String filter,
+      Boolean showInactive) {
     List<Criteria> orPredicates = new ArrayList<>();
     List<Criteria> andPredicated = new ArrayList<>();
 

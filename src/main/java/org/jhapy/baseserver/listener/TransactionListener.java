@@ -35,7 +35,7 @@ public class TransactionListener implements HasLogger {
   //@TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
   public void beforeCommit(ApplicationEvent event) {
     String loggerPrefix = getLoggerPrefix("beforeCommit");
-   // logger().debug(loggerPrefix + "Source = " + event.getSource());
+    // logger().debug(loggerPrefix + "Source = " + event.getSource());
   }
 
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)

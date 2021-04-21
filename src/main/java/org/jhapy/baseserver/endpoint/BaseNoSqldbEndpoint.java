@@ -37,7 +37,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-public abstract class BaseNoSqldbEndpoint<T extends BaseEntity, D extends BaseEntityStrId> implements HasLogger {
+public abstract class BaseNoSqldbEndpoint<T extends BaseEntity, D extends BaseEntityStrId> implements
+    HasLogger {
 
   protected final OrikaBeanMapper mapperFacade;
 

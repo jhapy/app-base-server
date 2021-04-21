@@ -19,8 +19,6 @@
 package org.jhapy.baseserver.service;
 
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +27,6 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import org.apache.commons.lang3.StringUtils;
 import org.jhapy.baseserver.domain.relationaldb.BaseEntity;
 import org.jhapy.baseserver.exception.ServiceException;
 import org.jhapy.commons.security.SecurityUtils;
@@ -37,7 +34,6 @@ import org.jhapy.commons.utils.BeanUtils;
 import org.jhapy.commons.utils.HasLogger;
 import org.jhapy.commons.utils.OrikaBeanMapper;
 import org.jhapy.dto.domain.exception.EntityNotFoundException;
-import org.json.JSONObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -51,6 +47,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @since 2019-03-26
  */
 public interface CrudRelationalService<T extends BaseEntity> extends HasLogger {
+
   JpaRepository<T, Long> getRepository();
 
   EntityManager getEntityManager();

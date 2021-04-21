@@ -19,7 +19,6 @@
 package org.jhapy.baseserver.config;
 
 import com.hazelcast.config.Config;
-import com.hazelcast.config.EvictionConfig;
 import com.hazelcast.config.EvictionPolicy;
 import com.hazelcast.config.GroupConfig;
 import com.hazelcast.config.InterfacesConfig;
