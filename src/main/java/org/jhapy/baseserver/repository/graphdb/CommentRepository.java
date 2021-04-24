@@ -21,7 +21,7 @@ package org.jhapy.baseserver.repository.graphdb;
 import org.jhapy.baseserver.domain.graphdb.Comment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.neo4j.annotation.Query;
+import org.springframework.data.neo4j.repository.query.Query;
 
 /**
  * @author jHapy Lead Dev.

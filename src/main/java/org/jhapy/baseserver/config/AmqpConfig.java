@@ -71,6 +71,36 @@ public class AmqpConfig {
     return new AnonymousQueue();
   }
 
+    @Bean
+    public Queue newSessionQueue() {
+        return new Queue("audit.newSession");
+    }
+
+    @Bean
+    public Queue endSessionQueue() {
+        return new Queue("audit.endSession");
+    }
+
+    @Bean
+    public Queue cloudDataQueue() {
+        return new Queue("notification.cloudData");
+    }
+
+    @Bean
+    public Queue cloudNotificationQueue() {
+        return new Queue("notification.cloudNotification");
+    }
+
+    @Bean
+    public Queue mailboxQueue() {
+        return new Queue("notification.mailbox");
+    }
+
+    @Bean
+    public Queue smsQueue() {
+        return new Queue("notification.sms");
+    }
+
   @Bean
   public Binding bindingActionUpdate(
       @Qualifier("actionUpdate") FanoutExchange fanout,

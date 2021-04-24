@@ -20,7 +20,9 @@ package org.jhapy.baseserver.client;
 
 import org.jhapy.dto.domain.notification.Sms;
 import org.springframework.amqp.core.AmqpTemplate;
+import org.springframework.amqp.core.Queue;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 /**
@@ -31,10 +33,16 @@ import org.springframework.stereotype.Component;
 @Component
 public class SmsSenderQueue {
 
-  @Autowired
-  private AmqpTemplate jmsTemplate;
+    private final AmqpTemplate amqpTemplate;
+    private final Queue smsQueue;
+
+    public SmsSenderQueue(AmqpTemplate amqpTemplate,
+        @Qualifier("smsQueue")  Queue smsQueue) {
+        this.amqpTemplate = amqpTemplate;
+        this.smsQueue = smsQueue;
+    }
 
   public void sendMessage(final Sms smsMessage) {
-    jmsTemplate.convertAndSend("sms", smsMessage);
+      amqpTemplate.convertAndSend(smsQueue.getName(), smsMessage);
   }
 }

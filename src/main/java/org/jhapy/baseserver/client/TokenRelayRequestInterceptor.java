@@ -22,8 +22,6 @@ import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import java.util.Optional;
 import org.jhapy.commons.security.oauth2.AuthorizationHeaderUtil;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
-import org.springframework.security.oauth2.client.token.grant.client.ClientCredentialsResourceDetails;
 import org.springframework.stereotype.Component;
 
 @Component

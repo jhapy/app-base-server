@@ -20,7 +20,9 @@ package org.jhapy.baseserver.client;
 
 import org.jhapy.dto.domain.notification.Mail;
 import org.springframework.amqp.core.AmqpTemplate;
+import org.springframework.amqp.core.Queue;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 /**
@@ -31,10 +33,16 @@ import org.springframework.stereotype.Component;
 @Component
 public class EmailSenderQueue {
 
-  @Autowired
-  AmqpTemplate jmsTemplate;
+    private final AmqpTemplate amqpTemplate;
+    private final Queue mailboxQueue;
+
+    public EmailSenderQueue(AmqpTemplate amqpTemplate,
+        @Qualifier("mailboxQueue")  Queue mailboxQueue) {
+        this.amqpTemplate = amqpTemplate;
+        this.mailboxQueue = mailboxQueue;
+    }
 
   public void sendMessage(final Mail mailMessage) {
-    jmsTemplate.convertAndSend("mailbox", mailMessage);
+      amqpTemplate.convertAndSend(mailboxQueue.getName(), mailMessage);
   }
 }

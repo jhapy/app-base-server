@@ -18,27 +18,22 @@
 
 package org.jhapy.baseserver.config;
 
-import com.netflix.client.config.IClientConfig;
-import com.netflix.loadbalancer.AvailabilityFilteringRule;
-import com.netflix.loadbalancer.IPing;
-import com.netflix.loadbalancer.IRule;
+import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.cloud.openfeign.FeignClientsConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
-/**
- * @author jHapy Lead Dev.
- * @version 1.0
- * @since 2019-08-06
- */
-public class RibbonConfiguration {
+@Configuration
+@EnableFeignClients
+@Import(FeignClientsConfiguration.class)
+public class FeignConfiguration {
 
-  @Bean
-  public IPing ribbonPing(final IClientConfig config) {
-    return new MyPingUrl();
-  }
-
-  @Bean
-  public IRule ribbonRule(final IClientConfig config) {
-    return new AvailabilityFilteringRule();
-  }
-
+    /**
+     * Set the Feign specific log level to log client REST requests.
+     */
+    @Bean
+    feign.Logger.Level feignLoggerLevel() {
+        return feign.Logger.Level.BASIC;
+    }
 }
