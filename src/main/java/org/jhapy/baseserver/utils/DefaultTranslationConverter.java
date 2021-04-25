@@ -24,7 +24,9 @@ import org.jhapy.baseserver.domain.graphdb.EntityTranslation;
 import org.jhapy.baseserver.domain.graphdb.EntityTranslations;
 import org.neo4j.driver.Value;
 import org.neo4j.driver.Values;
+import org.springframework.data.neo4j.core.convert.Neo4jConversionService;
 import org.springframework.data.neo4j.core.convert.Neo4jPersistentPropertyConverter;
+import org.springframework.data.neo4j.core.convert.Neo4jPersistentPropertyToMapConverter;
 
 /**
  * @author jHapy Lead Dev.
@@ -32,7 +34,7 @@ import org.springframework.data.neo4j.core.convert.Neo4jPersistentPropertyConver
  * @since 10/28/19
  */
 public abstract class DefaultTranslationConverter implements
-    Neo4jPersistentPropertyConverter<EntityTranslations> {
+    Neo4jPersistentPropertyToMapConverter<String, EntityTranslations> {
 
   private final String prefix;
 
@@ -41,24 +43,24 @@ public abstract class DefaultTranslationConverter implements
   }
 
     @Override
-    public Value write(EntityTranslations translations) {
-        Map<String, String> result = new HashMap<>();
+    public Map<String, Value> decompose(EntityTranslations translations, Neo4jConversionService neo4jConversionService) {
+        Map<String, Value> result = new HashMap<>();
         Map<String, EntityTranslation> entityValue = translations.getTranslations();
         if (entityValue != null) {
             entityValue.keySet().forEach(key -> {
                 EntityTranslation t = entityValue.get(key);
-                result.put(prefix + "." + key + ".value", t.getValue());
-                result.put(prefix + "." + key + ".isTranslated", t.getIsTranslated().toString());
-                result.put(prefix + "." + key + ".isDefault", t.getIsDefault().toString());
+                result.put(prefix + "." + key + ".value", Values.value(t.getValue()));
+                result.put(prefix + "." + key + ".isTranslated", Values.value(t.getIsTranslated()));
+                result.put(prefix + "." + key + ".isDefault", Values.value(t.getIsDefault()));
             });
         }
-        return Values.value(result);
+        return result;
     }
 
     @Override
-    public EntityTranslations read(Value value) {
+    public EntityTranslations compose(Map<String, Value> source, Neo4jConversionService neo4jConversionService) {
         Map<String, EntityTranslation> result = new HashMap<>();
-        value.keys().forEach(key -> {
+        source.keySet().forEach(key -> {
             String[] vals = key.split("\\.");
             if (vals.length == 3) {
                 String iso3Language = vals[1];
@@ -76,15 +78,15 @@ public abstract class DefaultTranslationConverter implements
                 }
                 switch (vals[2]) {
                     case "value":
-                        translation.setValue(value.get(key).asString());
+                        translation.setValue(source.get(key).asString());
                         break;
                     case "isTranslated":
                         translation
-                            .setIsTranslated(value.get(key).asBoolean());
+                            .setIsTranslated(source.get(key).asBoolean());
                         break;
                     case "isDefault":
                         translation
-                            .setIsDefault(value.get(key).asBoolean());
+                            .setIsDefault(source.get(key).asBoolean());
                         break;
                 }
             }

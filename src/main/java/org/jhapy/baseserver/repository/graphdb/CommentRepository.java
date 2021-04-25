@@ -32,7 +32,7 @@ public interface CommentRepository extends BaseRepository<Comment> {
 
   @Query(value =
       "MATCH (m:Comment)-[:HAS_RELATED_ENTITY]->(p) "
-          + "WHERE NOT ((m)-[:HAS_PARENT]->()) AND id(p) = {relatedEntityId} RETURN m ORDER BY m.created DESC",
+          + "WHERE NOT ((m)-[:HAS_PARENT]->()) AND id(p) = {relatedEntityId} RETURN m ORDER BY m.created DESC SKIP $skip LIMIT $limit",
       countQuery = "MATCH (m:Comment)-[:HAS_RELATED_ENTITY]->(p) "
           + " WHERE NOT ((m)-[:HAS_PARENT]->()) AND id(p) = {relatedEntityId} RETURN count(m)")
   Page<Comment> getRootComments(Long relatedEntityId, Pageable pageable);
@@ -44,7 +44,7 @@ public interface CommentRepository extends BaseRepository<Comment> {
 
   @Query(value =
       "MATCH (m:Comment)-[:HAS_PARENT]->(n1:Comment) "
-          + "WHERE id(n1) = {parentId} RETURN m ORDER BY m.created DESC",
+          + "WHERE id(n1) = {parentId} RETURN m ORDER BY m.created DESC SKIP $skip LIMIT $limit",
       countQuery =
           "MATCH (m:Comment)-[:HAS_PARENT]->(n1:Comment) "
               + "WHERE id(n1) = {parentId} RETURN count(DISTINCT m)")
