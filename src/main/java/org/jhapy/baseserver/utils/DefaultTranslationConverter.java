@@ -49,9 +49,9 @@ public abstract class DefaultTranslationConverter implements
         if (entityValue != null) {
             entityValue.keySet().forEach(key -> {
                 EntityTranslation t = entityValue.get(key);
-                result.put(prefix + "." + key + ".value", Values.value(t.getValue()));
-                result.put(prefix + "." + key + ".isTranslated", Values.value(t.getIsTranslated()));
-                result.put(prefix + "." + key + ".isDefault", Values.value(t.getIsDefault()));
+                result.put(key + ".value", Values.value(t.getValue()));
+                result.put(key + ".isTranslated", Values.value(t.getIsTranslated()));
+                result.put(key + ".isDefault", Values.value(t.getIsDefault()));
             });
         }
         return result;
@@ -62,12 +62,9 @@ public abstract class DefaultTranslationConverter implements
         Map<String, EntityTranslation> result = new HashMap<>();
         source.keySet().forEach(key -> {
             String[] vals = key.split("\\.");
-            if (vals.length == 3) {
-                String iso3Language = vals[1];
-                String k = vals[0];
-                if (!k.equals(prefix)) {
-                    return;
-                }
+            if (vals.length == 2) {
+                String iso3Language = vals[0];
+
                 EntityTranslation translation;
                 if (result.containsKey(iso3Language)) {
                     translation = result.get(iso3Language);
@@ -76,7 +73,7 @@ public abstract class DefaultTranslationConverter implements
                     translation.setIso3Language(iso3Language);
                     result.put(iso3Language, translation);
                 }
-                switch (vals[2]) {
+                switch (vals[1]) {
                     case "value":
                         translation.setValue(source.get(key).asString());
                         break;
