@@ -20,16 +20,20 @@ package org.jhapy.baseserver.config;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.jhapy.commons.config.AppProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.server.WebExceptionHandler;
+import org.zalando.problem.spring.web.advice.ProblemHandling;
 
 /**
  * Configuration of web application with Servlet 3.0 APIs.
