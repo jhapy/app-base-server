@@ -3,6 +3,7 @@ package org.jhapy.baseserver.service;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.jhapy.baseserver.client.i18n.ActionTrlService;
 import org.jhapy.baseserver.client.i18n.ElementTrlService;
 import org.jhapy.baseserver.client.i18n.MessageTrlService;
@@ -29,10 +30,6 @@ public class I18NServiceImpl implements I18NService, HasLogger {
   private final ElementTrlService elementTrlService;
   private final ActionTrlService actionTrlService;
   private final MessageTrlService messageTrlService;
-
-private Integer currentElementVersion = 0;
-  private Integer currentActionVersion = 0;
-  private Integer currentMessageVersion = 0;
 
   private Map<String, Map<String,String>> elements = new HashMap<>();
   private Map<String, Map<String,String>> actions = new HashMap<>();
@@ -198,23 +195,20 @@ if ( elements.get(iso3Lang).containsKey(name) ) {
   }
   private void loadElements( String isoLang) {
     elements.remove(isoLang);
-elementTrlService.getByIso3(FindByIso3Query.builder().iso3Language(isoLang).build()).ifSuccess(i18NIsoLangValues -> {
-  elements.put(i18NIsoLangValues.getIsoLang(), i18NIsoLangValues.getValues());
-  currentElementVersion =  i18NIsoLangValues.getRecordVersion();
+  elementTrlService.findByIso3(FindByIso3Query.builder().iso3Language(isoLang).build()).ifSuccess(i18NIsoLangValues -> {
+  elements.put(isoLang, i18NIsoLangValues.stream().collect(Collectors.toMap(ElementTrl::getName, ElementTrl::getValue) ));
 });
   }
   private void loadActions( String isoLang) {
     actions.remove(isoLang);
-    actionTrlService.getByIso3(FindByIso3Query.builder().iso3Language(isoLang).build()).ifSuccess(i18NIsoLangValues -> {
-      actions.put(i18NIsoLangValues.getIsoLang(), i18NIsoLangValues.getValues());
-      currentActionVersion =  i18NIsoLangValues.getRecordVersion();
+    actionTrlService.findByIso3(FindByIso3Query.builder().iso3Language(isoLang).build()).ifSuccess(i18NIsoLangValues -> {
+      actions.put(isoLang, i18NIsoLangValues.stream().collect(Collectors.toMap(ActionTrl::getName, ActionTrl::getValue) ));
     });
   }
   private void loadMessages( String isoLang) {
     messsages.remove(isoLang);
-    messageTrlService.getByIso3(FindByIso3Query.builder().iso3Language(isoLang).build()).ifSuccess(i18NIsoLangValues -> {
-      messsages.put(i18NIsoLangValues.getIsoLang(), i18NIsoLangValues.getValues());
-      currentMessageVersion =  i18NIsoLangValues.getRecordVersion();
+    messageTrlService.findByIso3(FindByIso3Query.builder().iso3Language(isoLang).build()).ifSuccess(i18NIsoLangValues -> {
+      messsages.put(isoLang, i18NIsoLangValues.stream().collect(Collectors.toMap(MessageTrl::getName, MessageTrl::getValue) ));
     });
   }
 }
