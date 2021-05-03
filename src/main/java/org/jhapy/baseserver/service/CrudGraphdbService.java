@@ -21,6 +21,8 @@ package org.jhapy.baseserver.service;
 
 import org.jhapy.baseserver.domain.graphdb.BaseEntity;
 import org.jhapy.dto.domain.exception.EntityNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -66,4 +68,10 @@ public interface CrudGraphdbService<T extends BaseEntity> {
   default Iterable<T> findAll() {
     return getRepository().findAll();
   }
+
+  default Iterable<T> saveAll(Iterable<T> entities) { return getRepository().saveAll(entities); }
+
+  default Page<T> findAnyMatching(String filter, Boolean showInactive, Pageable pageable) { return Page.empty(); }
+
+  default long countAnyMatching(String filter, Boolean showInactive) { return 0; }
 }

@@ -18,6 +18,7 @@
 
 package org.jhapy.baseserver.domain.graphdb;
 
+import java.io.Serializable;
 import lombok.Data;
 
 /**
@@ -28,10 +29,9 @@ import lombok.Data;
  * @since 2019-03-12
  */
 @Data
-public class EntityTranslation {
-
+public class EntityTranslation implements Serializable {
   private String iso3Language;
-  private Boolean isTranslated = Boolean.FALSE;
-  private Boolean isDefault = Boolean.FALSE;
+  private boolean isTranslated = Boolean.FALSE;
+  private boolean isDefault = Boolean.FALSE;
   private String value;
 }

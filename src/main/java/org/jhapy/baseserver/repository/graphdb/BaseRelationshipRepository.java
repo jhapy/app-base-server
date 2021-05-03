@@ -16,16 +16,17 @@
  * limitations under the License.
  */
 
-package org.jhapy.baseserver.utils;
+package org.jhapy.baseserver.repository.graphdb;
+
+import org.jhapy.baseserver.domain.graphdb.BaseEntity;
+import org.jhapy.baseserver.domain.graphdb.BaseRelationshipEntity;
+import org.springframework.data.neo4j.repository.Neo4jRepository;
 
 /**
  * @author jHapy Lead Dev.
  * @version 1.0
- * @since 10/28/19
+ * @since 3/8/20
  */
-public class NameTranslationConverter extends DefaultTranslationConverter {
+public interface BaseRelationshipRepository<T extends BaseRelationshipEntity> extends Neo4jRepository<T, Long> {
 
-  public NameTranslationConverter() {
-    super("name");
-  }
 }

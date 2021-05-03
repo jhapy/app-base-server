@@ -18,6 +18,7 @@
 
 package org.jhapy.baseserver.domain.graphdb;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.Data;
@@ -30,7 +31,7 @@ import lombok.Data;
  * @since 2019-03-12
  */
 @Data
-public class EntityTranslations {
+public class EntityTranslations implements Serializable {
 
   private Map<String, EntityTranslation> translations;
 
@@ -52,7 +53,7 @@ public class EntityTranslations {
 
   public String getDefaultTranslation() {
     for (EntityTranslation entityTranslation : translations.values()) {
-      if (entityTranslation.getIsDefault()) {
+      if (entityTranslation.isDefault()) {
         return entityTranslation.getValue();
       }
     }
@@ -68,11 +69,11 @@ public class EntityTranslations {
     if (translations.containsKey(iso3Language)) {
       translations.get(iso3Language).setValue(value);
     } else {
-      EntityTranslation entityTranslation = new EntityTranslation();
+      var entityTranslation = new EntityTranslation();
       entityTranslation.setIso3Language(iso3Language);
-      entityTranslation.setIsDefault(isDefault);
+      entityTranslation.setDefault(isDefault);
       entityTranslation.setValue(value);
-      entityTranslation.setIsTranslated(true);
+      entityTranslation.setTranslated(true);
 
       translations.put(iso3Language, entityTranslation);
     }

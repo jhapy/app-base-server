@@ -51,8 +51,7 @@ public class BaseConverter {
   public void baseConverters() {
     orikaBeanMapper.addMapper(Comment.class, org.jhapy.dto.domain.Comment.class);
 
-    orikaBeanMapper
-        .addMapper(EntityTranslation.class, EntityTranslation.class);
+    orikaBeanMapper.addMapper(EntityTranslation.class, EntityTranslation.class);
 
     orikaBeanMapper
         .addMapper(org.jhapy.baseserver.domain.graphdb.BaseEntity.class,

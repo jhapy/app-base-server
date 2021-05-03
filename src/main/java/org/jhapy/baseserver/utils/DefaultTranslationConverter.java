@@ -33,13 +33,11 @@ import org.springframework.data.neo4j.core.convert.Neo4jPersistentPropertyToMapC
  * @version 1.0
  * @since 10/28/19
  */
-public abstract class DefaultTranslationConverter implements
+public class DefaultTranslationConverter implements
     Neo4jPersistentPropertyToMapConverter<String, EntityTranslations> {
 
-  private final String prefix;
 
-  public DefaultTranslationConverter(String prefix) {
-    this.prefix = prefix;
+  public DefaultTranslationConverter() {
   }
 
     @Override
@@ -49,9 +47,9 @@ public abstract class DefaultTranslationConverter implements
         if (entityValue != null) {
             entityValue.keySet().forEach(key -> {
                 EntityTranslation t = entityValue.get(key);
-                result.put(key + ".value", Values.value(t.getValue()));
-                result.put(key + ".isTranslated", Values.value(t.getIsTranslated()));
-                result.put(key + ".isDefault", Values.value(t.getIsDefault()));
+                result.put(key + ".value", Values.value(t.getValue() == null ? "" : t.getValue()));
+                result.put(key + ".isTranslated", Values.value(t.isTranslated()));
+                result.put(key + ".isDefault", Values.value(t.isDefault()));
             });
         }
         return result;
@@ -73,19 +71,13 @@ public abstract class DefaultTranslationConverter implements
                     translation.setIso3Language(iso3Language);
                     result.put(iso3Language, translation);
                 }
-                switch (vals[1]) {
-                    case "value":
-                        translation.setValue(source.get(key).asString());
-                        break;
-                    case "isTranslated":
-                        translation
-                            .setIsTranslated(source.get(key).asBoolean());
-                        break;
-                    case "isDefault":
-                        translation
-                            .setIsDefault(source.get(key).asBoolean());
-                        break;
-                }
+              switch (vals[1]) {
+                case "value" -> translation.setValue(source.get(key).asString());
+                case "isTranslated" -> translation
+                    .setTranslated(source.get(key).asBoolean());
+                case "isDefault" -> translation
+                    .setDefault(source.get(key).asBoolean());
+              }
             }
         });
         return new EntityTranslations(result);
