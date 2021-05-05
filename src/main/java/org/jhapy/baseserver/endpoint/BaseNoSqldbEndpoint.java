@@ -37,7 +37,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-public abstract class BaseNoSqldbEndpoint<T extends BaseEntity, D extends BaseEntityStrId> implements HasLogger {
+public abstract class BaseNoSqldbEndpoint<T extends BaseEntity, D extends BaseEntityStrId> implements
+    HasLogger {
 
   protected final OrikaBeanMapper mapperFacade;
 
@@ -97,7 +98,7 @@ public abstract class BaseNoSqldbEndpoint<T extends BaseEntity, D extends BaseEn
   @PostMapping(value = "/findAnyMatching")
   public ResponseEntity<ServiceResult> findAnyMatching(
       @RequestBody FindAnyMatchingQuery query) {
-    String loggerPrefix = getLoggerPrefix("findAnyMatching");
+    var loggerPrefix = getLoggerPrefix("findAnyMatching");
     try {
       Page<T> result = getService()
           .findAnyMatching(query.getFilter(), query.getShowInactive(),
@@ -113,7 +114,7 @@ public abstract class BaseNoSqldbEndpoint<T extends BaseEntity, D extends BaseEn
   @PostMapping(value = "/countAnyMatching")
   public ResponseEntity<ServiceResult> countAnyMatching(
       @RequestBody CountAnyMatchingQuery query) {
-    String loggerPrefix = getLoggerPrefix("countAnyMatching");
+    var loggerPrefix = getLoggerPrefix("countAnyMatching");
     try {
       return handleResult(loggerPrefix,
           getService().countAnyMatching(query.getFilter(), query.getShowInactive()));
@@ -124,7 +125,7 @@ public abstract class BaseNoSqldbEndpoint<T extends BaseEntity, D extends BaseEn
 
   @PostMapping(value = "/getById")
   public ResponseEntity<ServiceResult> getById(@RequestBody GetByStrIdQuery query) {
-    String loggerPrefix = getLoggerPrefix("getById");
+    var loggerPrefix = getLoggerPrefix("getById");
     try {
       logger().debug(loggerPrefix + "ID =  " + query.getId());
 
@@ -139,7 +140,7 @@ public abstract class BaseNoSqldbEndpoint<T extends BaseEntity, D extends BaseEn
 
   @PostMapping(value = "/getAll")
   public ResponseEntity<ServiceResult> getAll(@RequestBody BaseRemoteQuery query) {
-    String loggerPrefix = getLoggerPrefix("getAll");
+    var loggerPrefix = getLoggerPrefix("getAll");
     try {
       return handleResult(loggerPrefix, mapperFacade
           .mapAsList(getService().findAll(),
@@ -153,7 +154,7 @@ public abstract class BaseNoSqldbEndpoint<T extends BaseEntity, D extends BaseEn
   @PostMapping(value = "/save")
   public ResponseEntity<ServiceResult> save(
       @RequestBody SaveQuery<D> query) {
-    String loggerPrefix = getLoggerPrefix("save");
+    var loggerPrefix = getLoggerPrefix("save");
     try {
       return handleResult(loggerPrefix, mapperFacade.map(getService()
               .save(mapperFacade
@@ -167,7 +168,7 @@ public abstract class BaseNoSqldbEndpoint<T extends BaseEntity, D extends BaseEn
 
   @PostMapping(value = "/delete")
   public ResponseEntity<ServiceResult> delete(@RequestBody DeleteByStrIdQuery query) {
-    String loggerPrefix = getLoggerPrefix("delete");
+    var loggerPrefix = getLoggerPrefix("delete");
     try {
       getService().delete(query.getId());
       return handleResult(loggerPrefix);

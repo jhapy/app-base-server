@@ -30,11 +30,15 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class DatabaseConfiguration {
 
-  @Autowired
-  private DataSource dataSource;
+  private final DataSource dataSource;
 
-  @Autowired
-  private MeterRegistry meterRegistry;
+  private final MeterRegistry meterRegistry;
+
+  public DatabaseConfiguration(DataSource dataSource,
+      MeterRegistry meterRegistry) {
+    this.dataSource = dataSource;
+    this.meterRegistry = meterRegistry;
+  }
 
   @PostConstruct
   public void setUpHikariWithMetrics() {

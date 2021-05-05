@@ -86,7 +86,7 @@ public interface CrudNosqldbService<T extends BaseEntity> extends HasLogger {
   }
 
   default Page<T> findAnyMatching(String filter, Boolean showInactive, Pageable pageable) {
-    String loggerString = getLoggerPrefix("findAnyMatching");
+    var loggerString = getLoggerPrefix("findAnyMatching");
 
     logger().debug(
         loggerString + "----------------------------------");
@@ -132,7 +132,7 @@ public interface CrudNosqldbService<T extends BaseEntity> extends HasLogger {
   }
 
   default long countAnyMatching(String filter, Boolean showInactive) {
-    String loggerPrefix = getLoggerPrefix("countAnyMatching");
+    var loggerPrefix = getLoggerPrefix("countAnyMatching");
 
     logger().debug(
         loggerPrefix + "----------------------------------");
@@ -159,7 +159,8 @@ public interface CrudNosqldbService<T extends BaseEntity> extends HasLogger {
     return nbRecords;
   }
 
-  default void buildSearchQuery(Criteria rootCriteria, String currentUserId, String filter, Boolean showInactive) {
+  default void buildSearchQuery(Criteria rootCriteria, String currentUserId, String filter,
+      Boolean showInactive) {
     List<Criteria> orPredicates = new ArrayList<>();
     List<Criteria> andPredicated = new ArrayList<>();
 

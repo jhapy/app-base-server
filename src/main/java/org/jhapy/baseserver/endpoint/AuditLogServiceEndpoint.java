@@ -55,7 +55,7 @@ public class AuditLogServiceEndpoint extends BaseEndpoint {
   @PostMapping(value = "/getAuditLog")
   public ResponseEntity<ServiceResult> getAuditLog(
       @RequestBody FindAuditLogQuery query) {
-    String loggerPrefix = getLoggerPrefix("getAuditLog");
+    var loggerPrefix = getLoggerPrefix("getAuditLog");
     try {
       Page<AuditLog> result = auditLogService
           .getAudit(query.getClassName(), query.getRecordId(),
@@ -71,7 +71,7 @@ public class AuditLogServiceEndpoint extends BaseEndpoint {
   @PostMapping(value = "/countAuditLog")
   public ResponseEntity<ServiceResult> countAuditLog(
       @RequestBody CountAuditLogQuery query) {
-    String loggerPrefix = getLoggerPrefix("countAuditLog");
+    var loggerPrefix = getLoggerPrefix("countAuditLog");
     try {
       return handleResult(loggerPrefix,
           auditLogService

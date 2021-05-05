@@ -33,22 +33,23 @@ import org.springframework.stereotype.Component;
 @Component
 public class AuditServiceQueue {
 
-    private final AmqpTemplate amqpTemplate;
+  private final AmqpTemplate amqpTemplate;
   private final Queue newSessionQueue;
-    private final Queue endSessionQueue;
+  private final Queue endSessionQueue;
 
-    public AuditServiceQueue(AmqpTemplate amqpTemplate,
-        @Qualifier("newSessionQueue") Queue newSessionQueue, @Qualifier("endSessionQueue") Queue endSessionQueue) {
-        this.amqpTemplate = amqpTemplate;
-        this.newSessionQueue = newSessionQueue;
-        this.endSessionQueue = endSessionQueue;
-    }
+  public AuditServiceQueue(AmqpTemplate amqpTemplate,
+      @Qualifier("newSessionQueue") Queue newSessionQueue,
+      @Qualifier("endSessionQueue") Queue endSessionQueue) {
+    this.amqpTemplate = amqpTemplate;
+    this.newSessionQueue = newSessionQueue;
+    this.endSessionQueue = endSessionQueue;
+  }
 
-    public void newSession(final NewSession newSession) {
-        amqpTemplate.convertAndSend(newSessionQueue.getName(), newSession);
+  public void newSession(final NewSession newSession) {
+    amqpTemplate.convertAndSend(newSessionQueue.getName(), newSession);
   }
 
   public void endSession(final EndSession endSession) {
-      amqpTemplate.convertAndSend(endSessionQueue.getName(), endSession);
+    amqpTemplate.convertAndSend(endSessionQueue.getName(), endSession);
   }
 }

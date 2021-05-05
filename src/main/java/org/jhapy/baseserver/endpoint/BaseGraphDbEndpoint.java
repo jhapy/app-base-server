@@ -21,19 +21,15 @@ package org.jhapy.baseserver.endpoint;
 import ma.glasnost.orika.MappingContext;
 import org.jhapy.baseserver.domain.graphdb.BaseEntity;
 import org.jhapy.baseserver.service.CrudGraphdbService;
-import org.jhapy.baseserver.service.CrudNosqldbService;
 import org.jhapy.commons.utils.HasLogger;
 import org.jhapy.commons.utils.OrikaBeanMapper;
 import org.jhapy.dto.domain.BaseEntityLongId;
-import org.jhapy.dto.domain.BaseEntityStrId;
 import org.jhapy.dto.serviceQuery.BaseRemoteQuery;
 import org.jhapy.dto.serviceQuery.ServiceResult;
 import org.jhapy.dto.serviceQuery.generic.CountAnyMatchingQuery;
 import org.jhapy.dto.serviceQuery.generic.DeleteByIdQuery;
-import org.jhapy.dto.serviceQuery.generic.DeleteByStrIdQuery;
 import org.jhapy.dto.serviceQuery.generic.FindAnyMatchingQuery;
 import org.jhapy.dto.serviceQuery.generic.GetByIdQuery;
-import org.jhapy.dto.serviceQuery.generic.GetByStrIdQuery;
 import org.jhapy.dto.serviceQuery.generic.SaveAllQuery;
 import org.jhapy.dto.serviceQuery.generic.SaveQuery;
 import org.springframework.data.domain.Page;
@@ -42,7 +38,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-public abstract class BaseGraphDbEndpoint<T extends BaseEntity, D extends BaseEntityLongId> implements HasLogger {
+public abstract class BaseGraphDbEndpoint<T extends BaseEntity, D extends BaseEntityLongId> implements
+    HasLogger {
 
   protected final OrikaBeanMapper mapperFacade;
 
@@ -94,14 +91,15 @@ public abstract class BaseGraphDbEndpoint<T extends BaseEntity, D extends BaseEn
   }
 
   protected ResponseEntity<ServiceResult> handleResult(String loggerPrefix, Throwable throwable) {
-    error(loggerPrefix, throwable, "Response KO with Exception : {0}", throwable.getLocalizedMessage());
+    error(loggerPrefix, throwable, "Response KO with Exception : {0}",
+        throwable.getLocalizedMessage());
     return ResponseEntity.ok(new ServiceResult<>(throwable));
   }
 
   @PostMapping(value = "/findAnyMatching")
   public ResponseEntity<ServiceResult> findAnyMatching(
       @RequestBody FindAnyMatchingQuery query) {
-    String loggerPrefix = getLoggerPrefix("findAnyMatching");
+    var loggerPrefix = getLoggerPrefix("findAnyMatching");
     try {
       Page<T> result = getService()
           .findAnyMatching(query.getFilter(), query.getShowInactive(),
@@ -117,7 +115,7 @@ public abstract class BaseGraphDbEndpoint<T extends BaseEntity, D extends BaseEn
   @PostMapping(value = "/countAnyMatching")
   public ResponseEntity<ServiceResult> countAnyMatching(
       @RequestBody CountAnyMatchingQuery query) {
-    String loggerPrefix = getLoggerPrefix("countAnyMatching");
+    var loggerPrefix = getLoggerPrefix("countAnyMatching");
     try {
       return handleResult(loggerPrefix,
           getService().countAnyMatching(query.getFilter(), query.getShowInactive()));
@@ -128,7 +126,7 @@ public abstract class BaseGraphDbEndpoint<T extends BaseEntity, D extends BaseEn
 
   @PostMapping(value = "/getById")
   public ResponseEntity<ServiceResult> getById(@RequestBody GetByIdQuery query) {
-    String loggerPrefix = getLoggerPrefix("getById");
+    var loggerPrefix = getLoggerPrefix("getById");
     try {
       debug(loggerPrefix, "ID = {0}", query.getId());
 
@@ -143,7 +141,7 @@ public abstract class BaseGraphDbEndpoint<T extends BaseEntity, D extends BaseEn
 
   @PostMapping(value = "/getAll")
   public ResponseEntity<ServiceResult> getAll(@RequestBody BaseRemoteQuery query) {
-    String loggerPrefix = getLoggerPrefix("getAll");
+    var loggerPrefix = getLoggerPrefix("getAll");
     try {
       return handleResult(loggerPrefix, mapperFacade
           .mapAsList(getService().findAll(),
@@ -157,7 +155,7 @@ public abstract class BaseGraphDbEndpoint<T extends BaseEntity, D extends BaseEn
   @PostMapping(value = "/save")
   public ResponseEntity<ServiceResult> save(
       @RequestBody SaveQuery<D> query) {
-    String loggerPrefix = getLoggerPrefix("save");
+    var loggerPrefix = getLoggerPrefix("save");
     try {
       T converted = mapperFacade.map(query.getEntity(), getEntityClass(), getOrikaContext(query));
       return handleResult(loggerPrefix, mapperFacade.map(getService()
@@ -171,7 +169,7 @@ public abstract class BaseGraphDbEndpoint<T extends BaseEntity, D extends BaseEn
 
   @PostMapping(value = "/saveAll")
   public ResponseEntity<ServiceResult> saveAll(@RequestBody SaveAllQuery<D> query) {
-    String loggerPrefix = getLoggerPrefix("saveAll");
+    var loggerPrefix = getLoggerPrefix("saveAll");
     try {
       return handleResult(loggerPrefix, mapperFacade.mapAsSet(getService()
               .saveAll(mapperFacade
@@ -185,7 +183,7 @@ public abstract class BaseGraphDbEndpoint<T extends BaseEntity, D extends BaseEn
 
   @PostMapping(value = "/delete")
   public ResponseEntity<ServiceResult> delete(@RequestBody DeleteByIdQuery query) {
-    String loggerPrefix = getLoggerPrefix("delete");
+    var loggerPrefix = getLoggerPrefix("delete");
     try {
       getService().delete(query.getId());
       return handleResult(loggerPrefix);

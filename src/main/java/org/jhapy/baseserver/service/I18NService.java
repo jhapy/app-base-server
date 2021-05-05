@@ -14,11 +14,12 @@ import org.jhapy.dto.messageQueue.I18NUpdateTypeEnum;
  * @since 27/03/2021
  */
 public interface I18NService {
-  String getElement( String name, String iso3Lang);
 
-  String getAction( String name, String iso3Lang);
+  String getElement(String name, String iso3Lang);
 
-  String getMessage( String name, String iso3Lang, String ... params);
+  String getAction(String name, String iso3Lang);
+
+  String getMessage(String name, String iso3Lang, String... params);
 
   void elementUpdate(I18NUpdateTypeEnum updateType, Element element);
 

@@ -105,7 +105,7 @@ public class KeycloakClient implements HasLogger {
   @Cacheable("userByName")
   public ServiceResult<SecurityKeycloakUser> getUserByUsername(
       GetSecurityUserByUsernameQuery query) {
-    String loggerPrefix = getLoggerPrefix("getUserByUsername");
+    var loggerPrefix = getLoggerPrefix("getUserByUsername");
 
     List<UserRepresentation> users = getKeycloakRealmInstance().users().search(query.getUsername());
 
@@ -119,7 +119,7 @@ public class KeycloakClient implements HasLogger {
 
   @Cacheable("userById")
   public ServiceResult<SecurityKeycloakUser> getUserById(GetByStrIdQuery query) {
-    String loggerPrefix = getLoggerPrefix("getUser");
+    var loggerPrefix = getLoggerPrefix("getUser");
 
     UserResource userResource = getKeycloakRealmInstance().users().get(query.getId());
     if (userResource != null) {
@@ -158,7 +158,7 @@ public class KeycloakClient implements HasLogger {
   }
 
   public ServiceResult<String> registerUser(String username) {
-    String loggerPrefix = getLoggerPrefix("registerUser", username);
+    var loggerPrefix = getLoggerPrefix("registerUser", username);
     List<UserRepresentation> existingUser = getKeycloakRealmInstance().users()
         .search(username, true);
     if (!existingUser.isEmpty()) {
@@ -188,7 +188,7 @@ public class KeycloakClient implements HasLogger {
   @CacheEvict(cacheNames = {"allUsers", "userByName", "userById", "findUsers",
       "countUsers"}, allEntries = true)
   public ServiceResult<SecurityKeycloakUser> saveUser(SaveQuery<SecurityKeycloakUser> query) {
-    String loggerPrefix = getLoggerPrefix("saveUser");
+    var loggerPrefix = getLoggerPrefix("saveUser");
 
     if (query.getEntity().getId() != null) {
       UserResource userResource = getKeycloakRealmInstance().users().get(query.getEntity().getId());
@@ -200,11 +200,10 @@ public class KeycloakClient implements HasLogger {
       userRepresentation.setUsername(user.getUsername());
       userRepresentation.setEmailVerified(user.getEmailVerified());
       userRepresentation.setEnabled(user.getIsActivated());
-      if ( userRepresentation.getAttributes() == null )
+      if (userRepresentation.getAttributes() == null) {
         userRepresentation.setAttributes(new HashMap<>());
-      user.getAttributes().forEach( (s, o) -> {
-        userRepresentation.getAttributes().put(s, Collections.singletonList(o.toString()) );
-      });
+      }
+      user.getAttributes().forEach((s, o) -> userRepresentation.getAttributes().put(s, Collections.singletonList(o.toString())));
 
       userRepresentation.getAttributes().put("title", Collections.singletonList(user.getTitle()));
       if (user.getPicture() != null) {
@@ -273,7 +272,7 @@ public class KeycloakClient implements HasLogger {
   @CacheEvict(cacheNames = {"allUsers", "userByName", "userById", "findUsers",
       "countUsers"}, allEntries = true)
   public ServiceResult<Void> deleteUser(DeleteByStrIdQuery query) {
-    String loggerPrefix = getLoggerPrefix("deleteUser");
+    var loggerPrefix = getLoggerPrefix("deleteUser");
 
     UserResource existing = getKeycloakRealmInstance().users().get(query.getId());
 
@@ -371,7 +370,7 @@ public class KeycloakClient implements HasLogger {
 
   @Cacheable("roleByName")
   public ServiceResult<SecurityKeycloakRole> getRoleByName(GetSecurityRoleByNameQuery query) {
-    String loggerPrefix = getLoggerPrefix("getRoleByName");
+    var loggerPrefix = getLoggerPrefix("getRoleByName");
 
     Optional<RoleRepresentation> _roleRepresentation = getKeycloakRealmInstance().roles().list()
         .stream().filter(roleRepresentation -> roleRepresentation.getName().equals(query.getName()))
@@ -387,7 +386,7 @@ public class KeycloakClient implements HasLogger {
 
   @Cacheable("roleById")
   public ServiceResult<SecurityKeycloakRole> getRoleById(GetByStrIdQuery query) {
-    String loggerPrefix = getLoggerPrefix("getRole");
+    var loggerPrefix = getLoggerPrefix("getRole");
 
     RoleRepresentation roleRepresentation = getKeycloakRealmInstance().rolesById()
         .getRole(query.getId());
@@ -452,7 +451,7 @@ public class KeycloakClient implements HasLogger {
   @CacheEvict(cacheNames = {"allRoles", "roleByName", "roleById", "findRoles",
       "countRoles"}, allEntries = true)
   public ServiceResult<Void> deleteRole(DeleteByStrIdQuery query) {
-    String loggerPrefix = getLoggerPrefix("deleteRole");
+    var loggerPrefix = getLoggerPrefix("deleteRole");
 
     List<RoleRepresentation> existing = getKeycloakRealmInstance().roles().list().stream()
         .filter(roleRepresentation -> roleRepresentation.getId().equals(query.getId())).collect(
@@ -487,7 +486,7 @@ public class KeycloakClient implements HasLogger {
 
   @Cacheable("groupByName")
   public ServiceResult<SecurityKeycloakGroup> getGroupByName(GetByNameQuery query) {
-    String loggerPrefix = getLoggerPrefix("getGroupByName");
+    var loggerPrefix = getLoggerPrefix("getGroupByName");
 
     Optional<GroupRepresentation> _groupRepresentations = getKeycloakRealmInstance().groups()
         .groups()
@@ -505,7 +504,7 @@ public class KeycloakClient implements HasLogger {
 
   @Cacheable("groupById")
   public ServiceResult<SecurityKeycloakGroup> getGroupById(GetByStrIdQuery query) {
-    String loggerPrefix = getLoggerPrefix("getGroupById");
+    var loggerPrefix = getLoggerPrefix("getGroupById");
 
     GroupResource groupResource = getKeycloakRealmInstance().groups().group(query.getId());
     if (groupResource != null) {
@@ -578,7 +577,7 @@ public class KeycloakClient implements HasLogger {
   @CacheEvict(cacheNames = {"allGroups", "groupByName", "groupById", "findGroups",
       "countGroups"}, allEntries = true)
   public ServiceResult<SecurityKeycloakGroup> saveGroup(SaveQuery<SecurityKeycloakGroup> query) {
-    String loggerPrefix = getLoggerPrefix("saveGroup");
+    var loggerPrefix = getLoggerPrefix("saveGroup");
     if (query.getEntity().getId() != null) {
       GroupResource groupResource = getKeycloakRealmInstance().groups()
           .group(query.getEntity().getId());
@@ -639,7 +638,7 @@ public class KeycloakClient implements HasLogger {
   @CacheEvict(cacheNames = {"allGroups", "groupByName", "groupById", "findGroups",
       "countGroups"}, allEntries = true)
   public ServiceResult<Void> deleteGroup(DeleteByStrIdQuery query) {
-    String loggerPrefix = getLoggerPrefix("deleteGroup");
+    var loggerPrefix = getLoggerPrefix("deleteGroup");
 
     if (getKeycloakRealmInstance().groups().group(query.getId()) == null) {
       logger().warn(loggerPrefix + "Group not found (id=" + query.getId() + ")");

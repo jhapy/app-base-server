@@ -69,9 +69,15 @@ public interface CrudGraphdbService<T extends BaseEntity> {
     return getRepository().findAll();
   }
 
-  default Iterable<T> saveAll(Iterable<T> entities) { return getRepository().saveAll(entities); }
+  default Iterable<T> saveAll(Iterable<T> entities) {
+    return getRepository().saveAll(entities);
+  }
 
-  default Page<T> findAnyMatching(String filter, Boolean showInactive, Pageable pageable) { return Page.empty(); }
+  default Page<T> findAnyMatching(String filter, Boolean showInactive, Pageable pageable) {
+    return Page.empty();
+  }
 
-  default long countAnyMatching(String filter, Boolean showInactive) { return 0; }
+  default long countAnyMatching(String filter, Boolean showInactive) {
+    return 0;
+  }
 }

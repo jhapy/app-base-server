@@ -16,6 +16,7 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class AmqpConfig {
+
   @Bean
   public FanoutExchange elementUpdate() {
     return new FanoutExchange("i18n.elementUpdate");
@@ -25,18 +26,22 @@ public class AmqpConfig {
   public FanoutExchange elementTrlUpdate() {
     return new FanoutExchange("i18n.elementTrlUpdate");
   }
+
   @Bean
   public FanoutExchange actionUpdate() {
     return new FanoutExchange("i18n.actionUpdate");
   }
+
   @Bean
   public FanoutExchange actionTrlUpdate() {
     return new FanoutExchange("i18n.actionTrlUpdate");
   }
 
-  @Bean public FanoutExchange messageUpdate() {
+  @Bean
+  public FanoutExchange messageUpdate() {
     return new FanoutExchange("i18n.messageUpdate");
   }
+
   @Bean
   public FanoutExchange messageTrlUpdate() {
     return new FanoutExchange("i18n.messageTrlUpdate");
@@ -66,40 +71,41 @@ public class AmqpConfig {
   public Queue messageUpdateQueue() {
     return new AnonymousQueue();
   }
+
   @Bean
   public Queue messageTrlUpdateQueue() {
     return new AnonymousQueue();
   }
 
-    @Bean
-    public Queue newSessionQueue() {
-        return new Queue("audit.newSession");
-    }
+  @Bean
+  public Queue newSessionQueue() {
+    return new Queue("audit.newSession");
+  }
 
-    @Bean
-    public Queue endSessionQueue() {
-        return new Queue("audit.endSession");
-    }
+  @Bean
+  public Queue endSessionQueue() {
+    return new Queue("audit.endSession");
+  }
 
-    @Bean
-    public Queue cloudDataQueue() {
-        return new Queue("notification.cloudData");
-    }
+  @Bean
+  public Queue cloudDataQueue() {
+    return new Queue("notification.cloudData");
+  }
 
-    @Bean
-    public Queue cloudNotificationQueue() {
-        return new Queue("notification.cloudNotification");
-    }
+  @Bean
+  public Queue cloudNotificationQueue() {
+    return new Queue("notification.cloudNotification");
+  }
 
-    @Bean
-    public Queue mailboxQueue() {
-        return new Queue("notification.mailbox");
-    }
+  @Bean
+  public Queue mailboxQueue() {
+    return new Queue("notification.mailbox");
+  }
 
-    @Bean
-    public Queue smsQueue() {
-        return new Queue("notification.sms");
-    }
+  @Bean
+  public Queue smsQueue() {
+    return new Queue("notification.sms");
+  }
 
   @Bean
   public Binding bindingActionUpdate(

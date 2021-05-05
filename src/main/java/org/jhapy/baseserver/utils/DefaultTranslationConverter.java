@@ -25,7 +25,6 @@ import org.jhapy.baseserver.domain.graphdb.EntityTranslations;
 import org.neo4j.driver.Value;
 import org.neo4j.driver.Values;
 import org.springframework.data.neo4j.core.convert.Neo4jConversionService;
-import org.springframework.data.neo4j.core.convert.Neo4jPersistentPropertyConverter;
 import org.springframework.data.neo4j.core.convert.Neo4jPersistentPropertyToMapConverter;
 
 /**
@@ -40,46 +39,48 @@ public class DefaultTranslationConverter implements
   public DefaultTranslationConverter() {
   }
 
-    @Override
-    public Map<String, Value> decompose(EntityTranslations translations, Neo4jConversionService neo4jConversionService) {
-        Map<String, Value> result = new HashMap<>();
-        Map<String, EntityTranslation> entityValue = translations.getTranslations();
-        if (entityValue != null) {
-            entityValue.keySet().forEach(key -> {
-                EntityTranslation t = entityValue.get(key);
-                result.put(key + ".value", Values.value(t.getValue() == null ? "" : t.getValue()));
-                result.put(key + ".isTranslated", Values.value(t.isTranslated()));
-                result.put(key + ".isDefault", Values.value(t.isDefault()));
-            });
+  @Override
+  public Map<String, Value> decompose(EntityTranslations translations,
+      Neo4jConversionService neo4jConversionService) {
+    Map<String, Value> result = new HashMap<>();
+    Map<String, EntityTranslation> entityValue = translations.getTranslations();
+    if (entityValue != null) {
+      entityValue.keySet().forEach(key -> {
+        EntityTranslation t = entityValue.get(key);
+        result.put(key + ".value", Values.value(t.getValue() == null ? "" : t.getValue()));
+        result.put(key + ".isTranslated", Values.value(t.isTranslated()));
+        result.put(key + ".isDefault", Values.value(t.isDefault()));
+      });
+    }
+    return result;
+  }
+
+  @Override
+  public EntityTranslations compose(Map<String, Value> source,
+      Neo4jConversionService neo4jConversionService) {
+    Map<String, EntityTranslation> result = new HashMap<>();
+    source.keySet().forEach(key -> {
+      String[] vals = key.split("\\.");
+      if (vals.length == 2) {
+        String iso3Language = vals[0];
+
+        EntityTranslation translation;
+        if (result.containsKey(iso3Language)) {
+          translation = result.get(iso3Language);
+        } else {
+          translation = new EntityTranslation();
+          translation.setIso3Language(iso3Language);
+          result.put(iso3Language, translation);
         }
-        return result;
-    }
-
-    @Override
-    public EntityTranslations compose(Map<String, Value> source, Neo4jConversionService neo4jConversionService) {
-        Map<String, EntityTranslation> result = new HashMap<>();
-        source.keySet().forEach(key -> {
-            String[] vals = key.split("\\.");
-            if (vals.length == 2) {
-                String iso3Language = vals[0];
-
-                EntityTranslation translation;
-                if (result.containsKey(iso3Language)) {
-                    translation = result.get(iso3Language);
-                } else {
-                    translation = new EntityTranslation();
-                    translation.setIso3Language(iso3Language);
-                    result.put(iso3Language, translation);
-                }
-              switch (vals[1]) {
-                case "value" -> translation.setValue(source.get(key).asString());
-                case "isTranslated" -> translation
-                    .setTranslated(source.get(key).asBoolean());
-                case "isDefault" -> translation
-                    .setDefault(source.get(key).asBoolean());
-              }
-            }
-        });
-        return new EntityTranslations(result);
-    }
+        switch (vals[1]) {
+          case "value" -> translation.setValue(source.get(key).asString());
+          case "isTranslated" -> translation
+              .setTranslated(source.get(key).asBoolean());
+          case "isDefault" -> translation
+              .setDefault(source.get(key).asBoolean());
+        }
+      }
+    });
+    return new EntityTranslations(result);
+  }
 }

@@ -30,6 +30,7 @@ import lombok.Data;
  */
 @Data
 public class EntityTranslation implements Serializable {
+
   private String iso3Language;
   private boolean isTranslated = Boolean.FALSE;
   private boolean isDefault = Boolean.FALSE;

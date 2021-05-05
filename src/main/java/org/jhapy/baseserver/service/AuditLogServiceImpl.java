@@ -49,7 +49,7 @@ public class AuditLogServiceImpl implements AuditLogService, HasLogger {
 
   @Override
   public Page<AuditLog> getAudit(String className, String id, Pageable pageable) {
-    String loggerPrefix = getLoggerPrefix("getAudit", className, id, pageable);
+    var loggerPrefix = getLoggerPrefix("getAudit", className, id, pageable);
 
     Changes changes = javers.findChanges(QueryBuilder.byInstanceId(id, className)
         .withNewObjectChanges().skip((int) pageable.getOffset())
@@ -59,19 +59,15 @@ public class AuditLogServiceImpl implements AuditLogService, HasLogger {
 
     AtomicLong index = new AtomicLong(0);
     List<AuditLog> auditLogs = new ArrayList<>();
-    changes.groupByCommit().forEach(byCommit -> {
-      byCommit.groupByObject().forEach(byObject -> {
-        byObject.get().forEach(change -> {
-          AuditLog auditLog = new AuditLog();
-          auditLog.setId(index.incrementAndGet());
-          auditLog.setCommit(byCommit.getCommit().getId().value());
-          auditLog.setAuthor(byCommit.getCommit().getAuthor());
-          auditLog.setDate(byCommit.getCommit().getCommitDate());
-          auditLog.setChange(change.toString());
-          auditLogs.add(auditLog);
-        });
-      });
-    });
+    changes.groupByCommit().forEach(byCommit -> byCommit.groupByObject().forEach(byObject -> byObject.get().forEach(change -> {
+        AuditLog auditLog = new AuditLog();
+        auditLog.setId(index.incrementAndGet());
+        auditLog.setCommit(byCommit.getCommit().getId().value());
+        auditLog.setAuthor(byCommit.getCommit().getAuthor());
+        auditLog.setDate(byCommit.getCommit().getCommitDate());
+        auditLog.setChange(change.toString());
+        auditLogs.add(auditLog);
+      })));
 
     logger().debug(loggerPrefix + "Audit Log size = " + auditLogs.size());
 
@@ -80,7 +76,7 @@ public class AuditLogServiceImpl implements AuditLogService, HasLogger {
 
   @Override
   public long countAudit(String className, String id) {
-    String loggerPrefix = getLoggerPrefix("countAudit", className, id);
+    var loggerPrefix = getLoggerPrefix("countAudit", className, id);
 
     long count = javers.findChanges(QueryBuilder.byInstanceId(id, className)
         .withNewObjectChanges().build()).size();

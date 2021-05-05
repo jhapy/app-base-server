@@ -32,16 +32,16 @@ import org.springframework.stereotype.Component;
 @Component
 public class CloudDataMessageQueue {
 
-    private final AmqpTemplate amqpTemplate;
-    private final Queue cloudDataQueue;
+  private final AmqpTemplate amqpTemplate;
+  private final Queue cloudDataQueue;
 
-    public CloudDataMessageQueue(AmqpTemplate amqpTemplate,
-        @Qualifier("cloudDataQueue")  Queue cloudDataQueue) {
-        this.amqpTemplate = amqpTemplate;
-        this.cloudDataQueue = cloudDataQueue;
-    }
+  public CloudDataMessageQueue(AmqpTemplate amqpTemplate,
+      @Qualifier("cloudDataQueue") Queue cloudDataQueue) {
+    this.amqpTemplate = amqpTemplate;
+    this.cloudDataQueue = cloudDataQueue;
+  }
 
-    public void sendMessage(final CloudDataMessage cloudDataMessage) {
-      amqpTemplate.convertAndSend(cloudDataQueue.getName(), cloudDataMessage);
+  public void sendMessage(final CloudDataMessage cloudDataMessage) {
+    amqpTemplate.convertAndSend(cloudDataQueue.getName(), cloudDataMessage);
   }
 }

@@ -49,8 +49,7 @@ public class ChainedTransactionConfiguration {
   @Primary
   @Bean("transactionManager")
   public PlatformTransactionManager getTransactionManager() {
-    ChainedTransactionManager transactionManager = new ChainedTransactionManager(
+    return new ChainedTransactionManager(
         graphdbTransactionManager, relationaldbTransactionManager, nosqlTransactionManager);
-    return transactionManager;
   }
 }

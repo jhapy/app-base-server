@@ -28,7 +28,7 @@ public class I18NReceiver implements HasLogger {
 
   @RabbitListener(queues = "#{elementUpdateQueue.name}")
   public void onElementUpdate(final I18NElementUpdate update) {
-    String loggerPrefix = getLoggerPrefix("onElementUpdate", update);
+    var loggerPrefix = getLoggerPrefix("onElementUpdate", update);
 
     logger().info(loggerPrefix + "Message received");
 
@@ -37,7 +37,7 @@ public class I18NReceiver implements HasLogger {
 
   @RabbitListener(queues = "#{elementTrlUpdateQueue.name}")
   public void onElementTrlUpdate(final I18NElementTrlUpdate update) {
-    String loggerPrefix = getLoggerPrefix("onElementTrlUpdate", update);
+    var loggerPrefix = getLoggerPrefix("onElementTrlUpdate", update);
 
     logger().info(loggerPrefix + "Message received");
 
@@ -46,7 +46,7 @@ public class I18NReceiver implements HasLogger {
 
   @RabbitListener(queues = "#{actionUpdateQueue.name}")
   public void onActionUpdate(final I18NActionUpdate update) {
-    String loggerPrefix = getLoggerPrefix("onActionUpdate", update);
+    var loggerPrefix = getLoggerPrefix("onActionUpdate", update);
 
     logger().info(loggerPrefix + "Message received");
 
@@ -55,7 +55,7 @@ public class I18NReceiver implements HasLogger {
 
   @RabbitListener(queues = "#{actionTrlUpdateQueue.name}")
   public void onActionTrlUpdate(final I18NActionTrlUpdate update) {
-    String loggerPrefix = getLoggerPrefix("onActionTrlUpdate", update);
+    var loggerPrefix = getLoggerPrefix("onActionTrlUpdate", update);
 
     logger().info(loggerPrefix + "Message received");
 
@@ -64,7 +64,7 @@ public class I18NReceiver implements HasLogger {
 
   @RabbitListener(queues = "#{messageUpdateQueue.name}")
   public void onMessageUpdate(final I18NMessageUpdate update) {
-    String loggerPrefix = getLoggerPrefix("onMessageUpdate", update);
+    var loggerPrefix = getLoggerPrefix("onMessageUpdate", update);
 
     logger().info(loggerPrefix + "Message received");
 
@@ -73,7 +73,7 @@ public class I18NReceiver implements HasLogger {
 
   @RabbitListener(queues = "#{messageTrlUpdateQueue.name}")
   public void onMessageTrlUpdate(final I18NMessageTrlUpdate update) {
-    String loggerPrefix = getLoggerPrefix("onMessageTrlUpdate", update);
+    var loggerPrefix = getLoggerPrefix("onMessageTrlUpdate", update);
 
     logger().info(loggerPrefix + "Message received");
 

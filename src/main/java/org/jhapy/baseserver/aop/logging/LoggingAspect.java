@@ -78,7 +78,7 @@ public class LoggingAspect implements HasLogger {
    */
   @AfterThrowing(pointcut = "serviceOrEnpointPointcut() && springBeanPointcut()", throwing = "e")
   public void logAfterThrowing(JoinPoint joinPoint, Throwable e) {
-    String loggerPrefix = getLoggerPrefix(joinPoint.getSignature().getName());
+    var loggerPrefix = getLoggerPrefix(joinPoint.getSignature().getName());
     Class sourceClass = joinPoint.getSignature().getDeclaringType();
 
     if (env.acceptsProfiles(Profiles.of(SpringProfileConstants.SPRING_PROFILE_DEVELOPMENT))) {
@@ -103,7 +103,7 @@ public class LoggingAspect implements HasLogger {
    */
   @Around("serviceOrEnpointPointcut() && springBeanPointcut() && methodAnnotatedWithNoLog()")
   public Object logAroundServiceOrEndpoint(ProceedingJoinPoint joinPoint) throws Throwable {
-    String loggerPrefix = getLoggerPrefix(joinPoint.getSignature().getName());
+    var loggerPrefix = getLoggerPrefix(joinPoint.getSignature().getName());
     Class sourceClass = joinPoint.getSignature().getDeclaringType();
 
     // TODO : Add an endpoint to activate/deactivate at runtime
@@ -142,7 +142,7 @@ public class LoggingAspect implements HasLogger {
 
   @Around("repositoryPointcut() && springBeanPointcut() && methodAnnotatedWithNoLog()")
   public Object logAroundRepository(ProceedingJoinPoint joinPoint) throws Throwable {
-    String loggerPrefix = getLoggerPrefix(joinPoint.getSignature().getName());
+    var loggerPrefix = getLoggerPrefix(joinPoint.getSignature().getName());
     Class sourceClass = joinPoint.getSignature().getDeclaringType();
 
     try {
