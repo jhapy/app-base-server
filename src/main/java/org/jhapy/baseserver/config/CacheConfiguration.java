@@ -131,6 +131,7 @@ public class CacheConfiguration implements HasLogger {
           .acceptsProfiles(Profiles.of(SpringProfileConstants.SPRING_PROFILE_TEST,
               SpringProfileConstants.SPRING_PROFILE_DEVELOPMENT,
               SpringProfileConstants.SPRING_PROFILE_STAGING,
+              SpringProfileConstants.SPRING_PROFILE_PRE_PRODUCTION,
               SpringProfileConstants.SPRING_PROFILE_PRODUCTION))) {
         logger()
             .debug(loggerPrefix
