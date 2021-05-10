@@ -10,6 +10,7 @@
     <groupId>org.jhapy</groupId>
     <artifactId>jhapy-bom</artifactId>
     <version>3.0.0-SNAPSHOT</version>
+    <relativePath/>
   </parent>
 
   <groupId>org.jhapy</groupId>
@@ -95,11 +96,6 @@
       <artifactId>spring-cloud-starter-openfeign</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.zalando</groupId>
-      <artifactId>problem-spring-web</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-data-neo4j</artifactId>
       <scope>provided</scope>
@@ -166,6 +162,10 @@
       <artifactId>jackson-datatype-json-org</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.fasterxml.jackson.datatype</groupId>
+      <artifactId>jackson-datatype-hibernate5</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.fasterxml.jackson.module</groupId>
       <artifactId>jackson-module-afterburner</artifactId>
     </dependency>
@@ -173,6 +173,7 @@
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
     </dependency>
+
     <!-- End Jackson -->
 
     <!-- Java EE APIs for XML Bind, because of JDK11-->

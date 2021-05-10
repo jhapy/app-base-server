@@ -28,7 +28,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import org.jhapy.baseserver.domain.relationaldb.BaseEntity;
-import org.jhapy.baseserver.exception.ServiceException;
+import org.jhapy.commons.exception.ServiceException;
 import org.jhapy.commons.security.SecurityUtils;
 import org.jhapy.commons.utils.BeanUtils;
 import org.jhapy.commons.utils.HasLogger;
@@ -221,14 +221,14 @@ public interface CrudRelationalService<T extends BaseEntity> extends HasLogger {
       throws ServiceException {
     // Not working yet
     if (!entity.containsKey("id") || entity.get("id") == null) {
-      throw new ServiceException("At least an ID attribute is required with a value");
+      throw new ServiceException("At least an ID attribute is required with a value", "CrudRelationalService");
     }
 
     long id;
     try {
       id = Long.parseLong(entity.get("id").toString());
     } catch (NumberFormatException nfe) {
-      throw new ServiceException("ID attribute value is invalid");
+      throw new ServiceException("ID attribute value is invalid", "CrudRelationalService");
     }
     T existingRecord = getRepository().findById(id).get();
     T inputRecord = mapperFacade.map(entity, getEntityClass());

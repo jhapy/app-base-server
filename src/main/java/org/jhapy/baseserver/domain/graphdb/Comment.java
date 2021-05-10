@@ -43,7 +43,6 @@ public class Comment extends BaseEntity {
   /**
    * Text of the Comment
    */
-  @ConvertWith
   private String content;
 
   /**

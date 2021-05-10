@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.jhapy.baseserver.domain.nosqldb.BaseEntity;
-import org.jhapy.baseserver.exception.ServiceException;
+import org.jhapy.commons.exception.ServiceException;
 import org.jhapy.commons.security.SecurityUtils;
 import org.jhapy.commons.utils.HasLogger;
 import org.jhapy.dto.domain.exception.EntityNotFoundException;
@@ -65,7 +65,7 @@ public interface CrudNosqldbService<T extends BaseEntity> extends HasLogger {
   }
 
   @Transactional
-  default void delete(String id) throws Exception {
+  default void delete(String id) {
     delete(load(id));
   }
 

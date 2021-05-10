@@ -18,15 +18,12 @@
 
 package org.jhapy.baseserver.config;
 
-import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.datatype.hibernate5.Hibernate5Module;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
-import java.time.Instant;
-import org.jhapy.dto.utils.DateConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -35,10 +32,8 @@ import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
 @Configuration
 public class JacksonConfiguration {
-
   /**
    * Support for Java date and time API.
-   *
    * @return the corresponding Jackson module.
    */
   @Bean
@@ -59,7 +54,15 @@ public class JacksonConfiguration {
     return new AfterburnerModule();
   }
 
-  /**
+  /*
+   * Support for Hibernate types in Jackson.
+   */
+  @Bean
+  public Hibernate5Module hibernate5Module() {
+    return new Hibernate5Module();
+  }
+
+  /*
    * Module for serialization/deserialization of RFC7807 Problem.
    */
   @Bean
@@ -67,31 +70,11 @@ public class JacksonConfiguration {
     return new ProblemModule();
   }
 
-  /**
+  /*
    * Module for serialization/deserialization of ConstraintViolationProblem.
    */
   @Bean
   public ConstraintViolationProblemModule constraintViolationProblemModule() {
     return new ConstraintViolationProblemModule();
-  }
-
-  @Bean
-  public Module module() {
-    SimpleModule module = new SimpleModule();
-    module.addSerializer(Instant.class,
-        new DateConverter.Serialize());               // register as serialize class for Instant.class
-    module.addDeserializer(Instant.class,
-        new DateConverter.Deserialize());          //  register as deserialize class for Instant.class
-    return module;
-  }
-
-  @Bean
-  public MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter() {
-    MappingJackson2HttpMessageConverter jsonConverter = new MappingJackson2HttpMessageConverter();
-    ObjectMapper objectMapper = jsonConverter.getObjectMapper();
-
-    objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-
-    return jsonConverter;
   }
 }

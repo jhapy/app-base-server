@@ -86,6 +86,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         .authorizeRequests()
         .antMatchers("/paypalExternal").permitAll()
         .antMatchers("/api/auth-info").permitAll()
+        .antMatchers("/api/placeService/lookupPlaces").permitAll()
         .antMatchers("/api/**").authenticated()
         .antMatchers("/management/health").permitAll()
         .antMatchers("/management/health/**").permitAll()

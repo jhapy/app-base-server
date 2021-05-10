@@ -20,8 +20,10 @@ package org.jhapy.baseserver.domain.graphdb;
 
 import java.io.Serializable;
 import java.time.Instant;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
