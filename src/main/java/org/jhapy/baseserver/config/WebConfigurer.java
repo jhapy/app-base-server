@@ -22,8 +22,6 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import org.jhapy.commons.config.AppProperties;
 import org.jhapy.commons.utils.HasLogger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,6 +35,7 @@ import org.springframework.web.filter.CorsFilter;
  */
 @Configuration
 public class WebConfigurer implements ServletContextInitializer, HasLogger {
+
   private final Environment env;
 
   private final AppProperties appProperties;

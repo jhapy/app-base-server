@@ -57,12 +57,12 @@ public class AuditLogServiceEndpoint extends BaseEndpoint {
       @RequestBody FindAuditLogQuery query) {
     var loggerPrefix = getLoggerPrefix("getAuditLog");
 
-      Page<AuditLog> result = auditLogService
-          .getAudit(query.getClassName(), query.getRecordId(),
-              mapperFacade.map(query.getPageable(),
-                  Pageable.class));
-      return handleResult(loggerPrefix, mapperFacade
-          .map(result, org.jhapy.dto.utils.Page.class, getOrikaContext(query)));
+    Page<AuditLog> result = auditLogService
+        .getAudit(query.getClassName(), query.getRecordId(),
+            mapperFacade.map(query.getPageable(),
+                Pageable.class));
+    return handleResult(loggerPrefix, mapperFacade
+        .map(result, org.jhapy.dto.utils.Page.class, getOrikaContext(query)));
   }
 
   @PostMapping(value = "/countAuditLog")
@@ -70,8 +70,8 @@ public class AuditLogServiceEndpoint extends BaseEndpoint {
       @RequestBody CountAuditLogQuery query) {
     var loggerPrefix = getLoggerPrefix("countAuditLog");
 
-      return handleResult(loggerPrefix,
-          auditLogService
-              .countAudit(query.getClassName(), query.getRecordId()));
+    return handleResult(loggerPrefix,
+        auditLogService
+            .countAudit(query.getClassName(), query.getRecordId()));
   }
 }

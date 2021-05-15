@@ -203,7 +203,8 @@ public class KeycloakClient implements HasLogger {
       if (userRepresentation.getAttributes() == null) {
         userRepresentation.setAttributes(new HashMap<>());
       }
-      user.getAttributes().forEach((s, o) -> userRepresentation.getAttributes().put(s, Collections.singletonList(o.toString())));
+      user.getAttributes().forEach((s, o) -> userRepresentation.getAttributes()
+          .put(s, Collections.singletonList(o.toString())));
 
       userRepresentation.getAttributes().put("title", Collections.singletonList(user.getTitle()));
       if (user.getPicture() != null) {

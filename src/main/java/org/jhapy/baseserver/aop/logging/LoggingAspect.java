@@ -57,7 +57,7 @@ public class LoggingAspect implements HasLogger {
    */
   @Pointcut("target(org.jhapy.baseserver.service.CrudGraphdbService)" +
       " || target(org.jhapy.baseserver.service.CrudNosqldbService)" +
-      " || target(org.jhapy.baseserver.service.CrudRelationalService)" )
+      " || target(org.jhapy.baseserver.service.CrudRelationalService)")
   public void serviceEndpoint() {
     // Method is empty as this is just a Pointcut, the implementations are in the advices.
   }
@@ -77,7 +77,8 @@ public class LoggingAspect implements HasLogger {
     var loggerPrefix = getLoggerPrefix(joinPoint.getSignature().getName());
     Class sourceClass = joinPoint.getSignature().getDeclaringType();
 
-    if (env.acceptsProfiles(Profiles.of(SpringProfileConstants.SPRING_PROFILE_DEVELOPMENT, SpringProfileConstants.SPRING_PROFILE_DEVELOPMENT_LOCAL))) {
+    if (env.acceptsProfiles(Profiles.of(SpringProfileConstants.SPRING_PROFILE_DEVELOPMENT,
+        SpringProfileConstants.SPRING_PROFILE_DEVELOPMENT_LOCAL))) {
       logger(sourceClass)
           .error(loggerPrefix + ">>> Exception in {} with cause = '{}' and exception = '{}'",
               joinPoint.getSignature().toShortString(),

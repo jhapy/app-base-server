@@ -59,15 +59,16 @@ public class AuditLogServiceImpl implements AuditLogService, HasLogger {
 
     AtomicLong index = new AtomicLong(0);
     List<AuditLog> auditLogs = new ArrayList<>();
-    changes.groupByCommit().forEach(byCommit -> byCommit.groupByObject().forEach(byObject -> byObject.get().forEach(change -> {
-        AuditLog auditLog = new AuditLog();
-        auditLog.setId(index.incrementAndGet());
-        auditLog.setCommit(byCommit.getCommit().getId().value());
-        auditLog.setAuthor(byCommit.getCommit().getAuthor());
-        auditLog.setDate(byCommit.getCommit().getCommitDate());
-        auditLog.setChange(change.toString());
-        auditLogs.add(auditLog);
-      })));
+    changes.groupByCommit().forEach(
+        byCommit -> byCommit.groupByObject().forEach(byObject -> byObject.get().forEach(change -> {
+          AuditLog auditLog = new AuditLog();
+          auditLog.setId(index.incrementAndGet());
+          auditLog.setCommit(byCommit.getCommit().getId().value());
+          auditLog.setAuthor(byCommit.getCommit().getAuthor());
+          auditLog.setDate(byCommit.getCommit().getCommitDate());
+          auditLog.setChange(change.toString());
+          auditLogs.add(auditLog);
+        })));
 
     logger().debug(loggerPrefix + "Audit Log size = " + auditLogs.size());
 

@@ -38,15 +38,15 @@ public interface CommentRepository extends BaseRepository<Comment> {
 
   @Query(
       "MATCH (m:Comment)-[:HAS_RELATED_ENTITY]->(p) WHERE NOT ((m)-[:HAS_PARENT]->()) AND id(p) = $relatedEntityId RETURN count(m)")
-  long countRootComments(@Param("relatedEntityId")Long relatedEntityId);
+  long countRootComments(@Param("relatedEntityId") Long relatedEntityId);
 
   @Query(value =
       "MATCH (m:Comment)-[:HAS_PARENT]->(n1:Comment) WHERE id(n1) = $parentId RETURN m ORDER BY m.created DESC SKIP $skip LIMIT $limit",
       countQuery =
           "MATCH (m:Comment)-[:HAS_PARENT]->(n1:Comment) WHERE id(n1) = $parentId RETURN count(DISTINCT m)")
-  Page<Comment> getCommentsFilterByParent(@Param("parentId")Long parentId, Pageable pageable);
+  Page<Comment> getCommentsFilterByParent(@Param("parentId") Long parentId, Pageable pageable);
 
   @Query(value =
       "MATCH (m:Comment)-[:HAS_PARENT]->(n1:Comment) WHERE id(n1) = $parentId RETURN count(DISTINCT m)")
-  long countCommentsFilterByParent(@Param("parentId")Long parentId);
+  long countCommentsFilterByParent(@Param("parentId") Long parentId);
 }

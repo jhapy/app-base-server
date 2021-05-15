@@ -101,12 +101,12 @@ public abstract class BaseGraphDbEndpoint<T extends BaseEntity, D extends BaseEn
       @RequestBody FindAnyMatchingQuery query) {
     var loggerPrefix = getLoggerPrefix("findAnyMatching");
 
-      Page<T> result = getService()
-          .findAnyMatching(query.getFilter(), query.getShowInactive(),
-              mapperFacade.map(query.getPageable(),
-                  Pageable.class));
-      return handleResult(loggerPrefix, mapperFacade
-          .map(result, org.jhapy.dto.utils.Page.class, getOrikaContext(query)));
+    Page<T> result = getService()
+        .findAnyMatching(query.getFilter(), query.getShowInactive(),
+            mapperFacade.map(query.getPageable(),
+                Pageable.class));
+    return handleResult(loggerPrefix, mapperFacade
+        .map(result, org.jhapy.dto.utils.Page.class, getOrikaContext(query)));
   }
 
   @PostMapping(value = "/countAnyMatching")
@@ -114,30 +114,30 @@ public abstract class BaseGraphDbEndpoint<T extends BaseEntity, D extends BaseEn
       @RequestBody CountAnyMatchingQuery query) {
     var loggerPrefix = getLoggerPrefix("countAnyMatching");
 
-      return handleResult(loggerPrefix,
-          getService().countAnyMatching(query.getFilter(), query.getShowInactive()));
+    return handleResult(loggerPrefix,
+        getService().countAnyMatching(query.getFilter(), query.getShowInactive()));
   }
 
   @PostMapping(value = "/getById")
   public ResponseEntity<ServiceResult> getById(@RequestBody GetByIdQuery query) {
     var loggerPrefix = getLoggerPrefix("getById");
 
-      debug(loggerPrefix, "ID = {0}", query.getId());
+    debug(loggerPrefix, "ID = {0}", query.getId());
 
-      return handleResult(loggerPrefix, mapperFacade
-          .map(getService().load(query.getId()),
-              getDtoClass(),
-              getOrikaContext(query)));
+    return handleResult(loggerPrefix, mapperFacade
+        .map(getService().load(query.getId()),
+            getDtoClass(),
+            getOrikaContext(query)));
   }
 
   @PostMapping(value = "/getAll")
   public ResponseEntity<ServiceResult> getAll(@RequestBody BaseRemoteQuery query) {
     var loggerPrefix = getLoggerPrefix("getAll");
 
-      return handleResult(loggerPrefix, mapperFacade
-          .mapAsList(getService().findAll(),
-              getDtoClass(),
-              getOrikaContext(query)));
+    return handleResult(loggerPrefix, mapperFacade
+        .mapAsList(getService().findAll(),
+            getDtoClass(),
+            getOrikaContext(query)));
   }
 
   @PostMapping(value = "/save")
@@ -145,29 +145,29 @@ public abstract class BaseGraphDbEndpoint<T extends BaseEntity, D extends BaseEn
       @RequestBody SaveQuery<D> query) {
     var loggerPrefix = getLoggerPrefix("save");
 
-      T converted = mapperFacade.map(query.getEntity(), getEntityClass(), getOrikaContext(query));
-      return handleResult(loggerPrefix, mapperFacade.map(getService()
-              .save(converted),
-          getDtoClass(),
-          getOrikaContext(query)));
+    T converted = mapperFacade.map(query.getEntity(), getEntityClass(), getOrikaContext(query));
+    return handleResult(loggerPrefix, mapperFacade.map(getService()
+            .save(converted),
+        getDtoClass(),
+        getOrikaContext(query)));
   }
 
   @PostMapping(value = "/saveAll")
   public ResponseEntity<ServiceResult> saveAll(@RequestBody SaveAllQuery<D> query) {
     var loggerPrefix = getLoggerPrefix("saveAll");
 
-      return handleResult(loggerPrefix, mapperFacade.mapAsSet(getService()
-              .saveAll(mapperFacade
-                  .mapAsSet(query.getEntity(), getEntityClass(),
-                      getOrikaContext(query))),
-          getDtoClass(), getOrikaContext(query)));
+    return handleResult(loggerPrefix, mapperFacade.mapAsSet(getService()
+            .saveAll(mapperFacade
+                .mapAsSet(query.getEntity(), getEntityClass(),
+                    getOrikaContext(query))),
+        getDtoClass(), getOrikaContext(query)));
   }
 
   @PostMapping(value = "/delete")
   public ResponseEntity<ServiceResult> delete(@RequestBody DeleteByIdQuery query) {
     var loggerPrefix = getLoggerPrefix("delete");
 
-      getService().delete(query.getId());
-      return handleResult(loggerPrefix);
+    getService().delete(query.getId());
+    return handleResult(loggerPrefix);
   }
 }
