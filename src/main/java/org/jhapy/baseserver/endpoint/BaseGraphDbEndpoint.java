@@ -18,11 +18,14 @@
 
 package org.jhapy.baseserver.endpoint;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import ma.glasnost.orika.MappingContext;
+import org.jhapy.baseserver.converter.BaseConverterV2;
 import org.jhapy.baseserver.domain.graphdb.BaseEntity;
 import org.jhapy.baseserver.service.CrudGraphdbService;
 import org.jhapy.commons.utils.HasLogger;
-import org.jhapy.commons.utils.OrikaBeanMapper;
 import org.jhapy.dto.domain.BaseEntityLongId;
 import org.jhapy.dto.serviceQuery.BaseRemoteQuery;
 import org.jhapy.dto.serviceQuery.ServiceResult;
@@ -33,7 +36,6 @@ import org.jhapy.dto.serviceQuery.generic.GetByIdQuery;
 import org.jhapy.dto.serviceQuery.generic.SaveAllQuery;
 import org.jhapy.dto.serviceQuery.generic.SaveQuery;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -41,26 +43,43 @@ import org.springframework.web.bind.annotation.RequestBody;
 public abstract class BaseGraphDbEndpoint<T extends BaseEntity, D extends BaseEntityLongId> implements
     HasLogger {
 
-  protected final OrikaBeanMapper mapperFacade;
+  protected final BaseConverterV2 converter;
 
-  protected BaseGraphDbEndpoint(OrikaBeanMapper mapperFacade) {
-    this.mapperFacade = mapperFacade;
+  protected BaseGraphDbEndpoint(BaseConverterV2 converter) {
+    this.converter = converter;
   }
 
   protected abstract CrudGraphdbService<T> getService();
 
-  protected abstract Class<T> getEntityClass();
+  protected org.jhapy.dto.utils.Page toDtoPage(org.springframework.data.domain.Page domain,
+      List data) {
+    org.jhapy.dto.utils.Page result = new org.jhapy.dto.utils.Page<>();
+    result.setTotalPages(domain.getTotalPages());
+    result.setSize(domain.getSize());
+    result.setNumber(domain.getNumber());
+    result.setNumberOfElements(domain.getNumberOfElements());
+    result.setTotalElements(domain.getTotalElements());
+    result.setPageable(converter.convert(domain.getPageable()));
+    result.setContent(data);
+    return result;
+  }
 
-  protected abstract Class<D> getDtoClass();
+  protected abstract D convertToDto(T domain, Map<String,Object> context);
 
-  protected MappingContext getOrikaContext(BaseRemoteQuery query) {
-    MappingContext context = new MappingContext.Factory().getContext();
+  protected abstract List<D> convertToDtos(Iterable<T> domains, Map<String,Object> context);
 
-    context.setProperty("username", query.getQueryUsername());
-    context.setProperty("userId", query.getQueryUserId());
-    context.setProperty("sessionId", query.getQuerySessionId());
-    context.setProperty("iso3Language", query.getQueryIso3Language());
-    context.setProperty("currentPosition", query.getQueryCurrentPosition());
+  protected abstract T convertToDomain(D dto, Map<String,Object> context);
+
+  protected abstract List<T> convertToDomains(Iterable<D> dto, Map<String,Object> context);
+
+  protected Map<String,Object> getContext(BaseRemoteQuery query) {
+    Map<String,Object> context = new HashMap<>();
+
+    context.put("username", query.getQueryUsername());
+    context.put("userId", query.getQueryUserId());
+    context.put("sessionId", query.getQuerySessionId());
+    context.put("iso3Language", query.getQueryIso3Language());
+    context.put("currentPosition", query.getQueryCurrentPosition());
 
     return context;
   }
@@ -85,15 +104,9 @@ public abstract class BaseGraphDbEndpoint<T extends BaseEntity, D extends BaseEn
       }
       return response;
     } else {
-      error(loggerPrefix, "Response KO : {0}", result.getException());
+      error(loggerPrefix, "Response KO : {0}", result.getMessage());
       return ResponseEntity.ok(result);
     }
-  }
-
-  protected ResponseEntity<ServiceResult> handleResult(String loggerPrefix, Throwable throwable) {
-    error(loggerPrefix, throwable, "Response KO with Exception : {0}",
-        throwable.getLocalizedMessage());
-    return ResponseEntity.ok(new ServiceResult<>(throwable));
   }
 
   @PostMapping(value = "/findAnyMatching")
@@ -103,10 +116,8 @@ public abstract class BaseGraphDbEndpoint<T extends BaseEntity, D extends BaseEn
 
     Page<T> result = getService()
         .findAnyMatching(query.getFilter(), query.getShowInactive(),
-            mapperFacade.map(query.getPageable(),
-                Pageable.class));
-    return handleResult(loggerPrefix, mapperFacade
-        .map(result, org.jhapy.dto.utils.Page.class, getOrikaContext(query)));
+            converter.convert(query.getPageable()));
+    return handleResult(loggerPrefix, toDtoPage(result, convertToDtos(result.getContent(), getContext(query))));
   }
 
   @PostMapping(value = "/countAnyMatching")
@@ -124,20 +135,14 @@ public abstract class BaseGraphDbEndpoint<T extends BaseEntity, D extends BaseEn
 
     debug(loggerPrefix, "ID = {0}", query.getId());
 
-    return handleResult(loggerPrefix, mapperFacade
-        .map(getService().load(query.getId()),
-            getDtoClass(),
-            getOrikaContext(query)));
+    return handleResult(loggerPrefix, convertToDto(getService().load(query.getId()), getContext(query)));
   }
 
   @PostMapping(value = "/getAll")
   public ResponseEntity<ServiceResult> getAll(@RequestBody BaseRemoteQuery query) {
     var loggerPrefix = getLoggerPrefix("getAll");
 
-    return handleResult(loggerPrefix, mapperFacade
-        .mapAsList(getService().findAll(),
-            getDtoClass(),
-            getOrikaContext(query)));
+    return handleResult(loggerPrefix, convertToDtos(getService().findAll(), getContext(query)));
   }
 
   @PostMapping(value = "/save")
@@ -145,22 +150,16 @@ public abstract class BaseGraphDbEndpoint<T extends BaseEntity, D extends BaseEn
       @RequestBody SaveQuery<D> query) {
     var loggerPrefix = getLoggerPrefix("save");
 
-    T converted = mapperFacade.map(query.getEntity(), getEntityClass(), getOrikaContext(query));
-    return handleResult(loggerPrefix, mapperFacade.map(getService()
-            .save(converted),
-        getDtoClass(),
-        getOrikaContext(query)));
+    return handleResult(loggerPrefix,
+        convertToDto(getService().save(convertToDomain(query.getEntity(), getContext(query))), getContext(query)));
   }
 
   @PostMapping(value = "/saveAll")
   public ResponseEntity<ServiceResult> saveAll(@RequestBody SaveAllQuery<D> query) {
     var loggerPrefix = getLoggerPrefix("saveAll");
 
-    return handleResult(loggerPrefix, mapperFacade.mapAsSet(getService()
-            .saveAll(mapperFacade
-                .mapAsSet(query.getEntity(), getEntityClass(),
-                    getOrikaContext(query))),
-        getDtoClass(), getOrikaContext(query)));
+    return handleResult(loggerPrefix,
+        convertToDtos(getService().saveAll(convertToDomains(query.getEntity(), getContext(query))), getContext(query)));
   }
 
   @PostMapping(value = "/delete")

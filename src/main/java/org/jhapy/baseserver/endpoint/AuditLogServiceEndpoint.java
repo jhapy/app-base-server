@@ -18,16 +18,15 @@
 
 package org.jhapy.baseserver.endpoint;
 
+import org.jhapy.baseserver.converter.BaseConverterV2;
 import org.jhapy.baseserver.service.AuditLogService;
 import org.jhapy.commons.endpoint.BaseEndpoint;
-import org.jhapy.commons.utils.OrikaBeanMapper;
 import org.jhapy.dto.domain.audit.AuditLog;
 import org.jhapy.dto.serviceQuery.ServiceResult;
 import org.jhapy.dto.serviceQuery.auditLog.CountAuditLogQuery;
 import org.jhapy.dto.serviceQuery.auditLog.FindAuditLogQuery;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -47,8 +46,8 @@ public class AuditLogServiceEndpoint extends BaseEndpoint {
   private final AuditLogService auditLogService;
 
   public AuditLogServiceEndpoint(AuditLogService auditLogService,
-      OrikaBeanMapper mapperFacade) {
-    super(mapperFacade);
+      BaseConverterV2 converter) {
+    super(converter);
     this.auditLogService = auditLogService;
   }
 
@@ -59,10 +58,8 @@ public class AuditLogServiceEndpoint extends BaseEndpoint {
 
     Page<AuditLog> result = auditLogService
         .getAudit(query.getClassName(), query.getRecordId(),
-            mapperFacade.map(query.getPageable(),
-                Pageable.class));
-    return handleResult(loggerPrefix, mapperFacade
-        .map(result, org.jhapy.dto.utils.Page.class, getOrikaContext(query)));
+            converter.convert(query.getPageable()));
+    return handleResult(loggerPrefix, toDtoPage(result, result.getContent()));
   }
 
   @PostMapping(value = "/countAuditLog")
