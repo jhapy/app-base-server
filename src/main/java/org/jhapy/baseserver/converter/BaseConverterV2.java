@@ -21,7 +21,7 @@ public abstract class BaseConverterV2 extends CommonsConverterV2 {
 
   public abstract org.jhapy.baseserver.domain.graphdb.Comment convertToDomain(Comment dto);
 
-  public abstract List<Comment> convertToDtoComment(
+  public abstract List<Comment> convertToDtoComments(
       Collection<org.jhapy.baseserver.domain.graphdb.Comment> domains);
 
   public abstract List<org.jhapy.baseserver.domain.graphdb.Comment> convertToDomainComments(

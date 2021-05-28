@@ -79,6 +79,12 @@ public class EntityTranslations implements Serializable {
     }
   }
 
+  public void clearTranslation(String iso3Language) {
+    if (translations.containsKey(iso3Language)) {
+      translations.remove(iso3Language);
+    }
+  }
+
   public void setTranslation(String iso3Language, String value) {
     setTranslation(iso3Language, value, translations.size() == 0);
   }
