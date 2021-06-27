@@ -20,6 +20,7 @@ package org.jhapy.baseserver.client;
 
 import java.net.URI;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,9 +28,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
+import org.jhapy.baseserver.converter.SecurityConverter;
 import org.jhapy.commons.config.AppProperties;
 import org.jhapy.commons.utils.HasLogger;
-import org.jhapy.commons.utils.OrikaBeanMapper;
 import org.jhapy.dto.domain.security.SecurityKeycloakGroup;
 import org.jhapy.dto.domain.security.SecurityKeycloakRole;
 import org.jhapy.dto.domain.security.SecurityKeycloakUser;
@@ -76,13 +77,12 @@ import org.springframework.web.client.RestTemplate;
 public class KeycloakClient implements HasLogger {
 
   protected final AppProperties appProperties;
-
-  protected final OrikaBeanMapper orikaBeanMapper;
+  protected final SecurityConverter securityConverter;
 
   public KeycloakClient(AppProperties appProperties,
-      OrikaBeanMapper orikaBeanMapper) {
+      SecurityConverter securityConverter) {
     this.appProperties = appProperties;
-    this.orikaBeanMapper = orikaBeanMapper;
+    this.securityConverter = securityConverter;
   }
 
   public Keycloak getKeycloakInstance() {
@@ -129,12 +129,12 @@ public class KeycloakClient implements HasLogger {
               Collectors.toList());
       List<RoleRepresentation> effectiveRoles = userResource.roles().realmLevel().listEffective();
 
-      SecurityKeycloakUser securityUser = orikaBeanMapper
-          .map(userResource.toRepresentation(), SecurityKeycloakUser.class);
-      securityUser.setGroups(orikaBeanMapper.mapAsList(groups, SecurityKeycloakGroup.class));
-      securityUser.setRoles(orikaBeanMapper.mapAsList(roles, SecurityKeycloakRole.class));
+      SecurityKeycloakUser securityUser = securityConverter
+          .convertToDto(userResource.toRepresentation());
+      securityUser.setGroups(securityConverter.convertToDtoSecurityKeycloakGroups(groups));
+      securityUser.setRoles(securityConverter.convertToDtoSecurityKeycloakRoles(roles));
       securityUser
-          .setEffectiveRoles(orikaBeanMapper.mapAsList(effectiveRoles, SecurityKeycloakRole.class));
+          .setEffectiveRoles(securityConverter.convertToDtoSecurityKeycloakRoles(effectiveRoles));
 
       return new ServiceResult(securityUser);
     } else {
@@ -238,7 +238,8 @@ public class KeycloakClient implements HasLogger {
       }
       if (query.getEntity().getRoles() != null && query.getEntity().getRoles().size() > 0) {
         userResource.roles().realmLevel()
-            .add(orikaBeanMapper.mapAsList(query.getEntity().getRoles(), RoleRepresentation.class));
+            .add(
+                securityConverter.convertToDomainRoleRepresentations(query.getEntity().getRoles()));
       }
 
       userResource.groups()
@@ -248,7 +249,7 @@ public class KeycloakClient implements HasLogger {
       return getUserById(new GetByStrIdQuery(query.getEntity().getId()));
     } else {
       Response response = getKeycloakRealmInstance().users()
-          .create(orikaBeanMapper.map(query.getEntity(), UserRepresentation.class));
+          .create(securityConverter.convertToDomain(query.getEntity()));
       if (response.getStatus() == 201) {
         String userId = response.getLocation().getPath().replaceAll(".*/([^/]+)$", "$1");
         response.close();
@@ -316,12 +317,12 @@ public class KeycloakClient implements HasLogger {
           .filter(roleRepresentation -> roleRepresentation.getName().startsWith("ROLE")).collect(
               Collectors.toList());
       List<RoleRepresentation> effectiveRoles = userResource.roles().realmLevel().listEffective();
-      SecurityKeycloakUser securityUser = orikaBeanMapper
-          .map(userResource.toRepresentation(), SecurityKeycloakUser.class);
-      securityUser.setGroups(orikaBeanMapper.mapAsList(groups, SecurityKeycloakGroup.class));
-      securityUser.setRoles(orikaBeanMapper.mapAsList(roles, SecurityKeycloakRole.class));
+      SecurityKeycloakUser securityUser = securityConverter
+          .convertToDto(userResource.toRepresentation());
+      securityUser.setGroups(securityConverter.convertToDtoSecurityKeycloakGroups(groups));
+      securityUser.setRoles(securityConverter.convertToDtoSecurityKeycloakRoles(roles));
       securityUser
-          .setEffectiveRoles(orikaBeanMapper.mapAsList(effectiveRoles, SecurityKeycloakRole.class));
+          .setEffectiveRoles(securityConverter.convertToDtoSecurityKeycloakRoles(effectiveRoles));
 
       return securityUser;
     }).collect(Collectors.toList()));
@@ -363,10 +364,11 @@ public class KeycloakClient implements HasLogger {
 
   @Cacheable("allRoles")
   public ServiceResult<List<SecurityKeycloakRole>> getRoles() {
-    return new ServiceResult(orikaBeanMapper.mapAsList(
+    return new ServiceResult(securityConverter.convertToDtoSecurityKeycloakRoles(
         getKeycloakRealmInstance().roles().list().stream()
-            .filter(roleRepresentation -> roleRepresentation.getName().startsWith("ROLE")).collect(
-            Collectors.toList()), SecurityKeycloakRole.class));
+            .filter(roleRepresentation -> roleRepresentation.getName().startsWith("ROLE"))
+            .sorted(Comparator.comparing(RoleRepresentation::getDescription)).collect(
+            Collectors.toList())));
   }
 
   @Cacheable("roleByName")
@@ -380,8 +382,7 @@ public class KeycloakClient implements HasLogger {
       logger().warn(loggerPrefix + "Role not found (name=" + query.getName() + ")");
       return new ServiceResult<>(false, "Role not found", null);
     } else {
-      return new ServiceResult<>(
-          orikaBeanMapper.map(_roleRepresentation.get(), SecurityKeycloakRole.class));
+      return new ServiceResult<>(securityConverter.convertToDto(_roleRepresentation.get()));
     }
   }
 
@@ -395,8 +396,7 @@ public class KeycloakClient implements HasLogger {
       logger().warn(loggerPrefix + "Role not found (id=" + query.getId() + ")");
       return new ServiceResult<>(false, "Role not found", null);
     } else {
-      return new ServiceResult<>(
-          orikaBeanMapper.map(roleRepresentation, SecurityKeycloakRole.class));
+      return new ServiceResult<>(securityConverter.convertToDto(roleRepresentation));
     }
   }
 
@@ -411,16 +411,27 @@ public class KeycloakClient implements HasLogger {
     Page<SecurityKeycloakRole> result = new Page<>();
 
     List<RoleRepresentation> roles = getKeycloakRealmInstance().roles()
-        .list(query.getFilter(), start, end, true);
+        .list(query.getFilter(), true);
+    if (query.getPageable() != null && !query.getPageable().getSort().isEmpty()) {
+      var order = query.getPageable().getSort().stream().collect(Collectors.toList()).get(0);
+      if (order.getProperty().equals("name")) {
+        roles.sort(Comparator.comparing(RoleRepresentation::getName));
+      } else if (order.getProperty().equals("description")) {
+        roles.sort(Comparator.comparing(RoleRepresentation::getDescription));
+      }
+    }
 
-    result.setContent(orikaBeanMapper.mapAsList(roles, SecurityKeycloakRole.class));
+    result
+        .setContent(securityConverter.convertToDtoSecurityKeycloakRoles(roles.subList(start, end)));
 
     result.setSize(result.getContent().size());
     result.setTotalElements((long) totalElements);
     result.setTotalPages((totalElements / query.getPageable().getSize()) + 1);
     result.setNumber(query.getPageable().getPage());
     result.setNumberOfElements(result.getContent().size());
-
+    result.setFirst(start == 0);
+    result.setLast(end >= totalElements);
+    result.setPageable(query.getPageable());
     return new ServiceResult<>(result);
   }
 
@@ -434,15 +445,15 @@ public class KeycloakClient implements HasLogger {
       "countRoles"}, allEntries = true)
   public ServiceResult<SecurityKeycloakRole> saveRole(SaveQuery<SecurityKeycloakRole> query) {
     if (query.getEntity().getId() != null) {
-      RoleResource roleResource = getKeycloakRealmInstance().roles().get(query.getEntity().getId());
-      RoleRepresentation roleRepresentation = orikaBeanMapper
-          .map(query.getEntity(), RoleRepresentation.class);
+      RoleResource roleResource = getKeycloakRealmInstance().roles()
+          .get(query.getEntity().getName());
+      roleResource.toRepresentation();
+      RoleRepresentation roleRepresentation = securityConverter.convertToDomain(query.getEntity());
       roleResource.update(roleRepresentation);
 
       return getRoleById(new GetByStrIdQuery(query.getEntity().getId()));
     } else {
-      RoleRepresentation roleRepresentation = orikaBeanMapper
-          .map(query.getEntity(), RoleRepresentation.class);
+      RoleRepresentation roleRepresentation = securityConverter.convertToDomain(query.getEntity());
       getKeycloakRealmInstance().roles().create(roleRepresentation);
 
       return getRoleByName(new GetSecurityRoleByNameQuery(query.getEntity().getName()));
@@ -481,8 +492,10 @@ public class KeycloakClient implements HasLogger {
 
   @Cacheable("allGroups")
   public ServiceResult<List<SecurityKeycloakGroup>> getGroups() {
-    return new ServiceResult(orikaBeanMapper
-        .mapAsList(getKeycloakRealmInstance().groups().groups(), SecurityKeycloakGroup.class));
+    return new ServiceResult(securityConverter
+        .convertToDtoSecurityKeycloakGroups(getKeycloakRealmInstance().groups().groups().stream()
+            .sorted(Comparator.comparing(GroupRepresentation::getName)).collect(
+                Collectors.toList())));
   }
 
   @Cacheable("groupByName")
@@ -498,8 +511,7 @@ public class KeycloakClient implements HasLogger {
       logger().warn(loggerPrefix + "Group not found (name=" + query.getName() + ")");
       return new ServiceResult<>(false, "Group not found", null);
     } else {
-      return new ServiceResult<>(
-          orikaBeanMapper.map(_groupRepresentations.get(), SecurityKeycloakGroup.class));
+      return new ServiceResult<>(securityConverter.convertToDto(_groupRepresentations.get()));
     }
   }
 
@@ -514,12 +526,13 @@ public class KeycloakClient implements HasLogger {
               Collectors.toList());
       List<RoleRepresentation> effectiveRoles = groupResource.roles().realmLevel().listEffective();
       List<UserRepresentation> members = groupResource.members();
-      SecurityKeycloakGroup securityGroup = orikaBeanMapper
-          .map(groupResource.toRepresentation(), SecurityKeycloakGroup.class);
-      securityGroup.setRoles(orikaBeanMapper.mapAsList(roles, SecurityKeycloakRole.class));
+      SecurityKeycloakGroup securityGroup = securityConverter
+          .convertToDto(groupResource.toRepresentation());
+      securityGroup.setRoles(securityConverter.convertToDtoSecurityKeycloakRoles(roles));
       securityGroup
-          .setEffectiveRoles(orikaBeanMapper.mapAsList(effectiveRoles, SecurityKeycloakRole.class));
-      securityGroup.setMembers(orikaBeanMapper.mapAsList(members, SecurityKeycloakUser.class));
+          .setEffectiveRoles(securityConverter.convertToDtoSecurityKeycloakRoles(effectiveRoles));
+      securityGroup
+          .setMembers(securityConverter.convertToDtoSecurityKeycloakUsers(members));
       return new ServiceResult(securityGroup);
     } else {
       logger().warn(loggerPrefix + "Group not found (id=" + query.getId() + ")");
@@ -550,12 +563,11 @@ public class KeycloakClient implements HasLogger {
       List<RoleRepresentation> effectiveRoles = groupResource.roles().realmLevel().listAll();
       List<UserRepresentation> members = groupResource.members();
 
-      SecurityKeycloakGroup securityGroup = orikaBeanMapper
-          .map(groupRepresentation, SecurityKeycloakGroup.class);
-      securityGroup.setRoles(orikaBeanMapper.mapAsList(roles, SecurityKeycloakRole.class));
+      SecurityKeycloakGroup securityGroup = securityConverter.convertToDto(groupRepresentation);
+      securityGroup.setRoles(securityConverter.convertToDtoSecurityKeycloakRoles(roles));
       securityGroup
-          .setEffectiveRoles(orikaBeanMapper.mapAsList(effectiveRoles, SecurityKeycloakRole.class));
-      securityGroup.setMembers(orikaBeanMapper.mapAsList(members, SecurityKeycloakUser.class));
+          .setEffectiveRoles(securityConverter.convertToDtoSecurityKeycloakRoles(effectiveRoles));
+      securityGroup.setMembers(securityConverter.convertToDtoSecurityKeycloakUsers(members));
 
       return securityGroup;
     }).collect(Collectors.toList()));
@@ -582,8 +594,8 @@ public class KeycloakClient implements HasLogger {
     if (query.getEntity().getId() != null) {
       GroupResource groupResource = getKeycloakRealmInstance().groups()
           .group(query.getEntity().getId());
-      GroupRepresentation groupRepresentation = orikaBeanMapper
-          .map(query.getEntity(), GroupRepresentation.class);
+      GroupRepresentation groupRepresentation = securityConverter
+          .convertToDomain(query.getEntity());
       groupResource.update(groupRepresentation);
 
       if (groupResource.roles() != null && groupResource.roles().realmLevel() != null) {
@@ -597,13 +609,14 @@ public class KeycloakClient implements HasLogger {
       }
       if (query.getEntity().getRoles() != null && query.getEntity().getRoles().size() > 0) {
         groupResource.roles().realmLevel()
-            .add(orikaBeanMapper.mapAsList(query.getEntity().getRoles(), RoleRepresentation.class));
+            .add(
+                securityConverter.convertToDomainRoleRepresentations(query.getEntity().getRoles()));
       }
 
       return getGroupById(new GetByStrIdQuery(query.getEntity().getId()));
     } else {
-      GroupRepresentation groupRepresentation = orikaBeanMapper
-          .map(query.getEntity(), GroupRepresentation.class);
+      GroupRepresentation groupRepresentation = securityConverter
+          .convertToDomain(query.getEntity());
       Response response = getKeycloakRealmInstance().groups().add(groupRepresentation);
 
       if (response.getStatus() == 201) {
@@ -621,8 +634,8 @@ public class KeycloakClient implements HasLogger {
         }
         if (query.getEntity().getRoles() != null && query.getEntity().getRoles().size() > 0) {
           groupResource.roles().realmLevel()
-              .add(orikaBeanMapper
-                  .mapAsList(query.getEntity().getRoles(), RoleRepresentation.class));
+              .add(securityConverter
+                  .convertToDomainRoleRepresentations(query.getEntity().getRoles()));
         }
 
         return getGroupByName(new GetByNameQuery(query.getEntity().getName()));

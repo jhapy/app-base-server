@@ -21,7 +21,6 @@ package org.jhapy.baseserver.endpoint;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import ma.glasnost.orika.MappingContext;
 import org.jhapy.baseserver.converter.BaseConverterV2;
 import org.jhapy.baseserver.domain.nosqldb.BaseEntity;
 import org.jhapy.baseserver.service.CrudNosqldbService;
@@ -50,8 +49,8 @@ public abstract class BaseNoSqldbEndpoint<T extends BaseEntity, D extends BaseEn
 
   protected abstract CrudNosqldbService<T> getService();
 
-  protected Map<String,Object> getContext(BaseRemoteQuery query) {
-    Map<String,Object> context = new HashMap<>();
+  protected Map<String, Object> getContext(BaseRemoteQuery query) {
+    Map<String, Object> context = new HashMap<>();
 
     context.put("username", query.getQueryUsername());
     context.put("userId", query.getQueryUserId());

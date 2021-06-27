@@ -1,10 +1,7 @@
 package org.jhapy.baseserver.converter;
 
-import java.util.Collection;
-import java.util.List;
 import org.jhapy.commons.converter.CommonsConverterV2;
 import org.jhapy.dto.domain.BaseEntity;
-import org.jhapy.dto.domain.Comment;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;

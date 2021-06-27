@@ -21,7 +21,6 @@ package org.jhapy.baseserver.endpoint;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import ma.glasnost.orika.MappingContext;
 import org.jhapy.baseserver.converter.BaseConverterV2;
 import org.jhapy.baseserver.domain.graphdb.BaseEntity;
 import org.jhapy.baseserver.service.CrudGraphdbService;
@@ -64,16 +63,16 @@ public abstract class BaseGraphDbEndpoint<T extends BaseEntity, D extends BaseEn
     return result;
   }
 
-  protected abstract D convertToDto(T domain, Map<String,Object> context);
+  protected abstract D convertToDto(T domain, Map<String, Object> context);
 
-  protected abstract List<D> convertToDtos(Iterable<T> domains, Map<String,Object> context);
+  protected abstract List<D> convertToDtos(Iterable<T> domains, Map<String, Object> context);
 
-  protected abstract T convertToDomain(D dto, Map<String,Object> context);
+  protected abstract T convertToDomain(D dto, Map<String, Object> context);
 
-  protected abstract List<T> convertToDomains(Iterable<D> dto, Map<String,Object> context);
+  protected abstract List<T> convertToDomains(Iterable<D> dto, Map<String, Object> context);
 
-  protected Map<String,Object> getContext(BaseRemoteQuery query) {
-    Map<String,Object> context = new HashMap<>();
+  protected Map<String, Object> getContext(BaseRemoteQuery query) {
+    Map<String, Object> context = new HashMap<>();
 
     context.put("username", query.getQueryUsername());
     context.put("userId", query.getQueryUserId());
@@ -117,7 +116,8 @@ public abstract class BaseGraphDbEndpoint<T extends BaseEntity, D extends BaseEn
     Page<T> result = getService()
         .findAnyMatching(query.getFilter(), query.getShowInactive(),
             converter.convert(query.getPageable()));
-    return handleResult(loggerPrefix, toDtoPage(result, convertToDtos(result.getContent(), getContext(query))));
+    return handleResult(loggerPrefix,
+        toDtoPage(result, convertToDtos(result.getContent(), getContext(query))));
   }
 
   @PostMapping(value = "/countAnyMatching")
@@ -135,7 +135,8 @@ public abstract class BaseGraphDbEndpoint<T extends BaseEntity, D extends BaseEn
 
     debug(loggerPrefix, "ID = {0}", query.getId());
 
-    return handleResult(loggerPrefix, convertToDto(getService().load(query.getId()), getContext(query)));
+    return handleResult(loggerPrefix,
+        convertToDto(getService().load(query.getId()), getContext(query)));
   }
 
   @PostMapping(value = "/getAll")
@@ -151,7 +152,8 @@ public abstract class BaseGraphDbEndpoint<T extends BaseEntity, D extends BaseEn
     var loggerPrefix = getLoggerPrefix("save");
 
     return handleResult(loggerPrefix,
-        convertToDto(getService().save(convertToDomain(query.getEntity(), getContext(query))), getContext(query)));
+        convertToDto(getService().save(convertToDomain(query.getEntity(), getContext(query))),
+            getContext(query)));
   }
 
   @PostMapping(value = "/saveAll")
@@ -159,7 +161,8 @@ public abstract class BaseGraphDbEndpoint<T extends BaseEntity, D extends BaseEn
     var loggerPrefix = getLoggerPrefix("saveAll");
 
     return handleResult(loggerPrefix,
-        convertToDtos(getService().saveAll(convertToDomains(query.getEntity(), getContext(query))), getContext(query)));
+        convertToDtos(getService().saveAll(convertToDomains(query.getEntity(), getContext(query))),
+            getContext(query)));
   }
 
   @PostMapping(value = "/delete")
