@@ -1,17 +1,15 @@
 package org.jhapy.baseserver.converter;
 
-import java.lang.reflect.InvocationTargetException;
-import javax.persistence.EntityManager;
-import org.dom4j.tree.AbstractEntity;
 import org.jhapy.baseserver.domain.relationaldb.BaseEntity;
-import org.jhapy.commons.utils.HasLogger;
 import org.jhapy.commons.utils.HasLoggerStatic;
 import org.jhapy.dto.domain.BaseEntityLongId;
 import org.mapstruct.ObjectFactory;
 import org.mapstruct.TargetType;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
+
+import javax.persistence.EntityManager;
+import java.lang.reflect.InvocationTargetException;
 
 @Component
 @ConditionalOnProperty("spring.datasource.url")

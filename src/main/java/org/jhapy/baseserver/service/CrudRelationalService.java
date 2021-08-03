@@ -19,14 +19,6 @@
 package org.jhapy.baseserver.service;
 
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 import org.jhapy.baseserver.domain.relationaldb.BaseEntity;
 import org.jhapy.commons.security.SecurityUtils;
 import org.jhapy.commons.utils.BeanUtils;
@@ -38,6 +30,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.query.QueryUtils;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author jHapy Lead Dev.
