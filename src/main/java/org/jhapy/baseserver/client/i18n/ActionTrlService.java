@@ -18,9 +18,8 @@
 
 package org.jhapy.baseserver.client.i18n;
 
-import java.util.List;
 import org.jhapy.baseserver.client.AuthorizedFeignClient;
-import org.jhapy.dto.domain.i18n.ActionTrl;
+import org.jhapy.dto.domain.i18n.ActionTrlDTO;
 import org.jhapy.dto.domain.i18n.I18NIsoLangValues;
 import org.jhapy.dto.serviceQuery.ServiceResult;
 import org.jhapy.dto.serviceQuery.generic.DeleteByIdQuery;
@@ -34,35 +33,41 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.util.List;
+
 /**
  * @author jHapy Lead Dev.
  * @version 1.0
  * @since 2019-04-21
  */
-@AuthorizedFeignClient(name = "${jhapy.remote-services.i18n-server.name:null}", url = "${jhapy.remote-services.i18n-server.url:}", path = "/api/actionTrlService", fallbackFactory = ActionTrlServiceFallback.class)
+@AuthorizedFeignClient(
+    name = "${jhapy.remote-services.i18n-server.name:null}",
+    url = "${jhapy.remote-services.i18n-server.url:}",
+    path = "/api/actionTrlService",
+    fallbackFactory = ActionTrlServiceFallback.class)
 @Primary
 public interface ActionTrlService {
 
   @PostMapping(value = "/findByAction")
-  ServiceResult<List<ActionTrl>> findByAction(@RequestBody FindByActionQuery query);
+  ServiceResult<List<ActionTrlDTO>> findByAction(@RequestBody FindByActionQuery query);
 
   @PostMapping(value = "/countByAction")
   ServiceResult<Long> countByAction(@RequestBody CountByActionQuery query);
 
   @PostMapping(value = "/findByIso3")
-  ServiceResult<List<ActionTrl>> findByIso3(@RequestBody FindByIso3Query query);
+  ServiceResult<List<ActionTrlDTO>> findByIso3(@RequestBody FindByIso3Query query);
 
   @PostMapping(value = "/getByIso3")
   ServiceResult<I18NIsoLangValues> getByIso3(@RequestBody FindByIso3Query query);
 
   @PostMapping(value = "/getByNameAndIso3")
-  ServiceResult<ActionTrl> getByNameAndIso3(@RequestBody GetByNameAndIso3Query query);
+  ServiceResult<ActionTrlDTO> getByNameAndIso3(@RequestBody GetByNameAndIso3Query query);
 
   @PostMapping(value = "/getById")
-  ServiceResult<ActionTrl> getById(@RequestBody GetByIdQuery query);
+  ServiceResult<ActionTrlDTO> getById(@RequestBody GetByIdQuery query);
 
   @PostMapping(value = "/save")
-  ServiceResult<ActionTrl> save(@RequestBody SaveQuery<ActionTrl> query);
+  ServiceResult<ActionTrlDTO> save(@RequestBody SaveQuery<ActionTrlDTO> query);
 
   @PostMapping(value = "/delete")
   ServiceResult<Void> delete(@RequestBody DeleteByIdQuery query);

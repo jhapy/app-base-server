@@ -1,11 +1,7 @@
 package org.jhapy.baseserver.service;
 
-import org.jhapy.dto.domain.i18n.Action;
-import org.jhapy.dto.domain.i18n.ActionTrl;
-import org.jhapy.dto.domain.i18n.Element;
-import org.jhapy.dto.domain.i18n.ElementTrl;
-import org.jhapy.dto.domain.i18n.Message;
-import org.jhapy.dto.domain.i18n.MessageTrl;
+import org.jhapy.dto.domain.i18n.*;
+import org.jhapy.dto.domain.i18n.ActionDTO;
 import org.jhapy.dto.messageQueue.I18NUpdateTypeEnum;
 
 /**
@@ -21,15 +17,15 @@ public interface I18NService {
 
   String getMessage(String name, String iso3Lang, String... params);
 
-  void elementUpdate(I18NUpdateTypeEnum updateType, Element element);
+  void elementUpdate(I18NUpdateTypeEnum updateType, ElementDTO element);
 
-  void elementTrlUpdate(I18NUpdateTypeEnum updateType, ElementTrl elementTrl);
+  void elementTrlUpdate(I18NUpdateTypeEnum updateType, ElementTrlDTO elementTrl);
 
-  void actionUpdate(I18NUpdateTypeEnum updateType, Action action);
+  void actionUpdate(I18NUpdateTypeEnum updateType, ActionDTO action);
 
-  void actionTrlUpdate(I18NUpdateTypeEnum updateType, ActionTrl actionTrl);
+  void actionTrlUpdate(I18NUpdateTypeEnum updateType, ActionTrlDTO actionTrl);
 
-  void messageUpdate(I18NUpdateTypeEnum updateType, Message message);
+  void messageUpdate(I18NUpdateTypeEnum updateType, MessageDTO message);
 
-  void messageTrlUpdate(I18NUpdateTypeEnum updateType, MessageTrl messageTrl);
+  void messageTrlUpdate(I18NUpdateTypeEnum updateType, MessageTrlDTO messageTrl);
 }

@@ -15,24 +15,24 @@ import org.mapstruct.MappingTarget;
 public abstract class BaseConverterV2 extends CommonsConverterV2 {
 
   @AfterMapping
-  public void afterConvert(BaseEntity dto,
-      @MappingTarget org.jhapy.baseserver.domain.graphdb.BaseEntity domain) {
+  public void afterConvert(
+      BaseEntity dto, @MappingTarget org.jhapy.baseserver.domain.graphdb.BaseEntity domain) {
     if (dto.getIsNew()) {
       domain.setId(null);
     }
   }
 
   @AfterMapping
-  public void afterConvert(BaseEntity dto,
-      @MappingTarget org.jhapy.baseserver.domain.nosqldb.BaseEntity domain) {
+  public void afterConvert(
+      BaseEntity dto, @MappingTarget org.jhapy.baseserver.domain.nosqldb.BaseEntity domain) {
     if (dto.getIsNew()) {
       domain.setId(null);
     }
   }
 
   @AfterMapping
-  public void afterConvert(BaseEntity dto,
-      @MappingTarget org.jhapy.baseserver.domain.relationaldb.BaseEntity domain) {
+  public void afterConvert(
+      BaseEntity dto, @MappingTarget org.jhapy.baseserver.domain.relationaldb.BaseEntity domain) {
     if (dto.getIsNew()) {
       domain.setId(null);
     }

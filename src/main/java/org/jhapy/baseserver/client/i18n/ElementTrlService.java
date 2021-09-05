@@ -18,9 +18,8 @@
 
 package org.jhapy.baseserver.client.i18n;
 
-import java.util.List;
 import org.jhapy.baseserver.client.AuthorizedFeignClient;
-import org.jhapy.dto.domain.i18n.ElementTrl;
+import org.jhapy.dto.domain.i18n.ElementTrlDTO;
 import org.jhapy.dto.domain.i18n.I18NIsoLangValues;
 import org.jhapy.dto.serviceQuery.ServiceResult;
 import org.jhapy.dto.serviceQuery.generic.DeleteByIdQuery;
@@ -34,35 +33,41 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.util.List;
+
 /**
  * @author jHapy Lead Dev.
  * @version 1.0
  * @since 2019-04-21
  */
-@AuthorizedFeignClient(name = "${jhapy.remote-services.i18n-server.name:null}", url = "${jhapy.remote-services.i18n-server.url:}", path = "/api/elementTrlService", fallbackFactory = ElementTrlServiceFallback.class)
+@AuthorizedFeignClient(
+    name = "${jhapy.remote-services.i18n-server.name:null}",
+    url = "${jhapy.remote-services.i18n-server.url:}",
+    path = "/api/elementTrlService",
+    fallbackFactory = ElementTrlServiceFallback.class)
 @Primary
 public interface ElementTrlService {
 
   @PostMapping(value = "/findByElement")
-  ServiceResult<List<ElementTrl>> findByElement(@RequestBody FindByElementQuery query);
+  ServiceResult<List<ElementTrlDTO>> findByElement(@RequestBody FindByElementQuery query);
 
   @PostMapping(value = "/countByElement")
   ServiceResult<Long> countByElement(@RequestBody CountByElementQuery query);
 
   @PostMapping(value = "/findByIso3")
-  ServiceResult<List<ElementTrl>> findByIso3(@RequestBody FindByIso3Query query);
+  ServiceResult<List<ElementTrlDTO>> findByIso3(@RequestBody FindByIso3Query query);
 
   @PostMapping(value = "/getByIso3")
   ServiceResult<I18NIsoLangValues> getByIso3(@RequestBody FindByIso3Query query);
 
   @PostMapping(value = "/getByNameAndIso3")
-  ServiceResult<ElementTrl> getByNameAndIso3(@RequestBody GetByNameAndIso3Query query);
+  ServiceResult<ElementTrlDTO> getByNameAndIso3(@RequestBody GetByNameAndIso3Query query);
 
   @PostMapping(value = "/getById")
-  ServiceResult<ElementTrl> getById(@RequestBody GetByIdQuery query);
+  ServiceResult<ElementTrlDTO> getById(@RequestBody GetByIdQuery query);
 
   @PostMapping(value = "/save")
-  ServiceResult<ElementTrl> save(@RequestBody SaveQuery<ElementTrl> query);
+  ServiceResult<ElementTrlDTO> save(@RequestBody SaveQuery<ElementTrlDTO> query);
 
   @PostMapping(value = "/delete")
   ServiceResult<Void> delete(@RequestBody DeleteByIdQuery query);

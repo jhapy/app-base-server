@@ -8,12 +8,8 @@ import org.jhapy.baseserver.client.i18n.ActionTrlService;
 import org.jhapy.baseserver.client.i18n.ElementTrlService;
 import org.jhapy.baseserver.client.i18n.MessageTrlService;
 import org.jhapy.commons.utils.HasLogger;
-import org.jhapy.dto.domain.i18n.Action;
-import org.jhapy.dto.domain.i18n.ActionTrl;
-import org.jhapy.dto.domain.i18n.Element;
-import org.jhapy.dto.domain.i18n.ElementTrl;
-import org.jhapy.dto.domain.i18n.Message;
-import org.jhapy.dto.domain.i18n.MessageTrl;
+import org.jhapy.dto.domain.i18n.*;
+import org.jhapy.dto.domain.i18n.ActionTrlDTO;
 import org.jhapy.dto.messageQueue.I18NUpdateTypeEnum;
 import org.jhapy.dto.serviceQuery.ServiceResult;
 import org.jhapy.dto.serviceQuery.i18n.FindByIso3Query;
@@ -36,7 +32,8 @@ public class I18NServiceImpl implements I18NService, HasLogger {
   private final Map<String, Map<String, String>> actions = new HashMap<>();
   private final Map<String, Map<String, String>> messsages = new HashMap<>();
 
-  public I18NServiceImpl(org.jhapy.baseserver.client.i18n.I18NService i18NService,
+  public I18NServiceImpl(
+      org.jhapy.baseserver.client.i18n.I18NService i18NService,
       ElementTrlService elementTrlService,
       ActionTrlService actionTrlService,
       MessageTrlService messageTrlService) {
@@ -46,11 +43,10 @@ public class I18NServiceImpl implements I18NService, HasLogger {
   }
 
   @Override
-  public void elementUpdate(I18NUpdateTypeEnum updateType, Element element) {
-  }
+  public void elementUpdate(I18NUpdateTypeEnum updateType, ElementDTO element) {}
 
   @Override
-  public void elementTrlUpdate(I18NUpdateTypeEnum updateType, ElementTrl elementTrl) {
+  public void elementTrlUpdate(I18NUpdateTypeEnum updateType, ElementTrlDTO elementTrl) {
     var loggerPrefix = getLoggerPrefix("elementTrlUpdate", updateType, elementTrl);
 
     elements.computeIfAbsent(elementTrl.getIso3Language(), k -> new HashMap<>());
@@ -64,11 +60,10 @@ public class I18NServiceImpl implements I18NService, HasLogger {
   }
 
   @Override
-  public void actionUpdate(I18NUpdateTypeEnum updateType, Action action) {
-  }
+  public void actionUpdate(I18NUpdateTypeEnum updateType, ActionDTO action) {}
 
   @Override
-  public void actionTrlUpdate(I18NUpdateTypeEnum updateType, ActionTrl actionTrl) {
+  public void actionTrlUpdate(I18NUpdateTypeEnum updateType, ActionTrlDTO actionTrl) {
     var loggerPrefix = getLoggerPrefix("actionTrlUpdate", updateType, actionTrl);
 
     actions.computeIfAbsent(actionTrl.getIso3Language(), k -> new HashMap<>());
@@ -82,11 +77,10 @@ public class I18NServiceImpl implements I18NService, HasLogger {
   }
 
   @Override
-  public void messageUpdate(I18NUpdateTypeEnum updateType, Message message) {
-  }
+  public void messageUpdate(I18NUpdateTypeEnum updateType, MessageDTO message) {}
 
   @Override
-  public void messageTrlUpdate(I18NUpdateTypeEnum updateType, MessageTrl messageTrl) {
+  public void messageTrlUpdate(I18NUpdateTypeEnum updateType, MessageTrlDTO messageTrl) {
     var loggerPrefix = getLoggerPrefix("messageTrlUpdate", updateType, messageTrl);
 
     messsages.computeIfAbsent(messageTrl.getIso3Language(), k -> new HashMap<>());
@@ -120,8 +114,9 @@ public class I18NServiceImpl implements I18NService, HasLogger {
 
   private String lookupElement(String name, String iso3Lang) {
     var loggerPrefix = getLoggerPrefix("lookupElement", name, iso3Lang);
-    ServiceResult<ElementTrl> _result = elementTrlService.getByNameAndIso3(
-        GetByNameAndIso3Query.builder().iso3Language(iso3Lang).name(name).build());
+    ServiceResult<ElementTrlDTO> _result =
+        elementTrlService.getByNameAndIso3(
+            GetByNameAndIso3Query.builder().iso3Language(iso3Lang).name(name).build());
     if (_result.getIsSuccess() && _result.getData() != null) {
       return _result.getData().getValue();
     } else {
@@ -151,8 +146,9 @@ public class I18NServiceImpl implements I18NService, HasLogger {
 
   private String lookupAction(String name, String iso3Lang) {
     var loggerPrefix = getLoggerPrefix("lookupAction", name, iso3Lang);
-    ServiceResult<ActionTrl> _result = actionTrlService.getByNameAndIso3(
-        GetByNameAndIso3Query.builder().iso3Language(iso3Lang).name(name).build());
+    ServiceResult<ActionTrlDTO> _result =
+        actionTrlService.getByNameAndIso3(
+            GetByNameAndIso3Query.builder().iso3Language(iso3Lang).name(name).build());
     if (_result.getIsSuccess() && _result.getData() != null) {
       return _result.getData().getValue();
     } else {
@@ -187,8 +183,9 @@ public class I18NServiceImpl implements I18NService, HasLogger {
 
   private String lookupMessage(String name, String iso3Lang) {
     var loggerPrefix = getLoggerPrefix("lookupMessage", name, iso3Lang);
-    ServiceResult<MessageTrl> _result = messageTrlService.getByNameAndIso3(
-        GetByNameAndIso3Query.builder().iso3Language(iso3Lang).name(name).build());
+    ServiceResult<MessageTrlDTO> _result =
+        messageTrlService.getByNameAndIso3(
+            GetByNameAndIso3Query.builder().iso3Language(iso3Lang).name(name).build());
     if (_result.getIsSuccess() && _result.getData() != null) {
       return _result.getData().getValue();
     } else {
@@ -199,22 +196,39 @@ public class I18NServiceImpl implements I18NService, HasLogger {
 
   private void loadElements(String isoLang) {
     elements.remove(isoLang);
-    elementTrlService.findByIso3(FindByIso3Query.builder().iso3Language(isoLang).build())
-        .ifSuccess(i18NIsoLangValues -> elements.put(isoLang, i18NIsoLangValues.stream()
-            .collect(Collectors.toMap(ElementTrl::getName, ElementTrl::getValue))));
+    elementTrlService
+        .findByIso3(FindByIso3Query.builder().iso3Language(isoLang).build())
+        .ifSuccess(
+            i18NIsoLangValues ->
+                elements.put(
+                    isoLang,
+                    i18NIsoLangValues.stream()
+                        .collect(
+                            Collectors.toMap(ElementTrlDTO::getName, ElementTrlDTO::getValue))));
   }
 
   private void loadActions(String isoLang) {
     actions.remove(isoLang);
-    actionTrlService.findByIso3(FindByIso3Query.builder().iso3Language(isoLang).build())
-        .ifSuccess(i18NIsoLangValues -> actions.put(isoLang, i18NIsoLangValues.stream()
-            .collect(Collectors.toMap(ActionTrl::getName, ActionTrl::getValue))));
+    actionTrlService
+        .findByIso3(FindByIso3Query.builder().iso3Language(isoLang).build())
+        .ifSuccess(
+            i18NIsoLangValues ->
+                actions.put(
+                    isoLang,
+                    i18NIsoLangValues.stream()
+                        .collect(Collectors.toMap(ActionTrlDTO::getName, ActionTrlDTO::getValue))));
   }
 
   private void loadMessages(String isoLang) {
     messsages.remove(isoLang);
-    messageTrlService.findByIso3(FindByIso3Query.builder().iso3Language(isoLang).build())
-        .ifSuccess(i18NIsoLangValues -> messsages.put(isoLang, i18NIsoLangValues.stream()
-            .collect(Collectors.toMap(MessageTrl::getName, MessageTrl::getValue))));
+    messageTrlService
+        .findByIso3(FindByIso3Query.builder().iso3Language(isoLang).build())
+        .ifSuccess(
+            i18NIsoLangValues ->
+                messsages.put(
+                    isoLang,
+                    i18NIsoLangValues.stream()
+                        .collect(
+                            Collectors.toMap(MessageTrlDTO::getName, MessageTrlDTO::getValue))));
   }
 }

@@ -18,25 +18,22 @@
 
 package org.jhapy.baseserver.service;
 
-
 import org.jhapy.baseserver.domain.relationaldb.BaseEntity;
-import org.jhapy.commons.security.SecurityUtils;
+import org.jhapy.baseserver.repository.relationaldb.BaseRepository;
 import org.jhapy.commons.utils.BeanUtils;
 import org.jhapy.commons.utils.HasLogger;
 import org.jhapy.dto.domain.exception.EntityNotFoundException;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.query.QueryUtils;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -47,15 +44,32 @@ import java.util.Map;
  */
 public interface CrudRelationalService<T extends BaseEntity> extends HasLogger {
 
-  JpaRepository<T, Long> getRepository();
+  BaseRepository<T> getRepository();
 
   EntityManager getEntityManager();
 
   Class<T> getEntityClass();
 
+  ClientService getClientService();
+
   @Transactional
   default T save(T entity) {
+    getClientService().beforeEntitySave(entity);
     return getRepository().save(entity);
+  }
+
+  @Transactional
+  default Iterable<T> saveAll(Long parentEntityId, Iterable<T> entity) {
+    entity.forEach(t -> getClientService().beforeEntitySave(t));
+
+    return getRepository().saveAll(entity);
+  }
+
+  @Transactional
+  default Iterable<T> saveAll(Iterable<T> entity) {
+    entity.forEach(t -> getClientService().beforeEntitySave(t));
+
+    return getRepository().saveAll(entity);
   }
 
   @Transactional
@@ -63,6 +77,7 @@ public interface CrudRelationalService<T extends BaseEntity> extends HasLogger {
     if (entity == null) {
       throw new EntityNotFoundException();
     }
+    getClientService().beforeEntityDelete(entity);
     getRepository().delete(entity);
   }
 
@@ -77,6 +92,7 @@ public interface CrudRelationalService<T extends BaseEntity> extends HasLogger {
 
   default T load(long id) {
     T entity = getRepository().findById(id).orElse(null);
+    getClientService().beforeEntityLoad(entity);
     if (entity == null) {
       throw new EntityNotFoundException();
     }
@@ -84,7 +100,14 @@ public interface CrudRelationalService<T extends BaseEntity> extends HasLogger {
   }
 
   default List<T> getAll() {
-    return getRepository().findAll();
+    List<Long> clientIds = getClientService().getClientCriteria(getEntityClass());
+    if (!clientIds.isEmpty()) {
+      var clientsCriteria = new RelationalDbSpecification<T>();
+      clientsCriteria.add(
+          new RelationalDbSearchCriteria(
+              "externalClientId", clientIds, RelationalDbSearchOperation.IN));
+      return getRepository().findAll(clientsCriteria);
+    } else return getRepository().findAll();
   }
 
   default boolean hasChanged(Object previousValue, Object currentValue) {
@@ -110,111 +133,148 @@ public interface CrudRelationalService<T extends BaseEntity> extends HasLogger {
     return !previousValue.equals(currentValue);
   }
 
-  default Page<T> findAnyMatching(String currentUserId, String filter, Boolean showInactive,
-      Pageable pageable, Object... otherCriteria) {
+  default Page<T> findAnyMatching(
+      String currentUserId,
+      String filter,
+      Boolean showInactive,
+      Pageable pageable,
+      Object... otherCriteria) {
     var loggerString = getLoggerPrefix("findAnyMatching");
 
-    logger().debug(
-        loggerString + "----------------------------------");
+    logger().debug(loggerString + "----------------------------------");
 
-    String currentUser = SecurityUtils.getCurrentUserLogin().get();
+    debug(
+        loggerString,
+        "In, Entity = {0}, Filter = {1}, Show Inactive = {2}, Pageable = {3}",
+        getEntityClass().getSimpleName(),
+        filter,
+        showInactive,
+        pageable);
 
-    logger().debug(
-        loggerString + "In, Filter = " + filter + ", Show Inactive = "
-            + showInactive + ", Pageable = " + pageable);
+    var clientIds = getClientService().getClientCriteria(getEntityClass());
+    RelationalDbSpecification<T> clientsCriteria = null;
+    if (!clientIds.isEmpty()) {
+      clientsCriteria = new RelationalDbSpecification<T>();
+      clientsCriteria.add(
+          new RelationalDbSearchCriteria(
+              "externalClientId", clientIds, RelationalDbSearchOperation.IN));
+    }
+    var specifications = buildSearchQuery(filter, showInactive, otherCriteria);
 
-    CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
-    CriteriaQuery query = cb.createQuery(getEntityClass());
-    Root<T> entity = query.from(getEntityClass());
-
-    CriteriaQuery criteriaQuery = buildSearchQuery(query, entity, cb, currentUser, filter,
-        showInactive, otherCriteria);
-    criteriaQuery.select(cb.count(entity));
-    TypedQuery<Long> countTypedQuery = getEntityManager().createQuery(criteriaQuery);
-    Long nbRecords = countTypedQuery.getSingleResult();
-
-    query.orderBy(QueryUtils.toOrders(pageable.getSort(), entity, cb));
-    criteriaQuery.select(entity);
-
-    TypedQuery<T> typedQuery = getEntityManager().createQuery(criteriaQuery);
-    if (pageable.isPaged()) {
-      typedQuery.setFirstResult(pageable.getPageNumber() * pageable.getPageSize());
-      typedQuery.setMaxResults(pageable.getPageSize());
+    Page<T> result;
+    if (specifications != null) {
+      if (clientsCriteria != null) {
+        specifications.and(clientsCriteria);
+      }
+      result =
+          getRepository().findAll(specifications, pageable == null ? Pageable.unpaged() : pageable);
     } else {
+      if (clientsCriteria != null) {
+        result =
+            getRepository()
+                .findAll(clientsCriteria, pageable == null ? Pageable.unpaged() : pageable);
+      } else result = getRepository().findAll(pageable == null ? Pageable.unpaged() : pageable);
     }
 
-    Page<T> result = new PageImpl<>(typedQuery.getResultList(), pageable, nbRecords);
-
     logger()
-        .debug(loggerString + "Out : Elements = " + result.getContent().size() + " of " + result
-            .getTotalElements() + ", Page = " + result.getNumber() + " of " + result
-            .getTotalPages());
+        .debug(
+            loggerString
+                + "Out : Elements = "
+                + result.getContent().size()
+                + " of "
+                + result.getTotalElements()
+                + ", Page = "
+                + result.getNumber()
+                + " of "
+                + result.getTotalPages());
 
     return result;
   }
 
-  default List<T> findAnyMatchingNoPaging(String currentUserId, String filter, Boolean showInactive,
-      Object... otherCriteria) {
+  default List<T> findAnyMatchingNoPaging(
+      String currentUserId, String filter, Boolean showInactive, Object... otherCriteria) {
     var loggerString = getLoggerPrefix("findAnyMatchingNoPaging");
 
-    logger().debug(
-        loggerString + "----------------------------------");
+    logger().debug(loggerString + "----------------------------------");
 
-    String currentUser = SecurityUtils.getCurrentUserLogin().get();
+    debug(
+        loggerString,
+        "In, Entity = {0}, Filter = {1}, Show Inactive = {2}",
+        getEntityClass().getSimpleName(),
+        filter,
+        showInactive);
 
-    logger().debug(
-        loggerString + "In, Filter = " + filter + ", Show Inactive = "
-            + showInactive);
+    var clientIds = getClientService().getClientCriteria(getEntityClass());
+    RelationalDbSpecification<T> clientsCriteria = null;
+    if (!clientIds.isEmpty()) {
+      clientsCriteria = new RelationalDbSpecification<T>();
+      clientsCriteria.add(
+          new RelationalDbSearchCriteria(
+              "externalClientId", clientIds, RelationalDbSearchOperation.IN));
+    }
+    var specifications = buildSearchQuery(filter, showInactive, otherCriteria);
 
-    CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
-    CriteriaQuery query = cb.createQuery(getEntityClass());
-    Root<T> entity = query.from(getEntityClass());
+    List<T> result;
+    if (specifications != null) {
+      if (clientsCriteria != null) {
+        specifications.and(clientsCriteria);
+      }
+      result = getRepository().findAll(specifications);
+    } else {
+      if (clientsCriteria != null) {
+        result = getRepository().findAll(clientsCriteria);
+      } else result = getRepository().findAll();
+    }
 
-    CriteriaQuery criteriaQuery = buildSearchQuery(query, entity, cb, currentUser, filter,
-        showInactive, otherCriteria);
-    criteriaQuery.select(entity);
-
-    TypedQuery<T> typedQuery = getEntityManager().createQuery(criteriaQuery);
-
-    List<T> result = typedQuery.getResultList();
-
-    logger()
-        .debug(loggerString + "Out : Elements = " + result.size());
+    logger().debug(loggerString + "Out : Elements = " + result.size());
 
     return result;
   }
 
-  default long countAnyMatching(String currentUserId, String filter, Boolean showInactive,
-      Object... otherCriteria) {
+  default long countAnyMatching(
+      String currentUserId, String filter, Boolean showInactive, Object... otherCriteria) {
     var loggerString = getLoggerPrefix("countAnyMatching");
 
-    logger().debug(
-        loggerString + "----------------------------------");
+    logger().debug(loggerString + "----------------------------------");
 
-    String currentUser = SecurityUtils.getCurrentUserLogin().get();
+    debug(
+        loggerString,
+        "In, Entity = {0}, Filter = {1}, Show Inactive = {2}",
+        getEntityClass().getSimpleName(),
+        filter,
+        showInactive);
 
-    logger().debug(
-        loggerString + "In, Filter = " + filter + ", Show Inactive = "
-            + showInactive);
+    var clientIds = getClientService().getClientCriteria(getEntityClass());
+    RelationalDbSpecification<T> clientsCriteria = null;
+    if (!clientIds.isEmpty()) {
+      clientsCriteria = new RelationalDbSpecification<T>();
+      clientsCriteria.add(
+          new RelationalDbSearchCriteria(
+              "externalClientId", clientIds, RelationalDbSearchOperation.IN));
+    }
+    var specifications = buildSearchQuery(filter, showInactive, otherCriteria);
 
-    CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
-    CriteriaQuery<T> query = cb.createQuery(getEntityClass());
-    Root<T> entity = query.from(getEntityClass());
-
-    CriteriaQuery criteriaQuery = buildSearchQuery(query, entity, cb, currentUser, filter,
-        showInactive, otherCriteria);
-    criteriaQuery.select(cb.count(entity));
-    TypedQuery<Long> q = getEntityManager().createQuery(criteriaQuery);
-
-    Long result = q.getSingleResult();
+    Long result;
+    if (specifications != null) {
+      if (clientsCriteria != null) {
+        specifications.and(clientsCriteria);
+      }
+      result = getRepository().count(specifications);
+    } else {
+      if (clientsCriteria != null) {
+        result = getRepository().count(clientsCriteria);
+      } else result = getRepository().count();
+    }
 
     logger().debug(loggerString + "Out = " + result + " items");
 
     return result;
   }
 
-  CriteriaQuery buildSearchQuery(CriteriaQuery query, Root<T> entity, CriteriaBuilder cb,
-      String currentUserId, String filter, Boolean showInactive, Object... otherCriteria);
+  default Specification<T> buildSearchQuery(
+      String filter, Boolean showInactive, Object... otherCriteria) {
+    return null;
+  }
 
   default void convert(Map<String, Object> entity, T existingRecord) {
     BeanUtils.copyNonNullProperties(existingRecord, entity);

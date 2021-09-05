@@ -20,13 +20,9 @@ package org.jhapy.baseserver.client.i18n;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jhapy.commons.utils.HasLogger;
-import org.jhapy.dto.domain.i18n.Element;
+import org.jhapy.dto.domain.i18n.ElementDTO;
 import org.jhapy.dto.serviceQuery.ServiceResult;
-import org.jhapy.dto.serviceQuery.generic.CountAnyMatchingQuery;
-import org.jhapy.dto.serviceQuery.generic.DeleteByIdQuery;
-import org.jhapy.dto.serviceQuery.generic.FindAnyMatchingQuery;
-import org.jhapy.dto.serviceQuery.generic.GetByIdQuery;
-import org.jhapy.dto.serviceQuery.generic.SaveQuery;
+import org.jhapy.dto.serviceQuery.generic.*;
 import org.jhapy.dto.utils.Page;
 import org.springframework.cloud.openfeign.FallbackFactory;
 import org.springframework.stereotype.Component;
@@ -37,8 +33,8 @@ import org.springframework.stereotype.Component;
  * @since 2019-06-02
  */
 @Component
-public class ElementServiceFallback implements ElementService, HasLogger,
-    FallbackFactory<ElementServiceFallback> {
+public class ElementServiceFallback
+    implements ElementService, HasLogger, FallbackFactory<ElementServiceFallback> {
 
   final Throwable cause;
 
@@ -53,8 +49,10 @@ public class ElementServiceFallback implements ElementService, HasLogger,
   @Override
   public ElementServiceFallback create(Throwable cause) {
     if (cause != null) {
-      String errMessage = StringUtils.isNotBlank(cause.getMessage()) ? cause.getMessage()
-          : "Unknown error occurred : " + cause;
+      String errMessage =
+          StringUtils.isNotBlank(cause.getMessage())
+              ? cause.getMessage()
+              : "Unknown error occurred : " + cause;
       // I don't see this log statement
       logger().debug("Client fallback called for the cause : {}", errMessage);
     }
@@ -62,7 +60,7 @@ public class ElementServiceFallback implements ElementService, HasLogger,
   }
 
   @Override
-  public ServiceResult<Page<Element>> findAnyMatching(FindAnyMatchingQuery query) {
+  public ServiceResult<Page<ElementDTO>> findAnyMatching(FindAnyMatchingQuery query) {
     logger().error(getLoggerPrefix("findAnyMatching") + "Cannot connect to the server");
 
     return new ServiceResult<>(false, "Cannot connect to server", new Page<>());
@@ -76,14 +74,14 @@ public class ElementServiceFallback implements ElementService, HasLogger,
   }
 
   @Override
-  public ServiceResult<Element> getById(GetByIdQuery query) {
+  public ServiceResult<ElementDTO> getById(GetByIdQuery query) {
     logger().error(getLoggerPrefix("getById") + "Cannot connect to the server");
 
     return new ServiceResult<>(false, "Cannot connect to server", null);
   }
 
   @Override
-  public ServiceResult<Element> save(SaveQuery<Element> query) {
+  public ServiceResult<ElementDTO> save(SaveQuery<ElementDTO> query) {
     logger().error(getLoggerPrefix("save") + "Cannot connect to the server");
 
     return new ServiceResult<>(false, "Cannot connect to server", null);

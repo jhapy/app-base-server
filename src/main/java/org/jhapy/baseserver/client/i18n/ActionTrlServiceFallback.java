@@ -18,11 +18,9 @@
 
 package org.jhapy.baseserver.client.i18n;
 
-import java.util.Collections;
-import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.jhapy.commons.utils.HasLogger;
-import org.jhapy.dto.domain.i18n.ActionTrl;
+import org.jhapy.dto.domain.i18n.ActionTrlDTO;
 import org.jhapy.dto.domain.i18n.I18NIsoLangValues;
 import org.jhapy.dto.serviceQuery.ServiceResult;
 import org.jhapy.dto.serviceQuery.generic.DeleteByIdQuery;
@@ -35,14 +33,17 @@ import org.jhapy.dto.serviceQuery.i18n.actionTrl.FindByActionQuery;
 import org.springframework.cloud.openfeign.FallbackFactory;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * @author jHapy Lead Dev.
  * @version 1.0
  * @since 2019-06-02
  */
 @Component
-public class ActionTrlServiceFallback implements ActionTrlService, HasLogger,
-    FallbackFactory<ActionTrlServiceFallback> {
+public class ActionTrlServiceFallback
+    implements ActionTrlService, HasLogger, FallbackFactory<ActionTrlServiceFallback> {
 
   final Throwable cause;
 
@@ -57,8 +58,10 @@ public class ActionTrlServiceFallback implements ActionTrlService, HasLogger,
   @Override
   public ActionTrlServiceFallback create(Throwable cause) {
     if (cause != null) {
-      String errMessage = StringUtils.isNotBlank(cause.getMessage()) ? cause.getMessage()
-          : "Unknown error occurred : " + cause;
+      String errMessage =
+          StringUtils.isNotBlank(cause.getMessage())
+              ? cause.getMessage()
+              : "Unknown error occurred : " + cause;
       // I don't see this log statement
       logger().debug("Client fallback called for the cause : {}", errMessage);
     }
@@ -66,7 +69,7 @@ public class ActionTrlServiceFallback implements ActionTrlService, HasLogger,
   }
 
   @Override
-  public ServiceResult<List<ActionTrl>> findByAction(FindByActionQuery query) {
+  public ServiceResult<List<ActionTrlDTO>> findByAction(FindByActionQuery query) {
     logger().error(getLoggerPrefix("findByAction") + "Cannot connect to the server");
 
     return new ServiceResult<>(false, "Cannot connect to server", Collections.emptyList());
@@ -80,7 +83,7 @@ public class ActionTrlServiceFallback implements ActionTrlService, HasLogger,
   }
 
   @Override
-  public ServiceResult<List<ActionTrl>> findByIso3(FindByIso3Query query) {
+  public ServiceResult<List<ActionTrlDTO>> findByIso3(FindByIso3Query query) {
     logger().error(getLoggerPrefix("findByIso3") + "Cannot connect to the server");
 
     return new ServiceResult<>(false, "Cannot connect to server", Collections.emptyList());
@@ -94,22 +97,21 @@ public class ActionTrlServiceFallback implements ActionTrlService, HasLogger,
   }
 
   @Override
-  public ServiceResult<ActionTrl> getByNameAndIso3(GetByNameAndIso3Query query) {
+  public ServiceResult<ActionTrlDTO> getByNameAndIso3(GetByNameAndIso3Query query) {
     logger().error(getLoggerPrefix("getByNameAndIso3") + "Cannot connect to the server");
 
     return new ServiceResult<>(false, "Cannot connect to server", null);
   }
 
-
   @Override
-  public ServiceResult<ActionTrl> getById(GetByIdQuery query) {
+  public ServiceResult<ActionTrlDTO> getById(GetByIdQuery query) {
     logger().error(getLoggerPrefix("getById") + "Cannot connect to the server");
 
     return new ServiceResult<>(false, "Cannot connect to server", null);
   }
 
   @Override
-  public ServiceResult<ActionTrl> save(SaveQuery<ActionTrl> query) {
+  public ServiceResult<ActionTrlDTO> save(SaveQuery<ActionTrlDTO> query) {
     logger().error(getLoggerPrefix("save") + "Cannot connect to the server");
 
     return new ServiceResult<>(false, "Cannot connect to server", null);

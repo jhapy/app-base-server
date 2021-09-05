@@ -40,7 +40,7 @@ import java.time.Instant;
  * @since 2019-09-29
  */
 @Data
-@EqualsAndHashCode(exclude = {"createdBy", "modifiedBy", "created", "modified", "version"})
+@EqualsAndHashCode(exclude = {"createdBy", "modifiedBy", "created", "modified"})
 @ToString
 @MappedSuperclass
 public abstract class EntityTranslationV2 implements Serializable {
@@ -49,37 +49,19 @@ public abstract class EntityTranslationV2 implements Serializable {
 
   private Boolean isTranslated;
 
-  @Transient
-  private String iso3Language;
+  @Transient private String iso3Language;
 
-  @Transient
-  private Long relatedEntityId;
+  @Transient private Long relatedEntityId;
 
-  /**
-   * Who create this record (no ID, use username)
-   */
-  @DiffIgnore
-  @CreatedBy
-  private String createdBy;
+  /** Who create this record (no ID, use username) */
+  @DiffIgnore @CreatedBy private String createdBy;
 
-  /**
-   * When this record has been created
-   */
-  @DiffIgnore
-  @CreatedDate
-  private Instant created;
+  /** When this record has been created */
+  @DiffIgnore @CreatedDate private Instant created;
 
-  /**
-   * How did the last modification of this record (no ID, use username)
-   */
-  @DiffIgnore
-  @LastModifiedBy
-  private String modifiedBy;
+  /** How did the last modification of this record (no ID, use username) */
+  @DiffIgnore @LastModifiedBy private String modifiedBy;
 
-  /**
-   * When this record was last updated
-   */
-  @DiffIgnore
-  @LastModifiedDate
-  private Instant modified;
+  /** When this record was last updated */
+  @DiffIgnore @LastModifiedDate private Instant modified;
 }

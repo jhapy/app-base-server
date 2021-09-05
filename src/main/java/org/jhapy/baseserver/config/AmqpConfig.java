@@ -1,10 +1,6 @@
 package org.jhapy.baseserver.config;
 
-import org.springframework.amqp.core.AnonymousQueue;
-import org.springframework.amqp.core.Binding;
-import org.springframework.amqp.core.BindingBuilder;
-import org.springframework.amqp.core.FanoutExchange;
-import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.*;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -48,6 +44,11 @@ public class AmqpConfig {
   }
 
   @Bean
+  public FanoutExchange clientUpdate() {
+    return new FanoutExchange("security.clientUpdate");
+  }
+
+  @Bean
   public Queue elementUpdateQueue() {
     return new AnonymousQueue();
   }
@@ -74,6 +75,11 @@ public class AmqpConfig {
 
   @Bean
   public Queue messageTrlUpdateQueue() {
+    return new AnonymousQueue();
+  }
+
+  @Bean
+  public Queue clientUpdateQueue() {
     return new AnonymousQueue();
   }
 
@@ -149,4 +155,10 @@ public class AmqpConfig {
     return BindingBuilder.bind(queue).to(fanout);
   }
 
+  @Bean
+  public Binding bindingClient(
+      @Qualifier("clientUpdate") FanoutExchange fanout,
+      @Qualifier("clientUpdateQueue") Queue queue) {
+    return BindingBuilder.bind(queue).to(fanout);
+  }
 }

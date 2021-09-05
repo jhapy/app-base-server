@@ -18,9 +18,6 @@
 
 package org.jhapy.baseserver.endpoint;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.jhapy.baseserver.converter.BaseConverterV2;
 import org.jhapy.baseserver.domain.nosqldb.BaseEntity;
 import org.jhapy.baseserver.service.CrudNosqldbService;
@@ -28,18 +25,18 @@ import org.jhapy.commons.utils.HasLogger;
 import org.jhapy.dto.domain.BaseEntityStrId;
 import org.jhapy.dto.serviceQuery.BaseRemoteQuery;
 import org.jhapy.dto.serviceQuery.ServiceResult;
-import org.jhapy.dto.serviceQuery.generic.CountAnyMatchingQuery;
-import org.jhapy.dto.serviceQuery.generic.DeleteByStrIdQuery;
-import org.jhapy.dto.serviceQuery.generic.FindAnyMatchingQuery;
-import org.jhapy.dto.serviceQuery.generic.GetByStrIdQuery;
-import org.jhapy.dto.serviceQuery.generic.SaveQuery;
+import org.jhapy.dto.serviceQuery.generic.*;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-public abstract class BaseNoSqldbEndpoint<T extends BaseEntity, D extends BaseEntityStrId> implements
-    HasLogger {
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public abstract class BaseNoSqldbEndpoint<T extends BaseEntity, D extends BaseEntityStrId>
+    implements HasLogger {
 
   protected final BaseConverterV2 converter;
 
@@ -57,6 +54,7 @@ public abstract class BaseNoSqldbEndpoint<T extends BaseEntity, D extends BaseEn
     context.put("sessionId", query.getQuerySessionId());
     context.put("iso3Language", query.getQueryIso3Language());
     context.put("currentPosition", query.getQueryCurrentPosition());
+    context.put("clientId", query.getQueryExternalClientID());
 
     return context;
   }
@@ -86,8 +84,8 @@ public abstract class BaseNoSqldbEndpoint<T extends BaseEntity, D extends BaseEn
     }
   }
 
-  protected org.jhapy.dto.utils.Page toDtoPage(org.springframework.data.domain.Page domain,
-      List data) {
+  protected org.jhapy.dto.utils.Page toDtoPage(
+      org.springframework.data.domain.Page domain, List data) {
     org.jhapy.dto.utils.Page result = new org.jhapy.dto.utils.Page<>();
     result.setTotalPages(domain.getTotalPages());
     result.setSize(domain.getSize());
@@ -106,23 +104,22 @@ public abstract class BaseNoSqldbEndpoint<T extends BaseEntity, D extends BaseEn
   protected abstract T convertToDomain(D dto);
 
   @PostMapping(value = "/findAnyMatching")
-  public ResponseEntity<ServiceResult> findAnyMatching(
-      @RequestBody FindAnyMatchingQuery query) {
+  public ResponseEntity<ServiceResult> findAnyMatching(@RequestBody FindAnyMatchingQuery query) {
     var loggerPrefix = getLoggerPrefix("findAnyMatching");
 
-    Page<T> result = getService()
-        .findAnyMatching(query.getFilter(), query.getShowInactive(),
-            converter.convert(query.getPageable()));
+    Page<T> result =
+        getService()
+            .findAnyMatching(
+                query.getFilter(), query.getShowInactive(), converter.convert(query.getPageable()));
     return handleResult(loggerPrefix, toDtoPage(result, convertToDtos(result.getContent())));
   }
 
   @PostMapping(value = "/countAnyMatching")
-  public ResponseEntity<ServiceResult> countAnyMatching(
-      @RequestBody CountAnyMatchingQuery query) {
+  public ResponseEntity<ServiceResult> countAnyMatching(@RequestBody CountAnyMatchingQuery query) {
     var loggerPrefix = getLoggerPrefix("countAnyMatching");
 
-    return handleResult(loggerPrefix,
-        getService().countAnyMatching(query.getFilter(), query.getShowInactive()));
+    return handleResult(
+        loggerPrefix, getService().countAnyMatching(query.getFilter(), query.getShowInactive()));
   }
 
   @PostMapping(value = "/getById")
@@ -142,12 +139,11 @@ public abstract class BaseNoSqldbEndpoint<T extends BaseEntity, D extends BaseEn
   }
 
   @PostMapping(value = "/save")
-  public ResponseEntity<ServiceResult> save(
-      @RequestBody SaveQuery<D> query) {
+  public ResponseEntity<ServiceResult> save(@RequestBody SaveQuery<D> query) {
     var loggerPrefix = getLoggerPrefix("save");
 
-    return handleResult(loggerPrefix,
-        convertToDto(getService().save(convertToDomain(query.getEntity()))));
+    return handleResult(
+        loggerPrefix, convertToDto(getService().save(convertToDomain(query.getEntity()))));
   }
 
   @PostMapping(value = "/delete")

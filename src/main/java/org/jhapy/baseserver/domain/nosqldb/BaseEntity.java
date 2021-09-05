@@ -18,17 +18,13 @@
 
 package org.jhapy.baseserver.domain.nosqldb;
 
-import java.io.Serializable;
-import java.time.Instant;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.javers.core.metamodel.annotation.DiffIgnore;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.annotation.Version;
+import org.springframework.data.annotation.*;
+
+import java.io.Serializable;
+import java.time.Instant;
 
 /**
  * @author jHapy Lead Dev.
@@ -39,49 +35,28 @@ import org.springframework.data.annotation.Version;
 @EqualsAndHashCode(exclude = {"createdBy", "modifiedBy", "created", "modified", "version"})
 public abstract class BaseEntity implements Serializable {
 
-  /**
-   * DB Generated ID
-   */
-  @Id
-  private String id;
+  /** DB Generated ID */
+  @Id private String id;
 
-  /**
-   * Who create this record (no ID, use username)
-   */
-  @DiffIgnore
-  @CreatedBy
-  private String createdBy;
+  /** Who create this record (no ID, use username) */
+  @DiffIgnore @CreatedBy private String createdBy;
 
-  /**
-   * When this record has been created
-   */
-  @DiffIgnore
-  @CreatedDate
-  private Instant created;
+  /** When this record has been created */
+  @DiffIgnore @CreatedDate private Instant created;
 
-  /**
-   * How did the last modification of this record (no ID, use username)
-   */
-  @DiffIgnore
-  @LastModifiedBy
-  private String modifiedBy;
+  /** How did the last modification of this record (no ID, use username) */
+  @DiffIgnore @LastModifiedBy private String modifiedBy;
 
-  /**
-   * When this record was last updated
-   */
-  @DiffIgnore
-  @LastModifiedDate
-  private Instant modified;
+  /** When this record was last updated */
+  @DiffIgnore @LastModifiedDate private Instant modified;
 
-  /**
-   * Version of the record. Used for synchronization and concurrent access.
-   */
-  @DiffIgnore
-  @Version
-  private Long version;
+  /** Version of the record. Used for synchronization and concurrent access. */
+  @DiffIgnore @Version private Long version;
 
-  /**
-   * Indicate if the current record is active (deactivate instead of delete)
-   */
+  /** Indicate if the current record is active (deactivate instead of delete) */
   private Boolean isActive = Boolean.TRUE;
+
+  private Long externalClientId;
+
+  // private Long orgId;
 }
