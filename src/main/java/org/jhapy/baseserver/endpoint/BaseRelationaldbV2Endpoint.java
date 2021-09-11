@@ -18,6 +18,7 @@
 
 package org.jhapy.baseserver.endpoint;
 
+import org.jhapy.baseserver.converter.EntityCommentConverter;
 import org.jhapy.baseserver.converter.GenericMapper;
 import org.jhapy.baseserver.domain.relationaldb.BaseEntity;
 import org.jhapy.baseserver.service.CrudRelationalService;
@@ -26,6 +27,7 @@ import org.jhapy.dto.domain.BaseEntityLongId;
 import org.jhapy.dto.serviceQuery.BaseRemoteQuery;
 import org.jhapy.dto.serviceQuery.ServiceResult;
 import org.jhapy.dto.serviceQuery.generic.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -41,6 +43,8 @@ public abstract class BaseRelationaldbV2Endpoint<T extends BaseEntity, D extends
     implements HasLogger {
 
   protected final GenericMapper<T, D> mapper;
+
+  @Autowired protected EntityCommentConverter entityCommentConverter;
 
   protected BaseRelationaldbV2Endpoint(GenericMapper<T, D> mapper) {
     this.mapper = mapper;

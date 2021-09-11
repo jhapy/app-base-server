@@ -18,7 +18,6 @@
 
 package org.jhapy.baseserver.service;
 
-
 import org.jhapy.baseserver.domain.graphdb.BaseEntity;
 import org.jhapy.dto.domain.exception.EntityNotFoundException;
 import org.springframework.data.domain.Page;

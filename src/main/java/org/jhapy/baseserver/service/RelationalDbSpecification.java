@@ -3,15 +3,6 @@ package org.jhapy.baseserver.service;
 import org.jhapy.baseserver.domain.relationaldb.BaseEntity;
 import org.springframework.data.jpa.domain.Specification;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.springframework.data.jpa.domain.Specification;
-
 import javax.persistence.criteria.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -65,7 +56,7 @@ public class RelationalDbSpecification<T extends BaseEntity> implements Specific
         String[] keys = criteria.getKey().split("\\.");
         var mapRoot = root.join(keys[0], JoinType.LEFT);
         keyColumn = mapRoot.get(keys[1]);
-        if (keys.length > 1) {
+        if (keys.length > 2) {
           mapRoot = mapRoot.join(keys[1], JoinType.LEFT);
           keyColumn = mapRoot.get(keys[2]);
         }
