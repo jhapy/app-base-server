@@ -67,6 +67,7 @@ public class DbTableServiceImpl implements DbTableService {
 
   @Transactional
   public synchronized void bootstrapDbTables() {
+
     if (hasBootstrapped) {
       return;
     }

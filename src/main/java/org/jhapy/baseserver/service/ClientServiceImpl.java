@@ -44,7 +44,7 @@ public class ClientServiceImpl implements ClientService {
   private final DbTableService dbTableService;
   private final DomainClient domainClient;
   private final AppProperties appProperties;
-
+private ThreadLocal<Boolean> propagateChanges = new ThreadLocal<>();
   public ClientServiceImpl(
       AmqpTemplate amqpTemplate,
       @Qualifier("clientUpdate") FanoutExchange clientUpdateFanout,
@@ -185,6 +185,7 @@ public class ClientServiceImpl implements ClientService {
         entity.setExternalVersion(entity.getExternalVersion() + 1);
       }
     }
+    propagateChanges.set(true);
     var savedClient = ClientService.super.save(entity);
 
     if (savedClient.getIsMailboxDomainCreated() == null
@@ -207,18 +208,22 @@ public class ClientServiceImpl implements ClientService {
 
   @Override
   public void postPersist(Client client) {
-    ClientUpdate clientUpdate = new ClientUpdate();
-    clientUpdate.setClientDTO(clientConverter.asDTO(client, null));
-    clientUpdate.setUpdateType(ClientUpdateTypeEnum.INSERT);
-    amqpTemplate.convertAndSend(clientUpdateFanout.getName(), "", clientUpdate);
+    if (propagateChanges.get() != null && propagateChanges.get()) {
+      ClientUpdate clientUpdate = new ClientUpdate();
+      clientUpdate.setClientDTO(clientConverter.asDTO(client, null));
+      clientUpdate.setUpdateType(ClientUpdateTypeEnum.INSERT);
+      amqpTemplate.convertAndSend(clientUpdateFanout.getName(), "", clientUpdate);
+    }
   }
 
   @Override
   public void postUpdate(Client client) {
-    ClientUpdate clientUpdate = new ClientUpdate();
-    clientUpdate.setClientDTO(clientConverter.asDTO(client, null));
-    clientUpdate.setUpdateType(ClientUpdateTypeEnum.UPDATE);
-    amqpTemplate.convertAndSend(clientUpdateFanout.getName(), "", clientUpdate);
+    if (propagateChanges.get() != null && propagateChanges.get()) {
+      ClientUpdate clientUpdate = new ClientUpdate();
+      clientUpdate.setClientDTO(clientConverter.asDTO(client, null));
+      clientUpdate.setUpdateType(ClientUpdateTypeEnum.UPDATE);
+      amqpTemplate.convertAndSend(clientUpdateFanout.getName(), "", clientUpdate);
+    }
   }
 
   @Override
@@ -237,13 +242,14 @@ public class ClientServiceImpl implements ClientService {
       clientRepository.deleteById(existingClient.get().getId());
     }
 
-    if (existingClient.isEmpty()) {
+    if (existingClient.isEmpty() || !existingClient.get().getExternalVersion().equals(client.getExternalVersion())) {
+      if ( existingClient.isPresent())
+        client.setId(existingClient.get().getId());
       Client newClient = clientConverter.asEntity(client, null);
+      propagateChanges.set(false);
       clientRepository.save(newClient);
       return;
     }
-    if (!existingClient.get().getExternalVersion().equals(client.getExternalVersion()))
-      clientRepository.save(clientConverter.asEntity(client, null));
   }
 
   @Override

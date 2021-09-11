@@ -2,6 +2,7 @@ package org.jhapy.baseserver.converter;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jhapy.baseserver.domain.relationaldb.BaseEntity;
+import org.jhapy.baseserver.domain.relationaldb.Client;
 import org.jhapy.baseserver.service.ClientService;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Context;
@@ -42,7 +43,7 @@ public abstract class GenericMapper<E, D> extends BaseConverterV2 {
       BaseEntity domain,
       @MappingTarget org.jhapy.dto.domain.BaseEntity dto,
       @Context Map<String, Object> context) {
-    if (domain.getExternalClientId() != null) {
+    if (domain.getExternalClientId() != null && ! ( domain instanceof Client)) {
       dto.setClientName(clientService.getByExternalId(domain.getExternalClientId()).getName());
     }
   }
