@@ -88,7 +88,7 @@ public class DbTableServiceImpl implements DbTableService {
         String name = WordUtils.capitalizeFully(tableName.replaceAll("_", " "));
         debug(
             loggerPrefix,
-            "Getting table '{0}' for entity name '{1}' and entry name '{2}'",
+            "Getting table {0} for entity name {1} and entry name {2}",
             tableName,
             entityName,
             name);
