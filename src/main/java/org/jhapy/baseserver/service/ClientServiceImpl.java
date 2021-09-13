@@ -44,7 +44,8 @@ public class ClientServiceImpl implements ClientService {
   private final DbTableService dbTableService;
   private final DomainClient domainClient;
   private final AppProperties appProperties;
-private ThreadLocal<Boolean> propagateChanges = new ThreadLocal<>();
+  private ThreadLocal<Boolean> propagateChanges = new ThreadLocal<>();
+
   public ClientServiceImpl(
       AmqpTemplate amqpTemplate,
       @Qualifier("clientUpdate") FanoutExchange clientUpdateFanout,
@@ -174,7 +175,7 @@ private ThreadLocal<Boolean> propagateChanges = new ThreadLocal<>();
     if (entity.getExternalId() == null) {
       Long maxExternalId = clientRepository.getMaxExternalId();
       if (maxExternalId == null) {
-        maxExternalId = 1000l;
+        maxExternalId = 1000L;
       } else {
         maxExternalId += 1;
       }
@@ -188,7 +189,7 @@ private ThreadLocal<Boolean> propagateChanges = new ThreadLocal<>();
     propagateChanges.set(true);
     var savedClient = ClientService.super.save(entity);
 
-    if (savedClient.getIsMailboxDomainCreated() == null
+    if (appProperties.getMailcow().getEnabled() && savedClient.getIsMailboxDomainCreated() == null
         || (!savedClient.getIsMailboxDomainCreated()
             && StringUtils.isNotBlank(savedClient.getMailboxDomain()))) {
       domainClient.addDomain(
@@ -242,13 +243,12 @@ private ThreadLocal<Boolean> propagateChanges = new ThreadLocal<>();
       clientRepository.deleteById(existingClient.get().getId());
     }
 
-    if (existingClient.isEmpty() || !existingClient.get().getExternalVersion().equals(client.getExternalVersion())) {
-      if ( existingClient.isPresent())
-        client.setId(existingClient.get().getId());
+    if (existingClient.isEmpty()
+        || !existingClient.get().getExternalVersion().equals(client.getExternalVersion())) {
+      existingClient.ifPresent(value -> client.setId(value.getId()));
       Client newClient = clientConverter.asEntity(client, null);
       propagateChanges.set(false);
       clientRepository.save(newClient);
-      return;
     }
   }
 
