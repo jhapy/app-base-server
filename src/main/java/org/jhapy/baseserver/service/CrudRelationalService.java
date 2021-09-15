@@ -62,10 +62,10 @@ public interface CrudRelationalService<T extends BaseEntity> extends HasLogger {
   }
 
   @Transactional
-  default Iterable<T> saveAll(Iterable<T> entity) {
-    entity.forEach(t -> getClientService().beforeEntitySave(t));
+  default Iterable<T> saveAll(Iterable<T> entities) {
+    entities.forEach(t -> getClientService().beforeEntitySave(t));
 
-    return getRepository().saveAll(entity);
+    return getRepository().saveAll(entities);
   }
 
   @Transactional
@@ -75,6 +75,13 @@ public interface CrudRelationalService<T extends BaseEntity> extends HasLogger {
     }
     getClientService().beforeEntityDelete(entity);
     getRepository().delete(entity);
+  }
+
+  @Transactional
+  default void deleteAll(Iterable<T> entities) {
+    entities.forEach(t -> getClientService().beforeEntityDelete(t));
+
+    getRepository().deleteAll(entities);
   }
 
   @Transactional
