@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.time.Instant;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.jhapy.baseserver.utils.InstantString;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -29,6 +30,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.annotation.Version;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
+import org.springframework.data.neo4j.core.support.DateString;
 
 /**
  * @author jHapy Lead Dev.

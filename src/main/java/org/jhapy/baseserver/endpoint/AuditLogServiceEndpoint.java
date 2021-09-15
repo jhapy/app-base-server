@@ -20,18 +20,24 @@ package org.jhapy.baseserver.endpoint;
 
 import org.jhapy.baseserver.converter.BaseConverterV2;
 import org.jhapy.baseserver.service.AuditLogService;
+import org.jhapy.commons.converter.CommonsConverterV2;
 import org.jhapy.commons.endpoint.BaseEndpoint;
 import org.jhapy.dto.domain.audit.AuditLog;
 import org.jhapy.dto.serviceQuery.ServiceResult;
 import org.jhapy.dto.serviceQuery.auditLog.CountAuditLogQuery;
 import org.jhapy.dto.serviceQuery.auditLog.FindAuditLogQuery;
+import org.jhapy.dto.utils.Pageable;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.stream.Collectors;
 
 /**
  * @author jHapy Lead Dev.
@@ -45,9 +51,8 @@ public class AuditLogServiceEndpoint extends BaseEndpoint {
 
   private final AuditLogService auditLogService;
 
-  public AuditLogServiceEndpoint(AuditLogService auditLogService,
-      BaseConverterV2 converter) {
-    super(converter);
+  public AuditLogServiceEndpoint(AuditLogService auditLogService) {
+    super(null);
     this.auditLogService = auditLogService;
   }
 
@@ -57,8 +62,7 @@ public class AuditLogServiceEndpoint extends BaseEndpoint {
     var loggerPrefix = getLoggerPrefix("getAuditLog");
 
     Page<AuditLog> result = auditLogService
-        .getAudit(query.getClassName(), query.getRecordId(),
-            converter.convert(query.getPageable()));
+        .getAudit(query.getClassName(), query.getRecordId(), convert(query.getPageable()));
     return handleResult(loggerPrefix, toDtoPage(result, result.getContent()));
   }
 
@@ -70,5 +74,14 @@ public class AuditLogServiceEndpoint extends BaseEndpoint {
     return handleResult(loggerPrefix,
         auditLogService
             .countAudit(query.getClassName(), query.getRecordId()));
+  }
+
+  public PageRequest convert(Pageable src) {
+    var s = src.getSort() == null ? Sort.unsorted() : Sort.by(src.getSort().stream().map(
+            order -> order.getDirection().equals(Pageable.Order.Direction.ASC) ? Sort.Order.asc(order.getProperty())
+                    : Sort.Order.desc(order.getProperty())).collect(
+            Collectors.toList()));
+
+    return PageRequest.of(src.getPage(), src.getSize(), s);
   }
 }
