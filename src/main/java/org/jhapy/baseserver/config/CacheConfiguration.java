@@ -18,14 +18,9 @@
 
 package org.jhapy.baseserver.config;
 
-import com.hazelcast.config.Config;
-import com.hazelcast.config.EvictionPolicy;
-import com.hazelcast.config.ManagementCenterConfig;
-import com.hazelcast.config.MapConfig;
-import com.hazelcast.config.MaxSizePolicy;
+import com.hazelcast.config.*;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import javax.annotation.PreDestroy;
 import org.jhapy.commons.config.AppProperties;
 import org.jhapy.commons.utils.HasLogger;
 import org.jhapy.commons.utils.PrefixedKeyGenerator;
@@ -45,6 +40,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
+
+import javax.annotation.PreDestroy;
 
 @ConditionalOnProperty("spring.datasource.url")
 @Configuration
@@ -101,6 +98,9 @@ public class CacheConfiguration implements HasLogger {
       return hazelCastInstance;
     }
     Config config = new Config();
+    MetricsConfig metricsConfig = new MetricsConfig();
+    metricsConfig.setEnabled(false);
+    config.setMetricsConfig(metricsConfig);
     config.setInstanceName(env.getProperty("spring.application.name"));
     config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
     if (this.registration == null) {

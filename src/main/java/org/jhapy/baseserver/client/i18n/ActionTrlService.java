@@ -42,7 +42,6 @@ import java.util.List;
  */
 @AuthorizedFeignClient(
     name = "${jhapy.remote-services.i18n-server.name:null}",
-    url = "${jhapy.remote-services.i18n-server.url:}",
     path = "/api/actionTrlService",
     fallbackFactory = ActionTrlServiceFallback.class)
 @Primary
