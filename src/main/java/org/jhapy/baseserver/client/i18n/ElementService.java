@@ -34,7 +34,6 @@ import org.springframework.web.bind.annotation.RequestBody;
  */
 @AuthorizedFeignClient(
     name = "${jhapy.remote-services.i18n-server.name:null}",
-    url = "${jhapy.remote-services.i18n-server.url:}",
     path = "/api/elementService",
     fallbackFactory = ElementServiceFallback.class)
 @Primary
