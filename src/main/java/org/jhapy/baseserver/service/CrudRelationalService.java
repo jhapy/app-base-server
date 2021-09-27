@@ -20,6 +20,7 @@ package org.jhapy.baseserver.service;
 
 import org.jhapy.baseserver.domain.relationaldb.BaseEntity;
 import org.jhapy.baseserver.repository.relationaldb.BaseRepository;
+import org.jhapy.commons.exception.ServiceException;
 import org.jhapy.commons.utils.BeanUtils;
 import org.jhapy.commons.utils.HasLogger;
 import org.jhapy.dto.domain.exception.EntityNotFoundException;
@@ -32,6 +33,7 @@ import javax.persistence.EntityManager;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author jHapy Lead Dev.
@@ -50,12 +52,21 @@ public interface CrudRelationalService<T extends BaseEntity> extends HasLogger {
 
   @Transactional
   default T save(T entity) {
+    if (isExternalService())
+      throw new ServiceException("Not allowed for a remote service", getClass().getSimpleName());
+
     getClientService().beforeEntitySave(entity);
+
+    if (entity.getId() == null || entity.getSyncId() == null)
+      entity.setSyncId(UUID.randomUUID().toString());
     return getRepository().save(entity);
   }
 
   @Transactional
   default Iterable<T> saveAll(Long parentEntityId, Iterable<T> entity) {
+    if (isExternalService())
+      throw new ServiceException("Not allowed for a remote service", getClass().getSimpleName());
+
     entity.forEach(t -> getClientService().beforeEntitySave(t));
 
     return getRepository().saveAll(entity);
@@ -63,6 +74,9 @@ public interface CrudRelationalService<T extends BaseEntity> extends HasLogger {
 
   @Transactional
   default Iterable<T> saveAll(Iterable<T> entities) {
+    if (isExternalService())
+      throw new ServiceException("Not allowed for a remote service", getClass().getSimpleName());
+
     entities.forEach(t -> getClientService().beforeEntitySave(t));
 
     return getRepository().saveAll(entities);
@@ -70,6 +84,9 @@ public interface CrudRelationalService<T extends BaseEntity> extends HasLogger {
 
   @Transactional
   default void delete(T entity) {
+    if (isExternalService())
+      throw new ServiceException("Not allowed for a remote service", getClass().getSimpleName());
+
     if (entity == null) {
       throw new EntityNotFoundException();
     }
@@ -79,6 +96,9 @@ public interface CrudRelationalService<T extends BaseEntity> extends HasLogger {
 
   @Transactional
   default void deleteAll(Iterable<T> entities) {
+    if (isExternalService())
+      throw new ServiceException("Not allowed for a remote service", getClass().getSimpleName());
+
     entities.forEach(t -> getClientService().beforeEntityDelete(t));
 
     getRepository().deleteAll(entities);
@@ -281,5 +301,9 @@ public interface CrudRelationalService<T extends BaseEntity> extends HasLogger {
 
   default void convert(Map<String, Object> entity, T existingRecord) {
     BeanUtils.copyNonNullProperties(existingRecord, entity);
+  }
+
+  default boolean isExternalService() {
+    return false;
   }
 }

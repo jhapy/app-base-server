@@ -28,7 +28,5 @@ import org.springframework.data.repository.query.QueryByExampleExecutor;
  * @version 1.0
  * @since 3/8/20
  */
-public interface BaseRepository<T extends BaseEntity> extends JpaRepository<T, Long>,
-    QueryByExampleExecutor<T>, JpaSpecificationExecutor<T> {
-
-}
+public interface BaseRepository<T extends BaseEntity>
+    extends JpaRepository<T, Long>, QueryByExampleExecutor<T>, JpaSpecificationExecutor<T> {}
