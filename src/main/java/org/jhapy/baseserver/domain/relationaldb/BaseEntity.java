@@ -68,6 +68,8 @@ public abstract class BaseEntity implements Serializable {
 
   @Transient private Boolean isSkipAfterSave = Boolean.FALSE;
 
+  private String syncId;
+
   /*
   @JoinColumn(name = "org_id")
   @ManyToOne(fetch = FetchType.LAZY)
