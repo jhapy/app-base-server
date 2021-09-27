@@ -157,7 +157,6 @@ public interface CrudRelationalService<T extends BaseEntity> extends HasLogger {
   }
 
   default Page<T> findAnyMatching(
-      String currentUserId,
       String filter,
       Boolean showInactive,
       Pageable pageable,
@@ -175,27 +174,35 @@ public interface CrudRelationalService<T extends BaseEntity> extends HasLogger {
         pageable);
 
     var clientIds = getClientService().getClientCriteria(getEntityClass());
-    RelationalDbSpecification<T> clientsCriteria = null;
+    RelationalDbSpecification<T> criterias = null;
     if (!clientIds.isEmpty()) {
-      clientsCriteria = new RelationalDbSpecification<T>();
-      clientsCriteria.add(
+      criterias = new RelationalDbSpecification<T>();
+      criterias.add(
           new RelationalDbSearchCriteria(
               "externalClientId", clientIds, RelationalDbSearchOperation.IN));
     }
-    var specifications = buildSearchQuery(filter, showInactive, otherCriteria);
+    if (showInactive != null) {
+      if ( criterias == null )
+        criterias = new RelationalDbSpecification<T>();
+      criterias.add(
+              new RelationalDbSearchCriteria(
+                      "isActive", !showInactive, RelationalDbSearchOperation.EQUAL));
+    }
+
+    var specifications = buildSearchQuery(filter, otherCriteria);
 
     Page<T> result;
     if (specifications != null) {
-      if (clientsCriteria != null) {
-        specifications.and(clientsCriteria);
+      if (criterias != null) {
+        specifications.and(criterias);
       }
-      result =
-          getRepository().findAll(specifications, pageable == null ? Pageable.unpaged() : pageable);
+      result = getRepository().findAll(specifications, pageable == null ? Pageable.unpaged() : pageable);
     } else {
-      if (clientsCriteria != null) {
+
+      if (criterias != null) {
         result =
             getRepository()
-                .findAll(clientsCriteria, pageable == null ? Pageable.unpaged() : pageable);
+                .findAll(criterias, pageable == null ? Pageable.unpaged() : pageable);
       } else result = getRepository().findAll(pageable == null ? Pageable.unpaged() : pageable);
     }
 
@@ -214,8 +221,7 @@ public interface CrudRelationalService<T extends BaseEntity> extends HasLogger {
     return result;
   }
 
-  default List<T> findAnyMatchingNoPaging(
-      String currentUserId, String filter, Boolean showInactive, Object... otherCriteria) {
+  default List<T> findAnyMatchingNoPaging(String filter, Boolean showInactive, Object... otherCriteria) {
     var loggerString = getLoggerPrefix("findAnyMatchingNoPaging");
 
     logger().debug(loggerString + "----------------------------------");
@@ -228,24 +234,33 @@ public interface CrudRelationalService<T extends BaseEntity> extends HasLogger {
         showInactive);
 
     var clientIds = getClientService().getClientCriteria(getEntityClass());
-    RelationalDbSpecification<T> clientsCriteria = null;
+    RelationalDbSpecification<T> criterias = null;
     if (!clientIds.isEmpty()) {
-      clientsCriteria = new RelationalDbSpecification<T>();
-      clientsCriteria.add(
-          new RelationalDbSearchCriteria(
-              "externalClientId", clientIds, RelationalDbSearchOperation.IN));
+      criterias = new RelationalDbSpecification<T>();
+      criterias.add(
+              new RelationalDbSearchCriteria(
+                      "externalClientId", clientIds, RelationalDbSearchOperation.IN));
     }
-    var specifications = buildSearchQuery(filter, showInactive, otherCriteria);
+
+    if (showInactive != null) {
+      if ( criterias == null )
+        criterias = new RelationalDbSpecification<T>();
+      criterias.add(
+              new RelationalDbSearchCriteria(
+                      "isActive", !showInactive, RelationalDbSearchOperation.EQUAL));
+    }
+
+    var specifications = buildSearchQuery(filter, otherCriteria);
 
     List<T> result;
     if (specifications != null) {
-      if (clientsCriteria != null) {
-        specifications.and(clientsCriteria);
+      if (criterias != null) {
+        specifications.and(criterias);
       }
       result = getRepository().findAll(specifications);
     } else {
-      if (clientsCriteria != null) {
-        result = getRepository().findAll(clientsCriteria);
+      if (criterias != null) {
+        result = getRepository().findAll(criterias);
       } else result = getRepository().findAll();
     }
 
@@ -254,8 +269,7 @@ public interface CrudRelationalService<T extends BaseEntity> extends HasLogger {
     return result;
   }
 
-  default long countAnyMatching(
-      String currentUserId, String filter, Boolean showInactive, Object... otherCriteria) {
+  default long countAnyMatching(String filter, Boolean showInactive, Object... otherCriteria) {
     var loggerString = getLoggerPrefix("countAnyMatching");
 
     logger().debug(loggerString + "----------------------------------");
@@ -268,24 +282,33 @@ public interface CrudRelationalService<T extends BaseEntity> extends HasLogger {
         showInactive);
 
     var clientIds = getClientService().getClientCriteria(getEntityClass());
-    RelationalDbSpecification<T> clientsCriteria = null;
+    RelationalDbSpecification<T> criterias = null;
     if (!clientIds.isEmpty()) {
-      clientsCriteria = new RelationalDbSpecification<T>();
-      clientsCriteria.add(
-          new RelationalDbSearchCriteria(
-              "externalClientId", clientIds, RelationalDbSearchOperation.IN));
+      criterias = new RelationalDbSpecification<T>();
+      criterias.add(
+              new RelationalDbSearchCriteria(
+                      "externalClientId", clientIds, RelationalDbSearchOperation.IN));
     }
-    var specifications = buildSearchQuery(filter, showInactive, otherCriteria);
+
+    if (showInactive != null) {
+      if ( criterias == null )
+        criterias = new RelationalDbSpecification<T>();
+      criterias.add(
+              new RelationalDbSearchCriteria(
+                      "isActive", !showInactive, RelationalDbSearchOperation.EQUAL));
+    }
+
+    var specifications = buildSearchQuery(filter, otherCriteria);
 
     Long result;
     if (specifications != null) {
-      if (clientsCriteria != null) {
-        specifications.and(clientsCriteria);
+      if (criterias != null) {
+        specifications.and(criterias);
       }
       result = getRepository().count(specifications);
     } else {
-      if (clientsCriteria != null) {
-        result = getRepository().count(clientsCriteria);
+      if (criterias != null) {
+        result = getRepository().count(criterias);
       } else result = getRepository().count();
     }
 
@@ -295,7 +318,7 @@ public interface CrudRelationalService<T extends BaseEntity> extends HasLogger {
   }
 
   default Specification<T> buildSearchQuery(
-      String filter, Boolean showInactive, Object... otherCriteria) {
+      String filter, Object... otherCriteria) {
     return null;
   }
 

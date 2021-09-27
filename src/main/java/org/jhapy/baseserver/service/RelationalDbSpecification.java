@@ -19,8 +19,8 @@ public class RelationalDbSpecification<T extends BaseEntity> implements Specific
     this.list.add(criteria);
   }
 
-  public void add(RelationalDbSearchCriteria criteria) {
-    list.add(criteria);
+  public void add(RelationalDbSearchCriteria... criterias) {
+    list.addAll(Arrays.asList(criterias));
   }
 
   public void or(RelationalDbSearchCriteria... criterias) {

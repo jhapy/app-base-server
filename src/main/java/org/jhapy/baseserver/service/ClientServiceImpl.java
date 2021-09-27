@@ -67,6 +67,8 @@ public class ClientServiceImpl implements ClientService {
 
   @Override
   public void beforeEntitySave(BaseEntity entity) {
+    if ( ! appProperties.getSecurity().getUseClientSecurity() )
+      return;
     SessionData sessionDataFromContext = SpringApplicationContext.getBean(SessionData.class);
     DbTable dbTable = dbTableService.getByEntity(entity.getClass().getSimpleName());
     /*
@@ -88,7 +90,8 @@ public class ClientServiceImpl implements ClientService {
 
   @Override
   public void beforeEntityDelete(BaseEntity entity) {
-    if (true) return;
+    if ( ! appProperties.getSecurity().getUseClientSecurity() )
+      return;
     SessionData sessionDataFromContext = SpringApplicationContext.getBean(SessionData.class);
     DbTable dbTable = dbTableService.getByEntity(entity.getClass().getSimpleName());
     if (!dbTable.getIsDeletable()) {
@@ -117,7 +120,8 @@ public class ClientServiceImpl implements ClientService {
 
   @Override
   public void beforeEntityLoad(BaseEntity entity) {
-    if (true) return;
+    if ( ! appProperties.getSecurity().getUseClientSecurity() )
+      return;
 
     SessionData sessionDataFromContext = SpringApplicationContext.getBean(SessionData.class);
     DbTable dbTable = dbTableService.getByEntity(entity.getClass().getSimpleName());
@@ -149,7 +153,8 @@ public class ClientServiceImpl implements ClientService {
 
   @Override
   public <T extends BaseEntity> List<Long> getClientCriteria(Class<T> entityClass) {
-    if (true) return Collections.emptyList();
+    if ( ! appProperties.getSecurity().getUseClientSecurity() )
+       return Collections.emptyList();
     SessionData sessionDataFromContext = SpringApplicationContext.getBean(SessionData.class);
     DbTable dbTable = dbTableService.getByEntity(entityClass.getSimpleName());
     if (dbTable.getAccessLevel() == AccessLevelEnum.SYSTEM_ONLY) {

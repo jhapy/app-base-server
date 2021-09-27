@@ -7,6 +7,7 @@ import org.jhapy.baseserver.domain.relationaldb.Client;
 import org.jhapy.baseserver.domain.relationaldb.DbTable;
 import org.jhapy.baseserver.repository.relationaldb.BaseRepository;
 import org.jhapy.baseserver.repository.relationaldb.DbTableRepository;
+import org.jhapy.commons.config.AppProperties;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -35,18 +36,20 @@ public class DbTableServiceImpl implements DbTableService {
   private final EntityManager entityManager;
   private final DataSource dataSource;
   private final ClientService clientService;
+private final AppProperties appProperties;
 
   private boolean hasBootstrapped = false;
 
   public DbTableServiceImpl(
-      EntityManager entityManager,
-      DbTableRepository dbTableRepository,
-      DataSource dataSource,
-      ClientService clientService) {
+          EntityManager entityManager,
+          DbTableRepository dbTableRepository,
+          DataSource dataSource,
+          ClientService clientService, AppProperties appProperties) {
     this.entityManager = entityManager;
     this.dbTableRepository = dbTableRepository;
     this.dataSource = dataSource;
     this.clientService = clientService;
+    this.appProperties = appProperties;
   }
 
   @Override
@@ -71,6 +74,8 @@ public class DbTableServiceImpl implements DbTableService {
     if (hasBootstrapped) {
       return;
     }
+    if ( ! appProperties.getSecurity().getUseClientSecurity() )
+      return;
 
     var loggerPrefix = getLoggerPrefix("bootstrapDbTables");
 

@@ -30,6 +30,7 @@ import org.jhapy.dto.serviceQuery.generic.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -105,10 +106,12 @@ public abstract class BaseRelationaldbV2Endpoint<T extends BaseEntity, D extends
   public ResponseEntity<ServiceResult> findAnyMatching(@RequestBody FindAnyMatchingQuery query) {
     var loggerPrefix = getLoggerPrefix("findAnyMatching");
 
+    defaultFindSecurity();
+    readSecurity();
+
     Page<T> result =
         getService()
             .findAnyMatching(
-                query.getQueryUsername(),
                 query.getFilter(),
                 query.getShowInactive(),
                 mapper.convert(query.getPageable()));
@@ -120,11 +123,13 @@ public abstract class BaseRelationaldbV2Endpoint<T extends BaseEntity, D extends
   public ResponseEntity<ServiceResult> countAnyMatching(@RequestBody CountAnyMatchingQuery query) {
     var loggerPrefix = getLoggerPrefix("countAnyMatching");
 
+    defaultFindSecurity();
+    readSecurity();
+
     return handleResult(
         loggerPrefix,
         getService()
-            .countAnyMatching(
-                query.getQueryUsername(), query.getFilter(), query.getShowInactive()));
+            .countAnyMatching(query.getFilter(), query.getShowInactive()));
   }
 
   @PostMapping(value = "/getById")
@@ -141,12 +146,16 @@ public abstract class BaseRelationaldbV2Endpoint<T extends BaseEntity, D extends
   public ResponseEntity<ServiceResult> getAll(@RequestBody BaseRemoteQuery query) {
     var loggerPrefix = getLoggerPrefix("getAll");
 
+    readSecurity();
+
     return handleResult(loggerPrefix, mapper.asDTOList(getService().getAll(), getContext(query)));
   }
 
   @PostMapping(value = "/save")
   public ResponseEntity<ServiceResult> save(@RequestBody SaveQuery<D> query) {
     var loggerPrefix = getLoggerPrefix("save");
+
+    saveSecurity();
 
     return handleResult(
         loggerPrefix,
@@ -158,6 +167,9 @@ public abstract class BaseRelationaldbV2Endpoint<T extends BaseEntity, D extends
   @PostMapping(value = "/saveAll")
   public ResponseEntity<ServiceResult> saveAll(@RequestBody SaveAllQuery<D> query) {
     var loggerPrefix = getLoggerPrefix("saveAll");
+
+    saveSecurity();
+
     if (query.getParentEntityId() == null) {
       return handleResult(
           loggerPrefix,
@@ -180,7 +192,17 @@ public abstract class BaseRelationaldbV2Endpoint<T extends BaseEntity, D extends
   public ResponseEntity<ServiceResult> delete(@RequestBody DeleteByIdQuery query) {
     var loggerPrefix = getLoggerPrefix("delete");
 
+    deleteSecurity();
+
     getService().delete(query.getId());
     return handleResult(loggerPrefix);
   }
+
+  public void deleteSecurity() {}
+
+  public void saveSecurity() {}
+
+  public void readSecurity() {}
+
+  public void defaultFindSecurity() {};
 }

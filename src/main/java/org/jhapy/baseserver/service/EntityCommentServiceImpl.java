@@ -49,7 +49,7 @@ public class EntityCommentServiceImpl implements EntityCommentService {
 
   @Override
   public Specification<EntityComment> buildSearchQuery(
-      String filter, Boolean showInactive, Object... otherCriteria) {
+      String filter, Object... otherCriteria) {
     return new Specification<EntityComment>() {
       @Override
       public Predicate toPredicate(
