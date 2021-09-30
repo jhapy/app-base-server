@@ -23,17 +23,22 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.jhapy.commons.utils.HasLogger;
 import org.jhapy.commons.utils.SpringProfileConstants;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
+import org.springframework.stereotype.Component;
 
 /**
  * Aspect for logging execution of service and repository Spring components.
  *
  * By default, it only runs with the "dev" profile.
  */
+@Aspect
+@Component
 public class LoggingAspect implements HasLogger {
 
   private final Environment env;
@@ -47,7 +52,8 @@ public class LoggingAspect implements HasLogger {
    */
   @Pointcut("within(@org.springframework.stereotype.Repository *)" +
       " || within(@org.springframework.stereotype.Service *)" +
-      " || within(@org.springframework.web.bind.annotation.RestController *)")
+      " || within(@org.springframework.web.bind.annotation.RestController *)" +
+          " || within(@org.mapstruct.Mapper *)" )
   public void springBeanPointcut() {
     // Method is empty as this is just a Pointcut, the implementations are in the advices.
   }
@@ -59,6 +65,11 @@ public class LoggingAspect implements HasLogger {
       " || target(org.jhapy.baseserver.service.CrudNosqldbService)" +
       " || target(org.jhapy.baseserver.service.CrudRelationalService)")
   public void serviceEndpoint() {
+    // Method is empty as this is just a Pointcut, the implementations are in the advices.
+  }
+
+  @Pointcut("target(org.jhapy.baseserver.converter.GenericMapper)")
+  public void converterEndpoint() {
     // Method is empty as this is just a Pointcut, the implementations are in the advices.
   }
 
@@ -98,7 +109,7 @@ public class LoggingAspect implements HasLogger {
    * @return result.
    * @throws Throwable throws {@link IllegalArgumentException}.
    */
-  @Around("serviceEndpoint() && springBeanPointcut() && methodAnnotatedWithNoLog()")
+  @Around("( serviceEndpoint() || converterEndpoint() ) && springBeanPointcut() && methodAnnotatedWithNoLog()")
   public Object logAroundServiceOrEndpoint(ProceedingJoinPoint joinPoint) throws Throwable {
     var loggerPrefix = getLoggerPrefix(joinPoint.getSignature().getName());
     Class sourceClass = joinPoint.getSignature().getDeclaringType();
@@ -115,7 +126,7 @@ public class LoggingAspect implements HasLogger {
       Object result = joinPoint.proceed();
       long end = System.currentTimeMillis();
       long duration = end - start;
-      if (duration > 1000) {
+      if (duration > 100) {
         logger(sourceClass).warn(
             loggerPrefix + ">>> Service or EndPoint Method: " + joinPoint.getSignature().getName()
                 + " took long ... "
