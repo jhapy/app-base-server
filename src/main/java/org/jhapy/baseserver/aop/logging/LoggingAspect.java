@@ -18,7 +18,6 @@
 
 package org.jhapy.baseserver.aop.logging;
 
-import java.util.Arrays;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.AfterThrowing;
@@ -27,15 +26,16 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.jhapy.commons.utils.HasLogger;
 import org.jhapy.commons.utils.SpringProfileConstants;
-import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+
 /**
  * Aspect for logging execution of service and repository Spring components.
  *
- * By default, it only runs with the "dev" profile.
+ * <p>By default, it only runs with the "dev" profile.
  */
 @Aspect
 @Component
@@ -47,35 +47,31 @@ public class LoggingAspect implements HasLogger {
     this.env = env;
   }
 
-  /**
-   * Pointcut that matches all repositories, services and Web REST endpoints.
-   */
-  @Pointcut("within(@org.springframework.stereotype.Repository *)" +
-      " || within(@org.springframework.stereotype.Service *)" +
-      " || within(@org.springframework.web.bind.annotation.RestController *)" +
-          " || within(@org.mapstruct.Mapper *)" )
+  /** Pointcut that matches all repositories, services and Web REST endpoints. */
+  @Pointcut(
+      "within(@org.springframework.stereotype.Repository *)"
+          + " || within(@org.springframework.stereotype.Service *)"
+          + " || within(@org.springframework.web.bind.annotation.RestController *)"
+          + " || within(@org.mapstruct.Mapper *)")
   public void springBeanPointcut() {
     // Method is empty as this is just a Pointcut, the implementations are in the advices.
   }
 
-  /**
-   * Pointcut that matches all Spring beans in the application's main packages.
-   */
-  @Pointcut("target(org.jhapy.baseserver.service.CrudGraphdbService)" +
-      " || target(org.jhapy.baseserver.service.CrudNosqldbService)" +
-      " || target(org.jhapy.baseserver.service.CrudRelationalService)")
-  public void serviceEndpoint() {
-    // Method is empty as this is just a Pointcut, the implementations are in the advices.
-  }
+  /** Pointcut that matches all Spring beans in the application's main packages. */
+  @Pointcut("target(org.jhapy.baseserver.service.CrudRelationalService)")
+  public void services() {}
 
   @Pointcut("target(org.jhapy.baseserver.converter.GenericMapper)")
-  public void converterEndpoint() {
-    // Method is empty as this is just a Pointcut, the implementations are in the advices.
-  }
+  public void converters() {}
+
+  @Pointcut("target(org.jhapy.baseserver.repository.relationaldb.BaseRepository)")
+  public void repositories() {}
+
+  @Pointcut("target(org.jhapy.baseserver.endpoint.BaseRelationaldbV2Endpoint)")
+  public void endpoints() {}
 
   @Pointcut("!execution(@org.jhapy.baseserver.aop.logging.NoLog * *(..))")
-  public void methodAnnotatedWithNoLog() {
-  }
+  public void methodAnnotatedWithNoLog() {}
 
   /**
    * Advice that logs methods throwing exceptions.
@@ -83,71 +79,208 @@ public class LoggingAspect implements HasLogger {
    * @param joinPoint join point for advice.
    * @param e exception.
    */
-  @AfterThrowing(pointcut = "serviceEndpoint() && springBeanPointcut()", throwing = "e")
+  @AfterThrowing(pointcut = "services() && springBeanPointcut()", throwing = "e")
   public void logAfterThrowing(JoinPoint joinPoint, Throwable e) {
     var loggerPrefix = getLoggerPrefix(joinPoint.getSignature().getName());
     Class sourceClass = joinPoint.getSignature().getDeclaringType();
 
-    if (env.acceptsProfiles(Profiles.of(SpringProfileConstants.SPRING_PROFILE_DEVELOPMENT,
-        SpringProfileConstants.SPRING_PROFILE_DEVELOPMENT_LOCAL))) {
+    if (env.acceptsProfiles(
+        Profiles.of(
+            SpringProfileConstants.SPRING_PROFILE_DEVELOPMENT,
+            SpringProfileConstants.SPRING_PROFILE_DEVELOPMENT_LOCAL))) {
       logger(sourceClass)
-          .error(loggerPrefix + ">>> Exception in {} with cause = '{}' and exception = '{}'",
+          .error(
+              loggerPrefix + ">>> Exception in {} with cause = '{}' and exception = '{}'",
               joinPoint.getSignature().toShortString(),
               e.getCause() != null ? e.getCause() : "NULL",
-              e.getMessage(), e);
+              e.getMessage(),
+              e);
 
     } else {
-      logger(sourceClass).error(loggerPrefix + ">>> Exception in {} with cause = {}",
-          joinPoint.getSignature().toShortString(), e.getCause() != null ? e.getCause() : "NULL");
+      logger(sourceClass)
+          .error(
+              loggerPrefix + ">>> Exception in {} with cause = {}",
+              joinPoint.getSignature().toShortString(),
+              e.getCause() != null ? e.getCause() : "NULL");
     }
   }
 
-  /**
-   * Advice that logs when a method is entered and exited.
-   *
-   * @param joinPoint join point for advice.
-   * @return result.
-   * @throws Throwable throws {@link IllegalArgumentException}.
-   */
-  @Around("( serviceEndpoint() || converterEndpoint() ) && springBeanPointcut() && methodAnnotatedWithNoLog()")
-  public Object logAroundServiceOrEndpoint(ProceedingJoinPoint joinPoint) throws Throwable {
+  @Around("endpoints() && springBeanPointcut() && methodAnnotatedWithNoLog()")
+  public Object logAroundEndpoints(ProceedingJoinPoint joinPoint) throws Throwable {
     var loggerPrefix = getLoggerPrefix(joinPoint.getSignature().getName());
-    Class sourceClass = joinPoint.getSignature().getDeclaringType();
+    Class sourceClass = joinPoint.getTarget().getClass();
 
     // TODO : Add an endpoint to activate/deactivate at runtime
     if (logger(sourceClass).isTraceEnabled()) {
-      logger(sourceClass).debug(loggerPrefix + ">>> Enter with argument[s] = {}",
-          Arrays.toString(joinPoint.getArgs()));
-    } else if (logger().isDebugEnabled()) {
-      logger(sourceClass).debug(loggerPrefix + ">>> Enter");
+      logger(sourceClass)
+          .debug(
+              loggerPrefix + "> Enter with argument[s] = {}", Arrays.toString(joinPoint.getArgs()));
     }
     try {
       long start = System.currentTimeMillis();
       Object result = joinPoint.proceed();
       long end = System.currentTimeMillis();
       long duration = end - start;
-      if (duration > 100) {
-        logger(sourceClass).warn(
-            loggerPrefix + ">>> Service or EndPoint Method: " + joinPoint.getSignature().getName()
-                + " took long ... "
-                + duration + " ms");
-      }
+      String message =
+          loggerPrefix
+              + "> Endpoint Method: "
+              + joinPoint.getSignature().getName()
+              + " took "
+              + duration
+              + " ms";
+      if (duration > 1000) logger(sourceClass).error(message);
+      else if (duration > 100) logger(sourceClass).warn(message);
+      else if (duration > 10) logger(sourceClass).debug(message);
+
       if (logger().isTraceEnabled()) {
         logger(sourceClass)
-            .debug(loggerPrefix + ">>> Exit, duration {} ms with result = {}", duration, result);
-      } else if (logger().isDebugEnabled()) {
-        logger(sourceClass).debug(loggerPrefix + ">>> Exit, duration {} ms", duration);
+            .debug(loggerPrefix + "> Exit, duration {} ms with result = {}", duration, result);
       }
       return result;
     } catch (IllegalArgumentException e) {
-      logger(sourceClass).error(loggerPrefix + ">>> Illegal argument: {} in {}",
-          Arrays.toString(joinPoint.getArgs()),
-          joinPoint.getSignature().toShortString());
+      logger(sourceClass)
+          .error(
+              loggerPrefix + "> Illegal argument: {} in {}",
+              Arrays.toString(joinPoint.getArgs()),
+              joinPoint.getSignature().toShortString());
 
       throw e;
     }
   }
 
+  @Around("services() && springBeanPointcut() && methodAnnotatedWithNoLog()")
+  public Object logAroundServices(ProceedingJoinPoint joinPoint) throws Throwable {
+    var loggerPrefix = getLoggerPrefix(joinPoint.getSignature().getName());
+    Class sourceClass = joinPoint.getTarget().getClass();
+
+    // TODO : Add an endpoint to activate/deactivate at runtime
+    if (logger(sourceClass).isTraceEnabled()) {
+      logger(sourceClass)
+          .debug(
+              loggerPrefix + ">> Enter with argument[s] = {}",
+              Arrays.toString(joinPoint.getArgs()));
+    }
+    try {
+      long start = System.currentTimeMillis();
+      Object result = joinPoint.proceed();
+      long end = System.currentTimeMillis();
+      long duration = end - start;
+      String message =
+          loggerPrefix
+              + ">> Service Method: "
+              + joinPoint.getSignature().getName()
+              + " took "
+              + duration
+              + " ms";
+      if (duration > 1000) logger(sourceClass).error(message);
+      else if (duration > 100) logger(sourceClass).warn(message);
+      else if (duration > 10) logger(sourceClass).debug(message);
+
+      if (logger().isTraceEnabled()) {
+        logger(sourceClass)
+            .debug(loggerPrefix + ">> Exit, duration {} ms with result = {}", duration, result);
+      }
+      return result;
+    } catch (IllegalArgumentException e) {
+      logger(sourceClass)
+          .error(
+              loggerPrefix + ">> Illegal argument: {} in {}",
+              Arrays.toString(joinPoint.getArgs()),
+              joinPoint.getSignature().toShortString());
+
+      throw e;
+    }
+  }
+
+  @Around("repositories() && springBeanPointcut() && methodAnnotatedWithNoLog()")
+  public Object logAroundRepositories(ProceedingJoinPoint joinPoint) throws Throwable {
+    var loggerPrefix = getLoggerPrefix(joinPoint.getSignature().getName());
+    Class sourceClass = joinPoint.getTarget().getClass();
+
+    // TODO : Add an endpoint to activate/deactivate at runtime
+    if (logger(sourceClass).isTraceEnabled()) {
+      logger(sourceClass)
+          .debug(
+              loggerPrefix + ">>> Enter with argument[s] = {}",
+              Arrays.toString(joinPoint.getArgs()));
+    }
+    try {
+      long start = System.currentTimeMillis();
+      Object result = joinPoint.proceed();
+      long end = System.currentTimeMillis();
+      long duration = end - start;
+      String message =
+          loggerPrefix
+              + ">>> Repository Method: "
+              + joinPoint.getSignature().getName()
+              + " took "
+              + duration
+              + " ms";
+      if (duration > 1000) logger(sourceClass).error(message);
+      else if (duration > 100) logger(sourceClass).warn(message);
+      else if (duration > 10) logger(sourceClass).debug(message);
+
+      if (logger().isTraceEnabled()) {
+        logger(sourceClass)
+            .debug(loggerPrefix + ">>> Exit, duration {} ms with result = {}", duration, result);
+      }
+      return result;
+    } catch (IllegalArgumentException e) {
+      logger(sourceClass)
+          .error(
+              loggerPrefix + ">>> Illegal argument: {} in {}",
+              Arrays.toString(joinPoint.getArgs()),
+              joinPoint.getSignature().toShortString());
+
+      throw e;
+    }
+  }
+
+  @Around("converters() && springBeanPointcut() && methodAnnotatedWithNoLog()")
+  public Object logAroundConverters(ProceedingJoinPoint joinPoint) throws Throwable {
+    var loggerPrefix = getLoggerPrefix(joinPoint.getSignature().getName());
+    Class sourceClass = joinPoint.getTarget().getClass();
+
+    // TODO : Add an endpoint to activate/deactivate at runtime
+    if (logger(sourceClass).isTraceEnabled()) {
+      logger(sourceClass)
+          .debug(
+              loggerPrefix + ">>> Enter with argument[s] = {}",
+              Arrays.toString(joinPoint.getArgs()));
+    }
+    try {
+      long start = System.currentTimeMillis();
+      Object result = joinPoint.proceed();
+      long end = System.currentTimeMillis();
+      long duration = end - start;
+      String message =
+          loggerPrefix
+              + ">>> Converter Method: "
+              + joinPoint.getSignature().getName()
+              + " took "
+              + duration
+              + " ms";
+      if (duration > 1000) logger(sourceClass).error(message);
+      else if (duration > 100) logger(sourceClass).warn(message);
+      else if (duration > 10) logger(sourceClass).debug(message);
+
+      if (logger().isTraceEnabled()) {
+        logger(sourceClass)
+            .debug(loggerPrefix + ">>> Exit, duration {} ms with result = {}", duration, result);
+      }
+      return result;
+    } catch (IllegalArgumentException e) {
+      logger(sourceClass)
+          .error(
+              loggerPrefix + ">>> Illegal argument: {} in {}",
+              Arrays.toString(joinPoint.getArgs()),
+              joinPoint.getSignature().toShortString());
+
+      throw e;
+    }
+  }
+
+  /*
   @Around("springBeanPointcut() && methodAnnotatedWithNoLog()")
   public Object logAroundRepository(ProceedingJoinPoint joinPoint) throws Throwable {
     var loggerPrefix = getLoggerPrefix(joinPoint.getSignature().getName());
@@ -158,7 +291,7 @@ public class LoggingAspect implements HasLogger {
       Object result = joinPoint.proceed();
       long end = System.currentTimeMillis();
       long duration = end - start;
-      if (duration > 1000) {
+      if (duration > 100) {
         logger(sourceClass).warn(
             loggerPrefix + ">>> Repository Method: " + joinPoint.getSignature().getName()
                 + " took long ... "
@@ -173,4 +306,6 @@ public class LoggingAspect implements HasLogger {
       throw e;
     }
   }
+
+   */
 }

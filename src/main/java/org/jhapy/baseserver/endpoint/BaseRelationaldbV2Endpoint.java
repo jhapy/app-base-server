@@ -30,7 +30,6 @@ import org.jhapy.dto.serviceQuery.generic.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -112,9 +111,7 @@ public abstract class BaseRelationaldbV2Endpoint<T extends BaseEntity, D extends
     Page<T> result =
         getService()
             .findAnyMatching(
-                query.getFilter(),
-                query.getShowInactive(),
-                mapper.convert(query.getPageable()));
+                query.getFilter(), query.getShowInactive(), mapper.convert(query.getPageable()));
     return handleResult(
         loggerPrefix, toDtoPage(result, mapper.asDTOList(result.getContent(), getContext(query))));
   }
@@ -127,16 +124,12 @@ public abstract class BaseRelationaldbV2Endpoint<T extends BaseEntity, D extends
     readSecurity();
 
     return handleResult(
-        loggerPrefix,
-        getService()
-            .countAnyMatching(query.getFilter(), query.getShowInactive()));
+        loggerPrefix, getService().countAnyMatching(query.getFilter(), query.getShowInactive()));
   }
 
   @PostMapping(value = "/getById")
   public ResponseEntity<ServiceResult> getById(@RequestBody GetByIdQuery query) {
-    var loggerPrefix = getLoggerPrefix("getById");
-
-    logger().debug(loggerPrefix + "ID =  " + query.getId());
+    var loggerPrefix = getLoggerPrefix("getById", query.getId());
 
     return handleResult(
         loggerPrefix, mapper.asDTO(getService().load(query.getId()), getContext(query)));
@@ -153,15 +146,9 @@ public abstract class BaseRelationaldbV2Endpoint<T extends BaseEntity, D extends
 
   @PostMapping(value = "/save")
   public ResponseEntity<ServiceResult> save(@RequestBody SaveQuery<D> query) {
-    var loggerPrefix = getLoggerPrefix("save");
-
     saveSecurity();
 
-    return handleResult(
-        loggerPrefix,
-        mapper.asDTO(
-            getService().save(mapper.asEntity(query.getEntity(), getContext(query))),
-            getContext(query)));
+    return handleSave(query);
   }
 
   @PostMapping(value = "/saveAll")
@@ -190,7 +177,7 @@ public abstract class BaseRelationaldbV2Endpoint<T extends BaseEntity, D extends
 
   @PostMapping(value = "/delete")
   public ResponseEntity<ServiceResult> delete(@RequestBody DeleteByIdQuery query) {
-    var loggerPrefix = getLoggerPrefix("delete");
+    var loggerPrefix = getLoggerPrefix("delete", query.getId());
 
     deleteSecurity();
 
@@ -204,5 +191,16 @@ public abstract class BaseRelationaldbV2Endpoint<T extends BaseEntity, D extends
 
   public void readSecurity() {}
 
-  public void defaultFindSecurity() {};
+  public void defaultFindSecurity() {}
+  ;
+
+  public ResponseEntity<ServiceResult> handleSave(SaveQuery<D> query) {
+    var loggerPrefix = getLoggerPrefix("save");
+
+    return handleResult(
+        loggerPrefix,
+        mapper.asDTO(
+            getService().save(mapper.asEntity(query.getEntity(), getContext(query))),
+            getContext(query)));
+  }
 }
