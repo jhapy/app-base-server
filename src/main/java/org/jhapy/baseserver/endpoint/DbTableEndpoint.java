@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api/dbTableService")
-public class DbTableEndpoint extends BaseRelationaldbV2Endpoint<DbTable, DbTableDTO> {
+public class DbTableEndpoint extends BaseRelationaldbV3Endpoint<DbTable, DbTableDTO> {
 
   private final DbTableService service;
 

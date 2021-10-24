@@ -23,9 +23,11 @@ import org.jhapy.baseserver.domain.nosqldb.BaseEntity;
 import org.jhapy.baseserver.service.CrudNosqldbService;
 import org.jhapy.commons.utils.HasLogger;
 import org.jhapy.dto.domain.BaseEntityStrId;
+import org.jhapy.dto.domain.BaseEntityUUIDId;
 import org.jhapy.dto.serviceQuery.BaseRemoteQuery;
 import org.jhapy.dto.serviceQuery.ServiceResult;
 import org.jhapy.dto.serviceQuery.generic.*;
+import org.jhapy.dto.utils.PageDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,7 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class BaseNoSqldbV2Endpoint<T extends BaseEntity, D extends BaseEntityStrId>
+public abstract class BaseNoSqldbV2Endpoint<T extends BaseEntity, D extends BaseEntityUUIDId>
     implements HasLogger {
 
   protected final GenericMapper<T, D> mapper;
@@ -84,8 +86,8 @@ public abstract class BaseNoSqldbV2Endpoint<T extends BaseEntity, D extends Base
     }
   }
 
-  protected org.jhapy.dto.utils.Page<D> toDtoPage(Page<T> domain, List<D> data) {
-    org.jhapy.dto.utils.Page<D> result = new org.jhapy.dto.utils.Page<>();
+  protected PageDTO<D> toDtoPage(Page<T> domain, List<D> data) {
+    PageDTO<D> result = new PageDTO<>();
     result.setTotalPages(domain.getTotalPages());
     result.setSize(domain.getSize());
     result.setNumber(domain.getNumber());
@@ -117,7 +119,7 @@ public abstract class BaseNoSqldbV2Endpoint<T extends BaseEntity, D extends Base
   }
 
   @PostMapping(value = "/getById")
-  public ResponseEntity<ServiceResult> getById(@RequestBody GetByStrIdQuery query) {
+  public ResponseEntity<ServiceResult> getById(@RequestBody GetByIdQuery query) {
     var loggerPrefix = getLoggerPrefix("getById");
 
     logger().debug(loggerPrefix + "ID =  " + query.getId());
@@ -145,7 +147,7 @@ public abstract class BaseNoSqldbV2Endpoint<T extends BaseEntity, D extends Base
   }
 
   @PostMapping(value = "/delete")
-  public ResponseEntity<ServiceResult> delete(@RequestBody DeleteByStrIdQuery query) {
+  public ResponseEntity<ServiceResult> delete(@RequestBody DeleteByIdQuery query) {
     var loggerPrefix = getLoggerPrefix("delete");
 
     getService().delete(query.getId());

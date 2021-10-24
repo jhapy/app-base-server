@@ -23,7 +23,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/entityCommentService")
 public class EntityCommentEndpoint
-    extends BaseRelationaldbV2Endpoint<EntityComment, EntityCommentDTO> {
+    extends BaseRelationaldbV3Endpoint<EntityComment, EntityCommentDTO> {
   private final EntityCommentService service;
 
   public EntityCommentEndpoint(EntityCommentConverter mapper, EntityCommentService service) {

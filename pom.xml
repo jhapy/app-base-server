@@ -9,13 +9,13 @@
     <parent>
         <groupId>org.jhapy</groupId>
         <artifactId>jhapy-bom</artifactId>
-        <version>4.0.0-SNAPSHOT</version>
+        <version>5.0.0-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
     <groupId>org.jhapy</groupId>
     <artifactId>app-base-server</artifactId>
-    <version>4.0.0-SNAPSHOT</version>
+    <version>5.0.0-SNAPSHOT</version>
 
     <packaging>jar</packaging>
 

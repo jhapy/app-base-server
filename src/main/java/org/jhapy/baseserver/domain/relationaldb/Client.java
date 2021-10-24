@@ -8,6 +8,7 @@ import org.jhapy.baseserver.listener.relationaldb.ClientListener;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
+import java.util.UUID;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -26,7 +27,7 @@ public class Client extends BaseEntity {
   private Boolean isMailboxDomainCreated = false;
 
   @Column(nullable = false, unique = true)
-  private Long externalId;
+  private UUID externalId;
 
   private Long externalVersion;
 }

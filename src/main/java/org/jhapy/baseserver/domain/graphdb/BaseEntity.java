@@ -20,6 +20,8 @@ package org.jhapy.baseserver.domain.graphdb;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.UUID;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.jhapy.baseserver.utils.InstantString;
@@ -41,45 +43,24 @@ import org.springframework.data.neo4j.core.support.DateString;
 @EqualsAndHashCode(exclude = {"createdBy", "modifiedBy", "created", "modified", "version"})
 public abstract class BaseEntity implements Serializable {
 
-  /**
-   * DB Generated ID
-   */
-  @Id
-  @GeneratedValue
-  private Long id;
+  /** DB Generated ID */
+  @Id @GeneratedValue private UUID id;
 
-  /**
-   * Who create this record (no ID, use username)
-   */
-  @CreatedBy
-  private String createdBy;
+  /** Who create this record (no ID, use username) */
+  @CreatedBy private String createdBy;
 
-  /**
-   * When this record has been created
-   */
-  @CreatedDate
-  private Instant created;
+  /** When this record has been created */
+  @CreatedDate private Instant created;
 
-  /**
-   * How did the last modification of this record (no ID, use username)
-   */
-  @LastModifiedBy
-  private String modifiedBy;
+  /** How did the last modification of this record (no ID, use username) */
+  @LastModifiedBy private String modifiedBy;
 
-  /**
-   * When this record was last updated
-   */
-  @LastModifiedDate
-  private Instant modified;
+  /** When this record was last updated */
+  @LastModifiedDate private Instant modified;
 
-  /**
-   * Version of the record. Used for synchronization and concurrent access.
-   */
-  @Version
-  private Long version;
+  /** Version of the record. Used for synchronization and concurrent access. */
+  @Version private Long version;
 
-  /**
-   * Indicate if the current record is active (deactivate instead of delete)
-   */
+  /** Indicate if the current record is active (deactivate instead of delete) */
   private Boolean isActive = Boolean.TRUE;
 }

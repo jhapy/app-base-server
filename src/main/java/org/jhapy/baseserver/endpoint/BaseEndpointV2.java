@@ -22,11 +22,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.jhapy.baseserver.converter.GenericMapper;
-import org.jhapy.commons.converter.CommonsConverterV2;
 import org.jhapy.commons.utils.HasLogger;
 import org.jhapy.dto.serviceQuery.BaseRemoteQuery;
 import org.jhapy.dto.serviceQuery.ServiceResult;
-import org.jhapy.dto.utils.Page;
+import org.jhapy.dto.utils.PageDTO;
 import org.springframework.http.ResponseEntity;
 
 public abstract class BaseEndpointV2<C extends GenericMapper> implements HasLogger {
@@ -37,7 +36,9 @@ public abstract class BaseEndpointV2<C extends GenericMapper> implements HasLogg
     this.converter = converter;
   }
 
-  protected C getConverter() { return converter; }
+  protected C getConverter() {
+    return converter;
+  }
 
   protected Map<String, Object> getContext(BaseRemoteQuery query) {
     Map<String, Object> context = new HashMap<>();
@@ -76,8 +77,8 @@ public abstract class BaseEndpointV2<C extends GenericMapper> implements HasLogg
     }
   }
 
-  protected Page toDtoPage(org.springframework.data.domain.Page domain, List data) {
-    Page result = new Page<>();
+  protected PageDTO toDtoPage(org.springframework.data.domain.Page domain, List data) {
+    PageDTO result = new PageDTO<>();
     result.setTotalPages(domain.getTotalPages());
     result.setSize(domain.getSize());
     result.setTotalElements(domain.getTotalElements());

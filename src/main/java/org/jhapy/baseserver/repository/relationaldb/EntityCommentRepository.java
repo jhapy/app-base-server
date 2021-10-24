@@ -7,13 +7,14 @@ import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 @Repository
 public interface EntityCommentRepository extends BaseRepository<EntityComment> {
   @Query(
       "FROM EntityComment WHERE relatedEntityId = :relatedEntityId AND relatedEntityName = :relatedEntityName AND created >= :since")
   List<EntityComment> findByRelatedEntityIdAndRelatedEntityNameAfterSince(
-      @Param("relatedEntityId") Long relatedEntityId,
+      @Param("relatedEntityId") UUID relatedEntityId,
       @Param("relatedEntityName") String relatedEntityName,
       @Param("since") Instant since);
 }

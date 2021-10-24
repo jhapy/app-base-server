@@ -31,6 +31,7 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.UUID;
 
 /**
  * Base class for all translations
@@ -51,7 +52,7 @@ public abstract class EntityTranslationV2 implements Serializable {
 
   @Transient private String iso3Language;
 
-  @Transient private Long relatedEntityId;
+  @Transient private UUID relatedEntityId;
 
   /** Who create this record (no ID, use username) */
   @DiffIgnore @CreatedBy private String createdBy;

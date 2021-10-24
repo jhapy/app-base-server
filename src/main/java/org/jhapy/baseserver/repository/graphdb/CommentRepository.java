@@ -24,6 +24,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.UUID;
+
 /**
  * @author jHapy Lead Dev.
  * @version 1.0
@@ -31,22 +33,26 @@ import org.springframework.data.repository.query.Param;
  */
 public interface CommentRepository extends BaseRepository<Comment> {
 
-  @Query(value =
-      "MATCH (m:Comment)-[:HAS_RELATED_ENTITY]->(p) WHERE NOT ((m)-[:HAS_PARENT]->()) AND id(p) = $relatedEntityId RETURN m ORDER BY m.created DESC SKIP $skip LIMIT $limit",
-      countQuery = "MATCH (m:Comment)-[:HAS_RELATED_ENTITY]->(p) WHERE NOT ((m)-[:HAS_PARENT]->()) AND id(p) = $relatedEntityId RETURN count(m)")
-  Page<Comment> getRootComments(@Param("relatedEntityId") Long relatedEntityId, Pageable pageable);
+  @Query(
+      value =
+          "MATCH (m:Comment)-[:HAS_RELATED_ENTITY]->(p) WHERE NOT ((m)-[:HAS_PARENT]->()) AND id(p) = $relatedEntityId RETURN m ORDER BY m.created DESC SKIP $skip LIMIT $limit",
+      countQuery =
+          "MATCH (m:Comment)-[:HAS_RELATED_ENTITY]->(p) WHERE NOT ((m)-[:HAS_PARENT]->()) AND id(p) = $relatedEntityId RETURN count(m)")
+  Page<Comment> getRootComments(@Param("relatedEntityId") UUID relatedEntityId, Pageable pageable);
 
   @Query(
       "MATCH (m:Comment)-[:HAS_RELATED_ENTITY]->(p) WHERE NOT ((m)-[:HAS_PARENT]->()) AND id(p) = $relatedEntityId RETURN count(m)")
-  long countRootComments(@Param("relatedEntityId") Long relatedEntityId);
+  long countRootComments(@Param("relatedEntityId") UUID relatedEntityId);
 
-  @Query(value =
-      "MATCH (m:Comment)-[:HAS_PARENT]->(n1:Comment) WHERE id(n1) = $parentId RETURN m ORDER BY m.created DESC SKIP $skip LIMIT $limit",
+  @Query(
+      value =
+          "MATCH (m:Comment)-[:HAS_PARENT]->(n1:Comment) WHERE id(n1) = $parentId RETURN m ORDER BY m.created DESC SKIP $skip LIMIT $limit",
       countQuery =
           "MATCH (m:Comment)-[:HAS_PARENT]->(n1:Comment) WHERE id(n1) = $parentId RETURN count(DISTINCT m)")
-  Page<Comment> getCommentsFilterByParent(@Param("parentId") Long parentId, Pageable pageable);
+  Page<Comment> getCommentsFilterByParent(@Param("parentId") UUID parentId, Pageable pageable);
 
-  @Query(value =
-      "MATCH (m:Comment)-[:HAS_PARENT]->(n1:Comment) WHERE id(n1) = $parentId RETURN count(DISTINCT m)")
-  long countCommentsFilterByParent(@Param("parentId") Long parentId);
+  @Query(
+      value =
+          "MATCH (m:Comment)-[:HAS_PARENT]->(n1:Comment) WHERE id(n1) = $parentId RETURN count(DISTINCT m)")
+  long countCommentsFilterByParent(@Param("parentId") UUID parentId);
 }

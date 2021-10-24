@@ -6,6 +6,7 @@ import org.jhapy.dto.domain.ClientDTO;
 import org.jhapy.dto.messageQueue.ClientUpdateTypeEnum;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * @author Alexandre Clavaud.
@@ -22,9 +23,9 @@ public interface ClientService extends CrudRelationalService<Client> {
 
   void clientUpdate(ClientUpdateTypeEnum updateType, ClientDTO client);
 
-  Client getByExternalId(Long externalId);
+  Client getByExternalId(UUID externalId);
 
-  List<Client> getByExternalIds(List<Long> externalIds);
+  List<Client> getByExternalIds(List<UUID> externalIds);
 
   void beforeEntitySave(BaseEntity entity);
 
@@ -32,5 +33,5 @@ public interface ClientService extends CrudRelationalService<Client> {
 
   void beforeEntityLoad(BaseEntity entity);
 
-  <T extends BaseEntity> List<Long> getClientCriteria(Class<T> entityClass);
+  <T extends BaseEntity> List<UUID> getClientCriteria(Class<T> entityClass);
 }

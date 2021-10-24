@@ -21,9 +21,7 @@ package org.jhapy.baseserver.client;
 import org.apache.commons.lang3.StringUtils;
 import org.jhapy.commons.utils.HasLogger;
 import org.jhapy.dto.serviceQuery.ServiceResult;
-import org.jhapy.dto.serviceQuery.generic.DeleteByStrIdQuery;
-import org.jhapy.dto.serviceQuery.generic.GetByStrIdQuery;
-import org.jhapy.dto.serviceQuery.generic.SaveQuery;
+import org.jhapy.dto.serviceQuery.generic.*;
 import org.jhapy.dto.utils.StoredFile;
 import org.springframework.cloud.openfeign.FallbackFactory;
 import org.springframework.stereotype.Component;
@@ -34,8 +32,8 @@ import org.springframework.stereotype.Component;
  * @since 2019-06-02
  */
 @Component
-public class ResourceServiceFallback implements ResourceService, HasLogger,
-    FallbackFactory<ResourceServiceFallback> {
+public class ResourceServiceFallback
+    implements ResourceService, HasLogger, FallbackFactory<ResourceServiceFallback> {
 
   final Throwable cause;
 
@@ -50,8 +48,10 @@ public class ResourceServiceFallback implements ResourceService, HasLogger,
   @Override
   public ResourceServiceFallback create(Throwable cause) {
     if (cause != null) {
-      String errMessage = StringUtils.isNotBlank(cause.getMessage()) ? cause.getMessage()
-          : "Unknown error occurred : " + cause;
+      String errMessage =
+          StringUtils.isNotBlank(cause.getMessage())
+              ? cause.getMessage()
+              : "Unknown error occurred : " + cause;
       // I don't see this log statement
       logger().debug("Client fallback called for the cause : {}", errMessage);
     }
@@ -66,14 +66,14 @@ public class ResourceServiceFallback implements ResourceService, HasLogger,
   }
 
   @Override
-  public ServiceResult<StoredFile> getById(GetByStrIdQuery query) {
+  public ServiceResult<StoredFile> getById(GetByIdQuery query) {
     logger().error(getLoggerPrefix("getById") + "Cannot connect to the server");
 
     return new ServiceResult<>(false, "Cannot connect to server", null);
   }
 
   @Override
-  public ServiceResult<Void> delete(DeleteByStrIdQuery query) {
+  public ServiceResult<Void> delete(DeleteByIdQuery query) {
     logger().error(getLoggerPrefix("delete") + "Cannot connect to the server");
 
     return new ServiceResult<>(false, "Cannot connect to server", null);

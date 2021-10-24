@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityManager;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * @author Alexandre Clavaud.
@@ -67,8 +68,7 @@ public class ClientServiceImpl implements ClientService {
 
   @Override
   public void beforeEntitySave(BaseEntity entity) {
-    if ( ! appProperties.getSecurity().getUseClientSecurity() )
-      return;
+    if (!appProperties.getSecurity().getUseClientSecurity()) return;
     SessionData sessionDataFromContext = SpringApplicationContext.getBean(SessionData.class);
     DbTable dbTable = dbTableService.getByEntity(entity.getClass().getSimpleName());
     /*
@@ -84,26 +84,25 @@ public class ClientServiceImpl implements ClientService {
         || dbTable.getAccessLevel() == AccessLevelEnum.SYSTEM_PLUS_CLIENT) {
       entity.setExternalClientId(sessionDataFromContext.getExternalClientID());
     } else if (dbTable.getAccessLevel() == AccessLevelEnum.SYSTEM_ONLY) {
-      entity.setExternalClientId(0L);
+      entity.setExternalClientId(null);
     }
   }
 
   @Override
   public void beforeEntityDelete(BaseEntity entity) {
-    if ( ! appProperties.getSecurity().getUseClientSecurity() )
-      return;
+    if (!appProperties.getSecurity().getUseClientSecurity()) return;
     SessionData sessionDataFromContext = SpringApplicationContext.getBean(SessionData.class);
     DbTable dbTable = dbTableService.getByEntity(entity.getClass().getSimpleName());
     if (!dbTable.getIsDeletable()) {
       throw new SecurityException("Cannot delete a non deletable record");
     }
     if (dbTable.getAccessLevel() == AccessLevelEnum.SYSTEM_ONLY
-        && sessionDataFromContext.getExternalClientID() != 0) {
+        && sessionDataFromContext.getExternalClientID() != null) {
       throw new SecurityException(
           "System only entity can only be deleted by the system or a system administrator");
     }
     if (dbTable.getAccessLevel() == AccessLevelEnum.CLIENT_ONLY
-        && (sessionDataFromContext.getExternalClientID() == 0
+        && (sessionDataFromContext.getExternalClientID() == null
             || (entity.getExternalClientId() != null
                 && !entity
                     .getExternalClientId()
@@ -120,18 +119,17 @@ public class ClientServiceImpl implements ClientService {
 
   @Override
   public void beforeEntityLoad(BaseEntity entity) {
-    if ( ! appProperties.getSecurity().getUseClientSecurity() )
-      return;
+    if (!appProperties.getSecurity().getUseClientSecurity()) return;
 
     SessionData sessionDataFromContext = SpringApplicationContext.getBean(SessionData.class);
     DbTable dbTable = dbTableService.getByEntity(entity.getClass().getSimpleName());
     if (dbTable.getAccessLevel() == AccessLevelEnum.SYSTEM_ONLY
-        && sessionDataFromContext.getExternalClientID() != 0) {
+        && sessionDataFromContext.getExternalClientID() != null) {
       throw new SecurityException(
           "System only entity can only be accessed by the system or a system administrator");
     }
     if (dbTable.getAccessLevel() == AccessLevelEnum.CLIENT_ONLY
-        && (sessionDataFromContext.getExternalClientID() == 0
+        && (sessionDataFromContext.getExternalClientID() == null
             || (entity.getExternalClientId() != null
                 && !entity
                     .getExternalClientId()
@@ -141,9 +139,9 @@ public class ClientServiceImpl implements ClientService {
     }
     if (dbTable.getAccessLevel() == AccessLevelEnum.SYSTEM_PLUS_CLIENT
         && (entity.getExternalClientId() != null
-                && !sessionDataFromContext.getExternalClientID().equals(0L)
-            || (!sessionDataFromContext.getExternalClientID().equals(0L)
-                && !entity.getExternalClientId().equals(0L)
+                && sessionDataFromContext.getExternalClientID() != null
+            || (sessionDataFromContext.getExternalClientID() != null
+                && entity.getExternalClientId() != null
                 && !entity
                     .getExternalClientId()
                     .equals(sessionDataFromContext.getExternalClientID()))))
@@ -152,13 +150,12 @@ public class ClientServiceImpl implements ClientService {
   }
 
   @Override
-  public <T extends BaseEntity> List<Long> getClientCriteria(Class<T> entityClass) {
-    if ( ! appProperties.getSecurity().getUseClientSecurity() )
-       return Collections.emptyList();
+  public <T extends BaseEntity> List<UUID> getClientCriteria(Class<T> entityClass) {
+    if (!appProperties.getSecurity().getUseClientSecurity()) return Collections.emptyList();
     SessionData sessionDataFromContext = SpringApplicationContext.getBean(SessionData.class);
     DbTable dbTable = dbTableService.getByEntity(entityClass.getSimpleName());
     if (dbTable.getAccessLevel() == AccessLevelEnum.SYSTEM_ONLY) {
-      return Collections.singletonList(0L);
+      return Collections.emptyList();
     }
     if (dbTable.getAccessLevel() == AccessLevelEnum.CLIENT_ONLY) {
       return Collections.singletonList(sessionDataFromContext.getExternalClientID());
@@ -178,14 +175,8 @@ public class ClientServiceImpl implements ClientService {
   @Override
   public Client save(Client entity) {
     if (entity.getExternalId() == null) {
-      Long maxExternalId = clientRepository.getMaxExternalId();
-      if (maxExternalId == null) {
-        maxExternalId = 1000L;
-      } else {
-        maxExternalId += 1;
-      }
       entity.setExternalVersion(0L);
-      entity.setExternalId(maxExternalId);
+      entity.setExternalId(UUID.randomUUID());
     } else {
       if (entity.getId() != null) {
         entity.setExternalVersion(entity.getExternalVersion() + 1);
@@ -259,13 +250,13 @@ public class ClientServiceImpl implements ClientService {
 
   @Override
   @Cacheable("clients")
-  public Client getByExternalId(Long externalId) {
+  public Client getByExternalId(UUID externalId) {
     return clientRepository.getByExternalId(externalId).orElse(null);
   }
 
   @Override
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public List<Client> getByExternalIds(List<Long> externalIds) {
+  public List<Client> getByExternalIds(List<UUID> externalIds) {
     return clientRepository.getByExternalIdIn(externalIds);
   }
 

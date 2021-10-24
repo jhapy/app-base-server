@@ -14,6 +14,7 @@ import javax.persistence.criteria.Root;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * @author Alexandre Clavaud.
@@ -42,14 +43,13 @@ public class EntityCommentServiceImpl implements EntityCommentService {
 
   @Override
   public List<EntityComment> getEntityComments(
-      Long relatedEntityId, String relatedEntityName, Instant since) {
+      UUID relatedEntityId, String relatedEntityName, Instant since) {
     return entityCommentRepository.findByRelatedEntityIdAndRelatedEntityNameAfterSince(
         relatedEntityId, relatedEntityName, since);
   }
 
   @Override
-  public Specification<EntityComment> buildSearchQuery(
-      String filter, Object... otherCriteria) {
+  public Specification<EntityComment> buildSearchQuery(String filter, Object... otherCriteria) {
     return new Specification<EntityComment>() {
       @Override
       public Predicate toPredicate(

@@ -63,7 +63,7 @@ public abstract class BaseEntity2 implements Serializable {
   /** Indicate if the current record is active (deactivate instead of delete) */
   private Boolean isActive = Boolean.TRUE;
 
-  private Long externalClientId;
+  private UUID externalClientId;
 
   @Transient private Boolean isSkipAfterSave = Boolean.FALSE;
 

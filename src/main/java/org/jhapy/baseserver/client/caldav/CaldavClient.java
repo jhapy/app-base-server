@@ -44,6 +44,7 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 
 @org.springframework.stereotype.Component
 public class CaldavClient implements HasLogger {
@@ -55,7 +56,7 @@ public class CaldavClient implements HasLogger {
     this.appProperties = appProperties;
   }
 
-  protected CloseableHttpClient getClient(Long clientExternalId) {
+  protected CloseableHttpClient getClient(UUID clientExternalId) {
     String loggerPrefix = getLoggerPrefix("getClient", clientExternalId);
     var client = clientService.getByExternalId(clientExternalId);
     CredentialsProvider credentialsPovider = new BasicCredentialsProvider();
@@ -99,7 +100,7 @@ public class CaldavClient implements HasLogger {
   }
 
   public boolean removeCalendarEvent(
-      Long clientExternalId, String organiserMailbox, String calendarEntryUid) {
+      UUID clientExternalId, String organiserMailbox, String calendarEntryUid) {
     String loggerPrefix =
         getLoggerPrefix("removeCalendarEvent", organiserMailbox, calendarEntryUid);
     CloseableHttpClient httpClient = getClient(clientExternalId);
@@ -116,11 +117,11 @@ public class CaldavClient implements HasLogger {
   }
 
   public CaldavEventDTO updateCalendarEvent(
-      Long clientExternalId,
+      UUID clientExternalId,
       String uid,
       String organiserMailbox,
       String relatedObjectName,
-      Long relatedObjectId) {
+      UUID relatedObjectId) {
     var loggerPrefix =
         getLoggerPrefix(
             "updateCalendarEvent",
@@ -134,14 +135,14 @@ public class CaldavClient implements HasLogger {
       CloseableHttpClient httpClient = getClient(clientExternalId);
 
       CalDAVCollection calDAVCollection = new CalDAVCollection(getUrl(organiserMailbox));
-      var calendar = calDAVCollection.getCalendarForEventUID(httpClient, uid);
+      var calendar = calDAVCollection.getCalendarForEventUID(httpClient, uid.toString());
       var event = ICalendarUtils.getMasterEvent(calendar, uid);
       if (StringUtils.isNotBlank(relatedObjectName))
         ICalendarUtils.addOrReplaceProperty(
             event, new XProperty("X-RELATED-OBJECT", relatedObjectName));
       if (relatedObjectId != null)
         ICalendarUtils.addOrReplaceProperty(
-            event, new XProperty("X-RELATED-ID", Long.toString(relatedObjectId)));
+            event, new XProperty("X-RELATED-ID", relatedObjectId.toString()));
 
       TimeZoneRegistry registry = TimeZoneRegistryFactory.getInstance().createRegistry();
       TimeZone timezone = registry.getTimeZone("UTC");
@@ -158,9 +159,9 @@ public class CaldavClient implements HasLogger {
 
   public CaldavEventDTO createCalendarEvent(
       String uid,
-      Long clientExternalId,
+      UUID clientExternalId,
       String relatedObjectName,
-      Long relatedObjectId,
+      UUID relatedObjectId,
       String mailbox,
       String organiserMailbox,
       String organiserMailboxFullName,
@@ -223,7 +224,7 @@ public class CaldavClient implements HasLogger {
             nve, new XProperty("X-RELATED-OBJECT", relatedObjectName));
       if (relatedObjectId != null)
         ICalendarUtils.addOrReplaceProperty(
-            nve, new XProperty("X-RELATED-ID", Long.toString(relatedObjectId)));
+            nve, new XProperty("X-RELATED-ID", relatedObjectId.toString()));
 
       nve.getProperties().add(new Description(description));
       var locationProp = new Location(locationMailboxFullName);
@@ -267,7 +268,7 @@ public class CaldavClient implements HasLogger {
   }
 
   public List<CaldavEventDTO> getCalendarEvents(
-      Long clientExternalId, String mailbox, LocalDateTime from, LocalDateTime to) {
+      UUID clientExternalId, String mailbox, LocalDateTime from, LocalDateTime to) {
     String loggerPrefix = getLoggerPrefix("getCalendarEvents", clientExternalId, mailbox, from, to);
     var events = new ArrayList<CaldavEventDTO>();
 
@@ -398,7 +399,7 @@ public class CaldavClient implements HasLogger {
             : ((XProperty) vEvent.getProperties().getProperty("X-RELATED-OBJECT")).getValue());
     if (vEvent.getProperties().getProperty("X-RELATED-ID") != null)
       caldavEvent.setRelatedObjectId(
-          Long.valueOf(
+          UUID.fromString(
               ((XProperty) vEvent.getProperties().getProperty("X-RELATED-ID")).getValue()));
 
     return caldavEvent;

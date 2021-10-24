@@ -19,9 +19,7 @@
 package org.jhapy.baseserver.client;
 
 import org.jhapy.dto.serviceQuery.ServiceResult;
-import org.jhapy.dto.serviceQuery.generic.DeleteByStrIdQuery;
-import org.jhapy.dto.serviceQuery.generic.GetByStrIdQuery;
-import org.jhapy.dto.serviceQuery.generic.SaveQuery;
+import org.jhapy.dto.serviceQuery.generic.*;
 import org.jhapy.dto.utils.StoredFile;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.context.annotation.Primary;
@@ -33,7 +31,11 @@ import org.springframework.web.bind.annotation.RequestBody;
  * @version 1.0
  * @since 2019-05-15
  */
-@FeignClient(name = "${jhapy.remote-services.resource-server.name:null}", url = "${jhapy.remote-services.resource-server.url:}", path = "/api/resourceService", fallbackFactory = ResourceServiceFallback.class)
+@FeignClient(
+    name = "${jhapy.remote-services.resource-server.name:null}",
+    url = "${jhapy.remote-services.resource-server.url:}",
+    path = "/api/resourceService",
+    fallbackFactory = ResourceServiceFallback.class)
 @Primary
 public interface ResourceService {
 
@@ -41,8 +43,8 @@ public interface ResourceService {
   ServiceResult<StoredFile> save(@RequestBody SaveQuery<StoredFile> query);
 
   @PostMapping(value = "/getById")
-  ServiceResult<StoredFile> getById(@RequestBody GetByStrIdQuery query);
+  ServiceResult<StoredFile> getById(@RequestBody GetByIdQuery query);
 
   @PostMapping(value = "/delete")
-  ServiceResult<Void> delete(@RequestBody DeleteByStrIdQuery query);
+  ServiceResult<Void> delete(@RequestBody DeleteByIdQuery query);
 }

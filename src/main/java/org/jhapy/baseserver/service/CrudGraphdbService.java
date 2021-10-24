@@ -25,6 +25,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 /**
  * @author jHapy Lead Dev.
  * @version 1.0
@@ -32,7 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public interface CrudGraphdbService<T extends BaseEntity> {
 
-  Neo4jRepository<T, Long> getRepository();
+  Neo4jRepository<T, UUID> getRepository();
 
   @Transactional
   default T save(T entity) {
@@ -48,7 +50,7 @@ public interface CrudGraphdbService<T extends BaseEntity> {
   }
 
   @Transactional
-  default void delete(long id) {
+  default void delete(UUID id) {
     delete(load(id));
   }
 
@@ -56,7 +58,7 @@ public interface CrudGraphdbService<T extends BaseEntity> {
     return getRepository().count();
   }
 
-  default T load(long id) {
+  default T load(UUID id) {
     T entity = getRepository().findById(id).orElse(null);
     if (entity == null) {
       throw new EntityNotFoundException();

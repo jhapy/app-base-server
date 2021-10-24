@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api/orgService")
-public class OrgEndpoint extends BaseRelationaldbV2Endpoint<Org, OrgDTO> {
+public class OrgEndpoint extends BaseRelationaldbV3Endpoint<Org, OrgDTO> {
 
   private final OrgService service;
 

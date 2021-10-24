@@ -30,6 +30,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.UUID;
 
 /**
  * @author jHapy Lead Dev.
@@ -44,7 +45,7 @@ import java.time.Instant;
 public abstract class BaseEntity implements Serializable {
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE)
-  private Long id;
+  private UUID id;
 
   /** Who create this record (no ID, use username) */
   @DiffIgnore @CreatedBy private String createdBy;
@@ -64,7 +65,7 @@ public abstract class BaseEntity implements Serializable {
   /** Indicate if the current record is active (deactivate instead of delete) */
   private Boolean isActive = Boolean.TRUE;
 
-  private Long externalClientId;
+  private UUID externalClientId;
 
   @Transient private Boolean isSkipAfterSave = Boolean.FALSE;
 

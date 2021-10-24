@@ -18,9 +18,9 @@
 
 package org.jhapy.baseserver.service;
 
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.jhapy.baseserver.domain.nosqldb.BaseEntity;
@@ -45,7 +45,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public interface CrudNosqldbService<T extends BaseEntity> extends HasLogger {
 
-  MongoRepository<T, String> getRepository();
+  MongoRepository<T, UUID> getRepository();
 
   MongoTemplate getMongoTemplate();
 
@@ -65,7 +65,7 @@ public interface CrudNosqldbService<T extends BaseEntity> extends HasLogger {
   }
 
   @Transactional
-  default void delete(String id) {
+  default void delete(UUID id) {
     delete(load(id));
   }
 
@@ -73,7 +73,7 @@ public interface CrudNosqldbService<T extends BaseEntity> extends HasLogger {
     return getRepository().count();
   }
 
-  default T load(String id) {
+  default T load(UUID id) {
     T entity = getRepository().findById(id).orElse(null);
     if (entity == null) {
       throw new EntityNotFoundException();
@@ -88,15 +88,21 @@ public interface CrudNosqldbService<T extends BaseEntity> extends HasLogger {
   default Page<T> findAnyMatching(String filter, Boolean showInactive, Pageable pageable) {
     var loggerString = getLoggerPrefix("findAnyMatching");
 
-    logger().debug(
-        loggerString + "----------------------------------");
+    logger().debug(loggerString + "----------------------------------");
 
     String currentUser = SecurityUtils.getCurrentUserLogin().orElse(null);
 
-    logger().debug(
-        loggerString + "In, Filter = " + filter + ", User = "
-            + currentUser + ", Show Inactive = "
-            + showInactive + ", Pageable = " + pageable);
+    logger()
+        .debug(
+            loggerString
+                + "In, Filter = "
+                + filter
+                + ", User = "
+                + currentUser
+                + ", Show Inactive = "
+                + showInactive
+                + ", Pageable = "
+                + pageable);
 
     Criteria criteria = new Criteria();
 
@@ -114,19 +120,22 @@ public interface CrudNosqldbService<T extends BaseEntity> extends HasLogger {
     Page<T> pagedResult;
 
     if (pageable.isPaged()) {
-      pagedResult = PageableExecutionUtils.getPage(
-          result,
-          pageable,
-          () -> nbRecords);
+      pagedResult = PageableExecutionUtils.getPage(result, pageable, () -> nbRecords);
     } else {
       pagedResult = new PageImpl<>(result, pageable, nbRecords);
     }
 
     logger()
-        .debug(loggerString + "Out : Elements = " + pagedResult.getContent().size() + " of "
-            + pagedResult
-            .getTotalElements() + ", Page = " + pagedResult.getNumber() + " of " + pagedResult
-            .getTotalPages());
+        .debug(
+            loggerString
+                + "Out : Elements = "
+                + pagedResult.getContent().size()
+                + " of "
+                + pagedResult.getTotalElements()
+                + ", Page = "
+                + pagedResult.getNumber()
+                + " of "
+                + pagedResult.getTotalPages());
 
     return pagedResult;
   }
@@ -134,15 +143,19 @@ public interface CrudNosqldbService<T extends BaseEntity> extends HasLogger {
   default long countAnyMatching(String filter, Boolean showInactive) {
     var loggerPrefix = getLoggerPrefix("countAnyMatching");
 
-    logger().debug(
-        loggerPrefix + "----------------------------------");
+    logger().debug(loggerPrefix + "----------------------------------");
 
     String currentUser = SecurityUtils.getCurrentUserLogin().orElse(null);
 
-    logger().debug(
-        loggerPrefix + "In, Filter = " + filter + ", User = "
-            + currentUser + ", Show Inactive = "
-            + showInactive);
+    logger()
+        .debug(
+            loggerPrefix
+                + "In, Filter = "
+                + filter
+                + ", User = "
+                + currentUser
+                + ", Show Inactive = "
+                + showInactive);
 
     Criteria criteria = new Criteria();
 
@@ -159,14 +172,13 @@ public interface CrudNosqldbService<T extends BaseEntity> extends HasLogger {
     return nbRecords;
   }
 
-  default void buildSearchQuery(Criteria rootCriteria, String currentUserId, String filter,
-      Boolean showInactive) {
+  default void buildSearchQuery(
+      Criteria rootCriteria, String currentUserId, String filter, Boolean showInactive) {
     List<Criteria> orPredicates = new ArrayList<>();
     List<Criteria> andPredicated = new ArrayList<>();
 
     if (StringUtils.isNotBlank(filter)) {
-      Pattern pattern = Pattern
-          .compile(filter, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+      Pattern pattern = Pattern.compile(filter, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
       orPredicates.add(Criteria.where("name").regex(pattern));
       orPredicates.add(Criteria.where("description").regex(pattern));
     }

@@ -22,6 +22,8 @@ import org.jhapy.dto.domain.audit.AuditLog;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.UUID;
+
 /**
  * @author jHapy Lead Dev.
  * @version 1.0
@@ -29,7 +31,7 @@ import org.springframework.data.domain.Pageable;
  */
 public interface AuditLogService {
 
-  Page<AuditLog> getAudit(String className, String id, Pageable pageable);
+  Page<AuditLog> getAudit(String className, UUID id, Pageable pageable);
 
-  long countAudit(String className, String id);
+  long countAudit(String className, UUID id);
 }

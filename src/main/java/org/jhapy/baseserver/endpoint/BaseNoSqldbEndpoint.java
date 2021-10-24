@@ -26,6 +26,7 @@ import org.jhapy.dto.domain.BaseEntityStrId;
 import org.jhapy.dto.serviceQuery.BaseRemoteQuery;
 import org.jhapy.dto.serviceQuery.ServiceResult;
 import org.jhapy.dto.serviceQuery.generic.*;
+import org.jhapy.dto.utils.PageDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -84,9 +85,8 @@ public abstract class BaseNoSqldbEndpoint<T extends BaseEntity, D extends BaseEn
     }
   }
 
-  protected org.jhapy.dto.utils.Page toDtoPage(
-      org.springframework.data.domain.Page domain, List data) {
-    org.jhapy.dto.utils.Page result = new org.jhapy.dto.utils.Page<>();
+  protected PageDTO toDtoPage(org.springframework.data.domain.Page domain, List data) {
+    PageDTO result = new PageDTO<>();
     result.setTotalPages(domain.getTotalPages());
     result.setSize(domain.getSize());
     result.setNumber(domain.getNumber());
@@ -123,7 +123,7 @@ public abstract class BaseNoSqldbEndpoint<T extends BaseEntity, D extends BaseEn
   }
 
   @PostMapping(value = "/getById")
-  public ResponseEntity<ServiceResult> getById(@RequestBody GetByStrIdQuery query) {
+  public ResponseEntity<ServiceResult> getById(@RequestBody GetByIdQuery query) {
     var loggerPrefix = getLoggerPrefix("getById");
 
     logger().debug(loggerPrefix + "ID =  " + query.getId());
@@ -147,7 +147,7 @@ public abstract class BaseNoSqldbEndpoint<T extends BaseEntity, D extends BaseEn
   }
 
   @PostMapping(value = "/delete")
-  public ResponseEntity<ServiceResult> delete(@RequestBody DeleteByStrIdQuery query) {
+  public ResponseEntity<ServiceResult> delete(@RequestBody DeleteByIdQuery query) {
     var loggerPrefix = getLoggerPrefix("delete");
 
     getService().delete(query.getId());

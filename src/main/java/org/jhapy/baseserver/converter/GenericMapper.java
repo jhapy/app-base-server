@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public abstract class GenericMapper<E, D> extends BaseConverterV2 {
   @Autowired private ClientService clientService;
@@ -43,7 +44,7 @@ public abstract class GenericMapper<E, D> extends BaseConverterV2 {
       BaseEntity domain,
       @MappingTarget org.jhapy.dto.domain.BaseEntity dto,
       @Context Map<String, Object> context) {
-    if (domain.getExternalClientId() != null && ! ( domain instanceof Client)) {
+    if (domain.getExternalClientId() != null && !(domain instanceof Client)) {
       dto.setClientName(clientService.getByExternalId(domain.getExternalClientId()).getName());
     }
   }

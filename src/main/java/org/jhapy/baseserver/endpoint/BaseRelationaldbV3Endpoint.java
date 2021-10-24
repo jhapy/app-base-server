@@ -18,55 +18,40 @@
 
 package org.jhapy.baseserver.endpoint;
 
-import org.jhapy.baseserver.converter.BaseConverterV2;
-import org.jhapy.baseserver.domain.graphdb.BaseEntity;
-import org.jhapy.baseserver.service.CrudGraphdbService;
+import org.jhapy.baseserver.converter.EntityCommentConverter;
+import org.jhapy.baseserver.converter.GenericMapper;
+import org.jhapy.baseserver.domain.relationaldb.BaseEntity;
+import org.jhapy.baseserver.service.CrudRelationalService;
 import org.jhapy.commons.utils.HasLogger;
-import org.jhapy.dto.domain.BaseEntityLongId;
 import org.jhapy.dto.domain.BaseEntityUUIDId;
 import org.jhapy.dto.serviceQuery.BaseRemoteQuery;
 import org.jhapy.dto.serviceQuery.ServiceResult;
 import org.jhapy.dto.serviceQuery.generic.*;
 import org.jhapy.dto.utils.PageDTO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class BaseGraphDbEndpoint<T extends BaseEntity, D extends BaseEntityUUIDId>
+@RestController
+public abstract class BaseRelationaldbV3Endpoint<T extends BaseEntity, D extends BaseEntityUUIDId>
     implements HasLogger {
 
-  protected final BaseConverterV2 converter;
+  protected final GenericMapper<T, D> mapper;
 
-  protected BaseGraphDbEndpoint(BaseConverterV2 converter) {
-    this.converter = converter;
+  @Autowired protected EntityCommentConverter entityCommentConverter;
+
+  protected BaseRelationaldbV3Endpoint(GenericMapper<T, D> mapper) {
+    this.mapper = mapper;
   }
 
-  protected abstract CrudGraphdbService<T> getService();
-
-  protected PageDTO toDtoPage(org.springframework.data.domain.Page domain, List data) {
-    PageDTO result = new PageDTO<>();
-    result.setTotalPages(domain.getTotalPages());
-    result.setSize(domain.getSize());
-    result.setNumber(domain.getNumber());
-    result.setNumberOfElements(domain.getNumberOfElements());
-    result.setTotalElements(domain.getTotalElements());
-    result.setPageable(converter.convert(domain.getPageable()));
-    result.setContent(data);
-    return result;
-  }
-
-  protected abstract D convertToDto(T domain, Map<String, Object> context);
-
-  protected abstract List<D> convertToDtos(Iterable<T> domains, Map<String, Object> context);
-
-  protected abstract T convertToDomain(D dto, Map<String, Object> context);
-
-  protected abstract List<T> convertToDomains(Iterable<D> dto, Map<String, Object> context);
+  protected abstract CrudRelationalService<T> getService();
 
   protected Map<String, Object> getContext(BaseRemoteQuery query) {
     Map<String, Object> context = new HashMap<>();
@@ -77,7 +62,6 @@ public abstract class BaseGraphDbEndpoint<T extends BaseEntity, D extends BaseEn
     context.put("iso3Language", query.getQueryIso3Language());
     context.put("currentPosition", query.getQueryCurrentPosition());
     context.put("clientId", query.getQueryExternalClientID());
-
     return context;
   }
 
@@ -97,30 +81,48 @@ public abstract class BaseGraphDbEndpoint<T extends BaseEntity, D extends BaseEn
     if (result.getIsSuccess()) {
       ResponseEntity<ServiceResult> response = ResponseEntity.ok(result);
       if (logger().isTraceEnabled()) {
-        debug(loggerPrefix, "Response OK : {0}", result);
+        logger().debug(loggerPrefix + "Response OK : " + result);
       }
       return response;
     } else {
-      error(loggerPrefix, "Response KO : {0}", result.getMessage());
+      logger().error(loggerPrefix + "Response KO : " + result.getMessage());
       return ResponseEntity.ok(result);
     }
+  }
+
+  protected PageDTO<D> toDtoPage(Page<T> domain, List<D> data) {
+    PageDTO<D> result = new PageDTO<>();
+    result.setTotalPages(domain.getTotalPages());
+    result.setSize(domain.getSize());
+    result.setNumber(domain.getNumber());
+    result.setNumberOfElements(domain.getNumberOfElements());
+    result.setTotalElements(domain.getTotalElements());
+    result.setPageable(mapper.convert(domain.getPageable()));
+    result.setContent(data);
+    return result;
   }
 
   @PostMapping(value = "/findAnyMatching")
   public ResponseEntity<ServiceResult> findAnyMatching(@RequestBody FindAnyMatchingQuery query) {
     var loggerPrefix = getLoggerPrefix("findAnyMatching");
 
+    defaultFindSecurity();
+    readSecurity();
+
     Page<T> result =
         getService()
             .findAnyMatching(
-                query.getFilter(), query.getShowInactive(), converter.convert(query.getPageable()));
+                query.getFilter(), query.getShowInactive(), mapper.convert(query.getPageable()));
     return handleResult(
-        loggerPrefix, toDtoPage(result, convertToDtos(result.getContent(), getContext(query))));
+        loggerPrefix, toDtoPage(result, mapper.asDTOList(result.getContent(), getContext(query))));
   }
 
   @PostMapping(value = "/countAnyMatching")
   public ResponseEntity<ServiceResult> countAnyMatching(@RequestBody CountAnyMatchingQuery query) {
     var loggerPrefix = getLoggerPrefix("countAnyMatching");
+
+    defaultFindSecurity();
+    readSecurity();
 
     return handleResult(
         loggerPrefix, getService().countAnyMatching(query.getFilter(), query.getShowInactive()));
@@ -128,48 +130,78 @@ public abstract class BaseGraphDbEndpoint<T extends BaseEntity, D extends BaseEn
 
   @PostMapping(value = "/getById")
   public ResponseEntity<ServiceResult> getById(@RequestBody GetByIdQuery query) {
-    var loggerPrefix = getLoggerPrefix("getById");
-
-    debug(loggerPrefix, "ID = {0}", query.getId());
+    var loggerPrefix = getLoggerPrefix("getById", query.getId());
 
     return handleResult(
-        loggerPrefix, convertToDto(getService().load(query.getId()), getContext(query)));
+        loggerPrefix, mapper.asDTO(getService().load(query.getId()), getContext(query)));
   }
 
   @PostMapping(value = "/getAll")
   public ResponseEntity<ServiceResult> getAll(@RequestBody BaseRemoteQuery query) {
     var loggerPrefix = getLoggerPrefix("getAll");
 
-    return handleResult(loggerPrefix, convertToDtos(getService().findAll(), getContext(query)));
+    readSecurity();
+
+    return handleResult(loggerPrefix, mapper.asDTOList(getService().getAll(), getContext(query)));
   }
 
   @PostMapping(value = "/save")
   public ResponseEntity<ServiceResult> save(@RequestBody SaveQuery<D> query) {
-    var loggerPrefix = getLoggerPrefix("save");
+    saveSecurity();
 
-    return handleResult(
-        loggerPrefix,
-        convertToDto(
-            getService().save(convertToDomain(query.getEntity(), getContext(query))),
-            getContext(query)));
+    return handleSave(query);
   }
 
   @PostMapping(value = "/saveAll")
   public ResponseEntity<ServiceResult> saveAll(@RequestBody SaveAllQuery<D> query) {
     var loggerPrefix = getLoggerPrefix("saveAll");
 
-    return handleResult(
-        loggerPrefix,
-        convertToDtos(
-            getService().saveAll(convertToDomains(query.getEntity(), getContext(query))),
-            getContext(query)));
+    saveSecurity();
+
+    if (query.getParentEntityId() == null) {
+      return handleResult(
+          loggerPrefix,
+          mapper.asDTOList(
+              getService().saveAll(mapper.asEntityList(query.getEntity(), getContext(query))),
+              getContext(query)));
+    } else {
+      return handleResult(
+          loggerPrefix,
+          mapper.asDTOList(
+              getService()
+                  .saveAll(
+                      query.getParentEntityId(),
+                      mapper.asEntityList(query.getEntity(), getContext(query))),
+              getContext(query)));
+    }
   }
 
   @PostMapping(value = "/delete")
   public ResponseEntity<ServiceResult> delete(@RequestBody DeleteByIdQuery query) {
-    var loggerPrefix = getLoggerPrefix("delete");
+    var loggerPrefix = getLoggerPrefix("delete", query.getId());
+
+    deleteSecurity();
 
     getService().delete(query.getId());
     return handleResult(loggerPrefix);
+  }
+
+  public void deleteSecurity() {}
+
+  public void saveSecurity() {}
+
+  public void readSecurity() {}
+
+  public void defaultFindSecurity() {}
+  ;
+
+  public ResponseEntity<ServiceResult> handleSave(SaveQuery<D> query) {
+    var loggerPrefix = getLoggerPrefix("save");
+
+    return handleResult(
+        loggerPrefix,
+        mapper.asDTO(
+            getService().save(mapper.asEntity(query.getEntity(), getContext(query))),
+            getContext(query)));
   }
 }

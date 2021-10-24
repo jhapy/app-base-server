@@ -22,7 +22,7 @@ import org.jhapy.baseserver.client.AuthorizedFeignClient;
 import org.jhapy.dto.domain.i18n.ActionDTO;
 import org.jhapy.dto.serviceQuery.ServiceResult;
 import org.jhapy.dto.serviceQuery.generic.*;
-import org.jhapy.dto.utils.Page;
+import org.jhapy.dto.utils.PageDTO;
 import org.springframework.context.annotation.Primary;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -40,7 +40,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 public interface ActionService {
 
   @PostMapping(value = "/findAnyMatching")
-  ServiceResult<Page<ActionDTO>> findAnyMatching(@RequestBody FindAnyMatchingQuery query);
+  ServiceResult<PageDTO<ActionDTO>> findAnyMatching(@RequestBody FindAnyMatchingQuery query);
 
   @PostMapping(value = "/countAnyMatching")
   ServiceResult<Long> countAnyMatching(@RequestBody CountAnyMatchingQuery query);

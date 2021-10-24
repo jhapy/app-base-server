@@ -3,6 +3,7 @@ package org.jhapy.baseserver.converter;
 import org.jhapy.baseserver.domain.relationaldb.BaseEntity;
 import org.jhapy.commons.utils.HasLoggerStatic;
 import org.jhapy.dto.domain.BaseEntityLongId;
+import org.jhapy.dto.domain.BaseEntityUUIDId;
 import org.mapstruct.ObjectFactory;
 import org.mapstruct.TargetType;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -22,8 +23,7 @@ public class RelationalDbReferenceMapper {
   }
 
   @ObjectFactory
-  public <T extends BaseEntity> T resolve(BaseEntityLongId sourceDTO,
-      @TargetType Class<T> type) {
+  public <T extends BaseEntity> T resolve(BaseEntityUUIDId sourceDTO, @TargetType Class<T> type) {
     String loggerPrefix = HasLoggerStatic.getLoggerPrefix("resolve");
     T entity = null;
     if (sourceDTO.getId() != null) {
@@ -33,8 +33,15 @@ public class RelationalDbReferenceMapper {
       if (entity == null) {
         entity = type.getDeclaredConstructor().newInstance();
       }
-    } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-      HasLoggerStatic.error(RelationalDbReferenceMapper.class, loggerPrefix, "Unexpected error : "+ e.getMessage(), e);
+    } catch (InstantiationException
+        | IllegalAccessException
+        | InvocationTargetException
+        | NoSuchMethodException e) {
+      HasLoggerStatic.error(
+          RelationalDbReferenceMapper.class,
+          loggerPrefix,
+          "Unexpected error : " + e.getMessage(),
+          e);
     }
     return entity;
   }

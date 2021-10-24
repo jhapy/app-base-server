@@ -21,11 +21,11 @@ package org.jhapy.baseserver.repository.nosqldb;
 import org.jhapy.baseserver.domain.nosqldb.BaseEntity;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
+import java.util.UUID;
+
 /**
  * @author jHapy Lead Dev.
  * @version 1.0
  * @since 3/8/20
  */
-public interface BaseRepository<T extends BaseEntity> extends MongoRepository<T, String> {
-
-}
+public interface BaseRepository<T extends BaseEntity> extends MongoRepository<T, UUID> {}

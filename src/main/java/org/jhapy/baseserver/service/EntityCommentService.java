@@ -4,6 +4,7 @@ import org.jhapy.baseserver.domain.relationaldb.EntityComment;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * @author Alexandre Clavaud.
@@ -13,5 +14,5 @@ import java.util.List;
 public interface EntityCommentService extends CrudRelationalService<EntityComment> {
 
   List<EntityComment> getEntityComments(
-      Long relatedEntityId, String relatedEntityName, Instant since);
+      UUID relatedEntityId, String relatedEntityName, Instant since);
 }

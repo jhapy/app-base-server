@@ -63,7 +63,7 @@ public interface CrudRelationalService<T extends BaseEntity> extends HasLogger {
   }
 
   @Transactional
-  default Iterable<T> saveAll(Long parentEntityId, Iterable<T> entity) {
+  default Iterable<T> saveAll(UUID parentEntityId, Iterable<T> entity) {
     if (isExternalService())
       throw new ServiceException("Not allowed for a remote service", getClass().getSimpleName());
 
@@ -105,7 +105,7 @@ public interface CrudRelationalService<T extends BaseEntity> extends HasLogger {
   }
 
   @Transactional
-  default void delete(long id) {
+  default void delete(UUID id) {
     delete(load(id));
   }
 
@@ -113,7 +113,7 @@ public interface CrudRelationalService<T extends BaseEntity> extends HasLogger {
     return getRepository().count();
   }
 
-  default T load(long id) {
+  default T load(UUID id) {
     T entity = getRepository().findById(id).orElse(null);
     getClientService().beforeEntityLoad(entity);
     if (entity == null) {
@@ -123,7 +123,7 @@ public interface CrudRelationalService<T extends BaseEntity> extends HasLogger {
   }
 
   default List<T> getAll() {
-    List<Long> clientIds = getClientService().getClientCriteria(getEntityClass());
+    List<UUID> clientIds = getClientService().getClientCriteria(getEntityClass());
     if (!clientIds.isEmpty()) {
       var clientsCriteria = new RelationalDbSpecification<T>();
       clientsCriteria.add(
@@ -157,10 +157,7 @@ public interface CrudRelationalService<T extends BaseEntity> extends HasLogger {
   }
 
   default Page<T> findAnyMatching(
-      String filter,
-      Boolean showInactive,
-      Pageable pageable,
-      Object... otherCriteria) {
+      String filter, Boolean showInactive, Pageable pageable, Object... otherCriteria) {
     var loggerString = getLoggerPrefix("findAnyMatching");
 
     logger().debug(loggerString + "----------------------------------");
@@ -182,11 +179,10 @@ public interface CrudRelationalService<T extends BaseEntity> extends HasLogger {
               "externalClientId", clientIds, RelationalDbSearchOperation.IN));
     }
     if (showInactive != null) {
-      if ( criterias == null )
-        criterias = new RelationalDbSpecification<T>();
+      if (criterias == null) criterias = new RelationalDbSpecification<T>();
       criterias.add(
-              new RelationalDbSearchCriteria(
-                      "isActive", !showInactive, RelationalDbSearchOperation.EQUAL));
+          new RelationalDbSearchCriteria(
+              "isActive", !showInactive, RelationalDbSearchOperation.EQUAL));
     }
 
     var specifications = buildSearchQuery(filter, otherCriteria);
@@ -196,13 +192,13 @@ public interface CrudRelationalService<T extends BaseEntity> extends HasLogger {
       if (criterias != null) {
         specifications.and(criterias);
       }
-      result = getRepository().findAll(specifications, pageable == null ? Pageable.unpaged() : pageable);
+      result =
+          getRepository().findAll(specifications, pageable == null ? Pageable.unpaged() : pageable);
     } else {
 
       if (criterias != null) {
         result =
-            getRepository()
-                .findAll(criterias, pageable == null ? Pageable.unpaged() : pageable);
+            getRepository().findAll(criterias, pageable == null ? Pageable.unpaged() : pageable);
       } else result = getRepository().findAll(pageable == null ? Pageable.unpaged() : pageable);
     }
 
@@ -221,7 +217,8 @@ public interface CrudRelationalService<T extends BaseEntity> extends HasLogger {
     return result;
   }
 
-  default List<T> findAnyMatchingNoPaging(String filter, Boolean showInactive, Object... otherCriteria) {
+  default List<T> findAnyMatchingNoPaging(
+      String filter, Boolean showInactive, Object... otherCriteria) {
     var loggerString = getLoggerPrefix("findAnyMatchingNoPaging");
 
     logger().debug(loggerString + "----------------------------------");
@@ -238,16 +235,15 @@ public interface CrudRelationalService<T extends BaseEntity> extends HasLogger {
     if (!clientIds.isEmpty()) {
       criterias = new RelationalDbSpecification<T>();
       criterias.add(
-              new RelationalDbSearchCriteria(
-                      "externalClientId", clientIds, RelationalDbSearchOperation.IN));
+          new RelationalDbSearchCriteria(
+              "externalClientId", clientIds, RelationalDbSearchOperation.IN));
     }
 
     if (showInactive != null) {
-      if ( criterias == null )
-        criterias = new RelationalDbSpecification<T>();
+      if (criterias == null) criterias = new RelationalDbSpecification<T>();
       criterias.add(
-              new RelationalDbSearchCriteria(
-                      "isActive", !showInactive, RelationalDbSearchOperation.EQUAL));
+          new RelationalDbSearchCriteria(
+              "isActive", !showInactive, RelationalDbSearchOperation.EQUAL));
     }
 
     var specifications = buildSearchQuery(filter, otherCriteria);
@@ -286,16 +282,15 @@ public interface CrudRelationalService<T extends BaseEntity> extends HasLogger {
     if (!clientIds.isEmpty()) {
       criterias = new RelationalDbSpecification<T>();
       criterias.add(
-              new RelationalDbSearchCriteria(
-                      "externalClientId", clientIds, RelationalDbSearchOperation.IN));
+          new RelationalDbSearchCriteria(
+              "externalClientId", clientIds, RelationalDbSearchOperation.IN));
     }
 
     if (showInactive != null) {
-      if ( criterias == null )
-        criterias = new RelationalDbSpecification<T>();
+      if (criterias == null) criterias = new RelationalDbSpecification<T>();
       criterias.add(
-              new RelationalDbSearchCriteria(
-                      "isActive", !showInactive, RelationalDbSearchOperation.EQUAL));
+          new RelationalDbSearchCriteria(
+              "isActive", !showInactive, RelationalDbSearchOperation.EQUAL));
     }
 
     var specifications = buildSearchQuery(filter, otherCriteria);
@@ -317,8 +312,7 @@ public interface CrudRelationalService<T extends BaseEntity> extends HasLogger {
     return result;
   }
 
-  default Specification<T> buildSearchQuery(
-      String filter, Object... otherCriteria) {
+  default Specification<T> buildSearchQuery(String filter, Object... otherCriteria) {
     return null;
   }
 

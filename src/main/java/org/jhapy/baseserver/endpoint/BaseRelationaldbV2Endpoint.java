@@ -27,6 +27,7 @@ import org.jhapy.dto.domain.BaseEntityLongId;
 import org.jhapy.dto.serviceQuery.BaseRemoteQuery;
 import org.jhapy.dto.serviceQuery.ServiceResult;
 import org.jhapy.dto.serviceQuery.generic.*;
+import org.jhapy.dto.utils.PageDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -89,8 +90,8 @@ public abstract class BaseRelationaldbV2Endpoint<T extends BaseEntity, D extends
     }
   }
 
-  protected org.jhapy.dto.utils.Page<D> toDtoPage(Page<T> domain, List<D> data) {
-    org.jhapy.dto.utils.Page<D> result = new org.jhapy.dto.utils.Page<>();
+  protected PageDTO<D> toDtoPage(Page<T> domain, List<D> data) {
+    PageDTO<D> result = new PageDTO<>();
     result.setTotalPages(domain.getTotalPages());
     result.setSize(domain.getSize());
     result.setNumber(domain.getNumber());

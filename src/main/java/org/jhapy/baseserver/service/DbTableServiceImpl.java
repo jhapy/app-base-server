@@ -10,14 +10,10 @@ import org.jhapy.baseserver.repository.relationaldb.DbTableRepository;
 import org.jhapy.commons.config.AppProperties;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 import javax.sql.DataSource;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -36,15 +32,16 @@ public class DbTableServiceImpl implements DbTableService {
   private final EntityManager entityManager;
   private final DataSource dataSource;
   private final ClientService clientService;
-private final AppProperties appProperties;
+  private final AppProperties appProperties;
 
   private boolean hasBootstrapped = false;
 
   public DbTableServiceImpl(
-          EntityManager entityManager,
-          DbTableRepository dbTableRepository,
-          DataSource dataSource,
-          ClientService clientService, AppProperties appProperties) {
+      EntityManager entityManager,
+      DbTableRepository dbTableRepository,
+      DataSource dataSource,
+      ClientService clientService,
+      AppProperties appProperties) {
     this.entityManager = entityManager;
     this.dbTableRepository = dbTableRepository;
     this.dataSource = dataSource;
@@ -74,13 +71,12 @@ private final AppProperties appProperties;
     if (hasBootstrapped) {
       return;
     }
-    if ( ! appProperties.getSecurity().getUseClientSecurity() )
-      return;
+    if (!appProperties.getSecurity().getUseClientSecurity()) return;
 
     var loggerPrefix = getLoggerPrefix("bootstrapDbTables");
 
     try {
-      Client systemClient = clientService.getByExternalId(0L);
+      Client systemClient = clientService.getByExternalId(null);
       if (systemClient == null) {
         error(loggerPrefix, "Missing System client...");
         return;

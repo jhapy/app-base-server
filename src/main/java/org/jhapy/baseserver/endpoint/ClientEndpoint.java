@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api/clientService")
-public class ClientEndpoint extends BaseRelationaldbV2Endpoint<Client, ClientDTO> {
+public class ClientEndpoint extends BaseRelationaldbV3Endpoint<Client, ClientDTO> {
 
   private final ClientService service;
 
