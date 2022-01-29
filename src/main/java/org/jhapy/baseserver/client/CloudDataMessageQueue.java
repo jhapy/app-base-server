@@ -18,7 +18,7 @@
 
 package org.jhapy.baseserver.client;
 
-import org.jhapy.dto.domain.notification.CloudDataMessage;
+import org.jhapy.dto.domain.notification.CloudDataMessageDTO;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.amqp.core.Queue;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -41,7 +41,7 @@ public class CloudDataMessageQueue {
     this.cloudDataQueue = cloudDataQueue;
   }
 
-  public void sendMessage(final CloudDataMessage cloudDataMessage) {
+  public void sendMessage(final CloudDataMessageDTO cloudDataMessage) {
     amqpTemplate.convertAndSend(cloudDataQueue.getName(), cloudDataMessage);
   }
 }

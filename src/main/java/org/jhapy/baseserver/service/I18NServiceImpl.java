@@ -1,20 +1,20 @@
 package org.jhapy.baseserver.service;
 
-import java.text.MessageFormat;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
 import org.jhapy.baseserver.client.i18n.ActionTrlService;
 import org.jhapy.baseserver.client.i18n.ElementTrlService;
 import org.jhapy.baseserver.client.i18n.MessageTrlService;
 import org.jhapy.commons.utils.HasLogger;
 import org.jhapy.dto.domain.i18n.*;
-import org.jhapy.dto.domain.i18n.ActionTrlDTO;
 import org.jhapy.dto.messageQueue.I18NUpdateTypeEnum;
 import org.jhapy.dto.serviceQuery.ServiceResult;
 import org.jhapy.dto.serviceQuery.i18n.FindByIso3Query;
 import org.jhapy.dto.serviceQuery.i18n.GetByNameAndIso3Query;
 import org.springframework.stereotype.Service;
+
+import java.text.MessageFormat;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author Alexandre Clavaud.
@@ -189,7 +189,7 @@ public class I18NServiceImpl implements I18NService, HasLogger {
     if (_result.getIsSuccess() && _result.getData() != null) {
       return _result.getData().getValue();
     } else {
-      logger().error(loggerPrefix + "Cannot get element " + _result.getMessage());
+      error(loggerPrefix, "Cannot get element {0}", _result.getMessage());
       return name;
     }
   }

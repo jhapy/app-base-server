@@ -57,8 +57,7 @@ public interface CrudRelationalService<T extends BaseEntity> extends HasLogger {
 
     getClientService().beforeEntitySave(entity);
 
-    if (entity.getId() == null || entity.getSyncId() == null)
-      entity.setSyncId(UUID.randomUUID().toString());
+
     return getRepository().save(entity);
   }
 

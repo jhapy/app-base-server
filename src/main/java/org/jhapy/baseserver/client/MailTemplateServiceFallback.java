@@ -20,7 +20,7 @@ package org.jhapy.baseserver.client;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jhapy.commons.utils.HasLogger;
-import org.jhapy.dto.domain.notification.MailTemplate;
+import org.jhapy.dto.domain.notification.MailTemplateDTO;
 import org.jhapy.dto.serviceQuery.ServiceResult;
 import org.jhapy.dto.serviceQuery.generic.*;
 import org.jhapy.dto.utils.PageDTO;
@@ -60,7 +60,7 @@ public class MailTemplateServiceFallback
   }
 
   @Override
-  public ServiceResult<PageDTO<MailTemplate>> findAnyMatching(FindAnyMatchingQuery query) {
+  public ServiceResult<PageDTO<MailTemplateDTO>> findAnyMatching(FindAnyMatchingQuery query) {
     logger().error(getLoggerPrefix("findAnyMatching") + "Cannot connect to the server");
 
     return new ServiceResult<>(false, "Cannot connect to server", new PageDTO<>());
@@ -74,21 +74,21 @@ public class MailTemplateServiceFallback
   }
 
   @Override
-  public ServiceResult<MailTemplate> getById(GetByIdQuery query) {
+  public ServiceResult<MailTemplateDTO> getById(GetByIdQuery query) {
     logger().error(getLoggerPrefix("getById") + "Cannot connect to the server");
 
     return new ServiceResult<>(false, "Cannot connect to server", null);
   }
 
   @Override
-  public ServiceResult<MailTemplate> getByMailAction(GetByNameQuery query) {
+  public ServiceResult<MailTemplateDTO> getByMailAction(GetByNameQuery query) {
     logger().error(getLoggerPrefix("getByMailAction") + "Cannot connect to the server");
 
     return new ServiceResult<>(false, "Cannot connect to server", null);
   }
 
   @Override
-  public ServiceResult<MailTemplate> save(SaveQuery<MailTemplate> query) {
+  public ServiceResult<MailTemplateDTO> save(SaveQuery<MailTemplateDTO> query) {
     logger().error(getLoggerPrefix("save") + "Cannot connect to the server");
 
     return new ServiceResult<>(false, "Cannot connect to server", null);

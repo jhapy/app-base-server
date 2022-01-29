@@ -1,10 +1,7 @@
 package org.jhapy.baseserver.converter;
 
 import org.jhapy.commons.converter.CommonsConverterV2;
-import org.jhapy.dto.domain.BaseEntity;
-import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
-import org.mapstruct.MappingTarget;
 
 /**
  * @author Alexandre Clavaud.
@@ -13,28 +10,4 @@ import org.mapstruct.MappingTarget;
  */
 @Mapper(componentModel = "spring")
 public abstract class BaseConverterV2 extends CommonsConverterV2 {
-
-  @AfterMapping
-  public void afterConvert(
-      BaseEntity dto, @MappingTarget org.jhapy.baseserver.domain.graphdb.BaseEntity domain) {
-    if (dto.getIsNew()) {
-      domain.setId(null);
-    }
-  }
-
-  @AfterMapping
-  public void afterConvert(
-      BaseEntity dto, @MappingTarget org.jhapy.baseserver.domain.nosqldb.BaseEntity domain) {
-    if (dto.getIsNew()) {
-      domain.setId(null);
-    }
-  }
-
-  @AfterMapping
-  public void afterConvert(
-      BaseEntity dto, @MappingTarget org.jhapy.baseserver.domain.relationaldb.BaseEntity domain) {
-    if (dto.getIsNew()) {
-      domain.setId(null);
-    }
-  }
 }

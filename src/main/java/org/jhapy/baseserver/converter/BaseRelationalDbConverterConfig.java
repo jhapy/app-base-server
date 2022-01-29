@@ -11,7 +11,6 @@ import java.util.Map;
     builder = @Builder(disableBuilder = true))
 public interface BaseRelationalDbConverterConfig {
 
-  @Mapping(target = "isNew", ignore = true)
   @Mapping(target = "clientName", ignore = true)
   BaseEntity asDTO(
       org.jhapy.baseserver.domain.relationaldb.BaseEntity domain,
@@ -26,7 +25,7 @@ public interface BaseRelationalDbConverterConfig {
       BaseEntity domain, @Context Map<String, Object> context);
 
   @Mapping(target = "id", ignore = true)
-  @Mapping(target = "isNew", ignore = true)
+  @Mapping(target = "new", ignore = true)
   EntityTranslationV2 asDTO(
       org.jhapy.baseserver.domain.relationaldb.EntityTranslationV2 domain,
       @Context Map<String, Object> context);

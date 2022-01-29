@@ -1,7 +1,6 @@
 package org.jhapy.baseserver.service;
 
 import org.jhapy.dto.domain.i18n.*;
-import org.jhapy.dto.domain.i18n.ActionDTO;
 import org.jhapy.dto.messageQueue.I18NUpdateTypeEnum;
 
 /**

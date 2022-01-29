@@ -18,27 +18,20 @@
 
 package org.jhapy.baseserver.converter;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
 import org.apache.tika.Tika;
 import org.apache.tika.config.TikaConfig;
 import org.apache.tika.mime.MimeType;
 import org.apache.tika.mime.MimeTypeException;
+import org.jhapy.dto.domain.resource.StoredFileDTO;
 import org.jhapy.dto.domain.security.SecurityKeycloakGroup;
 import org.jhapy.dto.domain.security.SecurityKeycloakRole;
 import org.jhapy.dto.domain.security.SecurityKeycloakUser;
-import org.jhapy.dto.utils.StoredFile;
 import org.keycloak.representations.idm.GroupRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
-import org.mapstruct.AfterMapping;
-import org.mapstruct.Context;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+import org.mapstruct.*;
+
+import java.util.*;
 
 /**
  * @author jHapy Lead Dev.
@@ -117,9 +110,9 @@ public abstract class SecurityConverter {
               .forName((new Tika()).detect(pictureDecoded));
           String fileExt = mimeType.getExtension();
 
-          StoredFile storedFile = new StoredFile();
+          StoredFileDTO storedFile = new StoredFileDTO();
           storedFile.setContent(pictureDecoded);
-          storedFile.setOrginalContent(pictureDecoded);
+          storedFile.setOriginalContent(pictureDecoded);
           storedFile.setId(UUID.randomUUID().toString());
           storedFile.setFilename(storedFile.getId() + fileExt);
           storedFile.setFilesize((long) pictureDecoded.length);

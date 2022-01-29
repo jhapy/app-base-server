@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 public abstract class GenericMapper<E, D> extends BaseConverterV2 {
   @Autowired private ClientService clientService;
@@ -25,7 +24,6 @@ public abstract class GenericMapper<E, D> extends BaseConverterV2 {
   @Mapping(target = "modifiedBy", ignore = true)
   public abstract E asEntity(D dto, @Context Map<String, Object> context);
 
-  @Mapping(target = "isNew", ignore = true)
   @Mapping(target = "clientName", ignore = true)
   public abstract D asDTO(E entity, @Context Map<String, Object> context);
 

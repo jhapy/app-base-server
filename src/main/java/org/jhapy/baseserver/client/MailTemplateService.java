@@ -18,7 +18,7 @@
 
 package org.jhapy.baseserver.client;
 
-import org.jhapy.dto.domain.notification.MailTemplate;
+import org.jhapy.dto.domain.notification.MailTemplateDTO;
 import org.jhapy.dto.serviceQuery.ServiceResult;
 import org.jhapy.dto.serviceQuery.generic.*;
 import org.jhapy.dto.utils.PageDTO;
@@ -40,20 +40,20 @@ import org.springframework.web.bind.annotation.RequestBody;
 public interface MailTemplateService {
 
   @PostMapping(value = "/findAnyMatching")
-  ServiceResult<PageDTO<MailTemplate>> findAnyMatching(@RequestBody FindAnyMatchingQuery query);
+  ServiceResult<PageDTO<MailTemplateDTO>> findAnyMatching(@RequestBody FindAnyMatchingQuery query);
 
   @PostMapping(value = "/countAnyMatching")
   ServiceResult<Long> countAnyMatching(@RequestBody CountAnyMatchingQuery query);
 
   @PostMapping(value = "/getById")
-  ServiceResult<MailTemplate> getById(@RequestBody GetByIdQuery query);
+  ServiceResult<MailTemplateDTO> getById(@RequestBody GetByIdQuery query);
 
   @PostMapping(value = "/save")
-  ServiceResult<MailTemplate> save(@RequestBody SaveQuery<MailTemplate> query);
+  ServiceResult<MailTemplateDTO> save(@RequestBody SaveQuery<MailTemplateDTO> query);
 
   @PostMapping(value = "/delete")
   ServiceResult<Void> delete(@RequestBody DeleteByIdQuery query);
 
   @PostMapping(value = "/getByMailAction")
-  ServiceResult<MailTemplate> getByMailAction(@RequestBody GetByNameQuery query);
+  ServiceResult<MailTemplateDTO> getByMailAction(@RequestBody GetByNameQuery query);
 }

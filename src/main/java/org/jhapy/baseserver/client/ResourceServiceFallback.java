@@ -20,9 +20,11 @@ package org.jhapy.baseserver.client;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jhapy.commons.utils.HasLogger;
+import org.jhapy.dto.domain.resource.StoredFileDTO;
 import org.jhapy.dto.serviceQuery.ServiceResult;
-import org.jhapy.dto.serviceQuery.generic.*;
-import org.jhapy.dto.utils.StoredFile;
+import org.jhapy.dto.serviceQuery.generic.DeleteByIdQuery;
+import org.jhapy.dto.serviceQuery.generic.GetByIdQuery;
+import org.jhapy.dto.serviceQuery.generic.SaveQuery;
 import org.springframework.cloud.openfeign.FallbackFactory;
 import org.springframework.stereotype.Component;
 
@@ -59,14 +61,14 @@ public class ResourceServiceFallback
   }
 
   @Override
-  public ServiceResult<StoredFile> save(SaveQuery query) {
+  public ServiceResult<StoredFileDTO> save(SaveQuery query) {
     logger().error(getLoggerPrefix("save") + "Cannot connect to the server");
 
     return new ServiceResult<>(false, "Cannot connect to server", null);
   }
 
   @Override
-  public ServiceResult<StoredFile> getById(GetByIdQuery query) {
+  public ServiceResult<StoredFileDTO> getById(GetByIdQuery query) {
     logger().error(getLoggerPrefix("getById") + "Cannot connect to the server");
 
     return new ServiceResult<>(false, "Cannot connect to server", null);

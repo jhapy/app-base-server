@@ -18,7 +18,7 @@
 
 package org.jhapy.baseserver.client;
 
-import org.jhapy.dto.domain.notification.Mail;
+import org.jhapy.dto.domain.notification.MailDTO;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.amqp.core.Queue;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -41,7 +41,7 @@ public class EmailSenderQueue {
     this.mailboxQueue = mailboxQueue;
   }
 
-  public void sendMessage(final Mail mailMessage) {
+  public void sendMessage(final MailDTO mailMessage) {
     amqpTemplate.convertAndSend(mailboxQueue.getName(), mailMessage);
   }
 }

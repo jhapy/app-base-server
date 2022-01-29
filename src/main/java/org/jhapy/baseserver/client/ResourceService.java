@@ -18,9 +18,11 @@
 
 package org.jhapy.baseserver.client;
 
+import org.jhapy.dto.domain.resource.StoredFileDTO;
 import org.jhapy.dto.serviceQuery.ServiceResult;
-import org.jhapy.dto.serviceQuery.generic.*;
-import org.jhapy.dto.utils.StoredFile;
+import org.jhapy.dto.serviceQuery.generic.DeleteByIdQuery;
+import org.jhapy.dto.serviceQuery.generic.GetByIdQuery;
+import org.jhapy.dto.serviceQuery.generic.SaveQuery;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.context.annotation.Primary;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -40,10 +42,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 public interface ResourceService {
 
   @PostMapping(value = "/save")
-  ServiceResult<StoredFile> save(@RequestBody SaveQuery<StoredFile> query);
+  ServiceResult<StoredFileDTO> save(@RequestBody SaveQuery<StoredFileDTO> query);
 
   @PostMapping(value = "/getById")
-  ServiceResult<StoredFile> getById(@RequestBody GetByIdQuery query);
+  ServiceResult<StoredFileDTO> getById(@RequestBody GetByIdQuery query);
 
   @PostMapping(value = "/delete")
   ServiceResult<Void> delete(@RequestBody DeleteByIdQuery query);

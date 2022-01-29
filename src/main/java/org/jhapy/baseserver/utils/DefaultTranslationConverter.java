@@ -18,14 +18,15 @@
 
 package org.jhapy.baseserver.utils;
 
-import java.util.HashMap;
-import java.util.Map;
 import org.jhapy.baseserver.domain.graphdb.EntityTranslation;
 import org.jhapy.baseserver.domain.graphdb.EntityTranslations;
 import org.neo4j.driver.Value;
 import org.neo4j.driver.Values;
 import org.springframework.data.neo4j.core.convert.Neo4jConversionService;
 import org.springframework.data.neo4j.core.convert.Neo4jPersistentPropertyToMapConverter;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author jHapy Lead Dev.
@@ -48,7 +49,7 @@ public class DefaultTranslationConverter implements
       entityValue.keySet().forEach(key -> {
         EntityTranslation t = entityValue.get(key);
         result.put(key + ".value", Values.value(t.getValue() == null ? "" : t.getValue()));
-        result.put(key + ".isTranslated", Values.value(t.isTranslated()));
+        result.put(key + ".translated", Values.value(t.isTranslated()));
         result.put(key + ".isDefault", Values.value(t.isDefault()));
       });
     }

@@ -18,7 +18,7 @@
 
 package org.jhapy.baseserver.client;
 
-import org.jhapy.dto.domain.notification.Sms;
+import org.jhapy.dto.domain.notification.SmsDTO;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.amqp.core.Queue;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -41,7 +41,7 @@ public class SmsSenderQueue {
     this.smsQueue = smsQueue;
   }
 
-  public void sendMessage(final Sms smsMessage) {
+  public void sendMessage(final SmsDTO smsMessage) {
     amqpTemplate.convertAndSend(smsQueue.getName(), smsMessage);
   }
 }
