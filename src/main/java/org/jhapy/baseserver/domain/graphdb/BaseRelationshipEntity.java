@@ -20,6 +20,8 @@ package org.jhapy.baseserver.domain.graphdb;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.UUID;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.data.annotation.CreatedBy;
@@ -43,7 +45,7 @@ public abstract class BaseRelationshipEntity implements Serializable {
    */
   @Id
   @GeneratedValue
-  private Long id;
+  private UUID id;
 
   /**
    * Who create this record (no ID, use username)

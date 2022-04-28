@@ -1,6 +1,7 @@
 package org.jhapy.baseserver.service;
 
 import org.apache.commons.lang3.StringUtils;
+import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.jhapy.baseserver.client.mailcow.DomainClient;
 import org.jhapy.baseserver.converter.ClientConverter;
 import org.jhapy.baseserver.domain.relationaldb.AccessLevelEnum;
@@ -15,9 +16,6 @@ import org.jhapy.commons.utils.SpringApplicationContext;
 import org.jhapy.dto.domain.ClientDTO;
 import org.jhapy.dto.messageQueue.ClientUpdate;
 import org.jhapy.dto.messageQueue.ClientUpdateTypeEnum;
-import org.springframework.amqp.core.AmqpTemplate;
-import org.springframework.amqp.core.FanoutExchange;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -37,33 +35,29 @@ import java.util.UUID;
 @Service
 @Transactional(readOnly = true)
 public class ClientServiceImpl implements ClientService {
-  private final AmqpTemplate amqpTemplate;
-  private final FanoutExchange clientUpdateFanout;
   private final ClientRepository clientRepository;
   private final EntityManager entityManager;
   private final ClientConverter clientConverter;
   private final DbTableService dbTableService;
   private final DomainClient domainClient;
   private final AppProperties appProperties;
+  private final CommandGateway commandGateway;
   private ThreadLocal<Boolean> propagateChanges = new ThreadLocal<>();
 
   public ClientServiceImpl(
-      AmqpTemplate amqpTemplate,
-      @Qualifier("clientUpdate") FanoutExchange clientUpdateFanout,
-      EntityManager entityManager,
-      ClientRepository clientRepository,
-      ClientConverter clientConverter,
-      @Lazy DbTableService dbTableService,
-      DomainClient domainClient,
-      AppProperties appProperties) {
+          EntityManager entityManager,
+          ClientRepository clientRepository,
+          ClientConverter clientConverter,
+          @Lazy DbTableService dbTableService,
+          DomainClient domainClient,
+          AppProperties appProperties, CommandGateway commandGateway) {
     this.entityManager = entityManager;
     this.clientRepository = clientRepository;
-    this.amqpTemplate = amqpTemplate;
-    this.clientUpdateFanout = clientUpdateFanout;
     this.clientConverter = clientConverter;
     this.dbTableService = dbTableService;
     this.domainClient = domainClient;
     this.appProperties = appProperties;
+    this.commandGateway = commandGateway;
   }
 
   @Override
@@ -209,7 +203,8 @@ public class ClientServiceImpl implements ClientService {
       ClientUpdate clientUpdate = new ClientUpdate();
       clientUpdate.setClientDTO(clientConverter.asDTO(client, null));
       clientUpdate.setUpdateType(ClientUpdateTypeEnum.INSERT);
-      amqpTemplate.convertAndSend(clientUpdateFanout.getName(), "", clientUpdate);
+      // TODO: Do Something...
+      // amqpTemplate.convertAndSend(clientUpdateFanout.getName(), "", clientUpdate);
     }
   }
 
@@ -219,7 +214,8 @@ public class ClientServiceImpl implements ClientService {
       ClientUpdate clientUpdate = new ClientUpdate();
       clientUpdate.setClientDTO(clientConverter.asDTO(client, null));
       clientUpdate.setUpdateType(ClientUpdateTypeEnum.UPDATE);
-      amqpTemplate.convertAndSend(clientUpdateFanout.getName(), "", clientUpdate);
+      // TODO: Do Something...
+      // amqpTemplate.convertAndSend(clientUpdateFanout.getName(), "", clientUpdate);
     }
   }
 
@@ -228,7 +224,8 @@ public class ClientServiceImpl implements ClientService {
     ClientUpdate clientUpdate = new ClientUpdate();
     clientUpdate.setClientDTO(clientConverter.asDTO(client, null));
     clientUpdate.setUpdateType(ClientUpdateTypeEnum.DELETE);
-    amqpTemplate.convertAndSend(clientUpdateFanout.getName(), "", clientUpdate);
+    // TODO: Do Something...
+    // amqpTemplate.convertAndSend(clientUpdateFanout.getName(), "", clientUpdate);
   }
 
   @Override
